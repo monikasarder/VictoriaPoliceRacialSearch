@@ -16,28 +16,8 @@ unidat <- unidat %>%
   select(Reporting.Station.Description)%>%
   unique()
 
-#write_xlsx(unidat, "Data/Units.xlsx")
-
-# Read in Postcode and station
-
-stationdat <- read_xlsx("Data/Police-station-contact-details-to-serve-court-documents_0.xlsx",
-                        skip = 1,
-                        .name_repair = "universal")
-
-stationdat <- stationdat %>%
-  select(Postcode, Police.station.contact.details)%>%
-  unique()
-
-# Read in Postcode and LGA
-lgadat <- read_xlsx("Data/Postcode Import - Locality Finder - 7 June 2023.xlsx",
-                        skip = 2,
-                        .name_repair = "universal")
-
-lgadat <- lgadat %>%
-  select(Postcode = Post...Code, Municipality = Municipality...Name, LGA, Region = Region...Name)%>%
-  unique()
-
 # Read in PSA and LGA
+
 psadat <- read_xlsx("Data/geographicclassification.xlsx",
                     skip = 12,
                     .name_repair = "universal")
@@ -45,3 +25,30 @@ psadat <- read_xlsx("Data/geographicclassification.xlsx",
 psadat <- psadat %>%
   fill(Police.Region, Police.Service.Area) %>%
   filter(!is.na(Local.Government.Area), Local.Government.Area!="Local Government Area")
+
+# Read in VicPol hierarchy data
+
+hierdat <- read_xlsx("Data/Victoria-Police-employee-numbers-June-2024.xlsx",
+                    skip = 8,
+                    .name_repair = "universal")
+
+hierdat <-hierdat[,c(1:2,6,8,9,10)]
+
+names(hierdat) <- c("Region","Div", "Police", "PSO", "PCO", "VPS")
+
+hierdat[c("Division", "PSA")] <- str_split_fixed(hierdat$Div, "  ", 2)
+
+hierdat <- hierdat %>%
+  mutate(across(c(PSA, Division), trimws))
+
+hierdat <- hierdat %>%
+  select(Region, Division, PSA, Police, PSO, PCO, VPS)
+         
+
+hierdat <- hierdat %>%
+  filter(!str_detect(Division, "Total")| is.na(Division))%>%
+  filter(!str_detect(Region, "TOTAL")) %>%
+  filter(!Police %in% c("Police", "FTE"))
+
+hierdat <- replace(hierdat, hierdat == "", NA)
+
