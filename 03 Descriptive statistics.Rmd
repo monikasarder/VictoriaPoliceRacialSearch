@@ -1,0 +1,51 @@
+---
+title: "Summary statistics search data 22-23"
+author: "Monika Sarder"
+date: "2024-09-16"
+output: html_document
+---
+
+```{r setup, echo = FALSE, warning = FALSE}
+knitr::opts_chunk$set(results = "asis")
+
+library(tidyverse)
+library(plotly)
+library(summarytools)
+library(kableExtra)
+library(magrittr)
+library(rmarkdown)
+library(forcats)
+
+dat <- readRDS("Output.data/wrangled.search.data.RDS")
+```
+
+## Variables of interest
+
+Summary of variables of interest in complete file
+
+```{r summary, echo = FALSE, warning = FALSE}
+
+of.interest <- c("Rank.of.Member", "Contact.Type", "Racial.Appearance", "Field.Contact.Search.Type",
+         "Field.Contact.Code.Description", "Gender", "Unit.type", "Found", "Year")
+
+`VicPol search data` <- dat %>%
+  select(all_of(of.interest))%>%
+  mutate(across(everything(), ~ fct_infreq(.)))
+  
+print(dfSummary(`VicPol search data`, 
+          max.distinct.values = 10, 
+           varnumbers   = FALSE, 
+                valid.col    = FALSE, 
+                graph.magnif = 0.76),
+      method = 'render')
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
