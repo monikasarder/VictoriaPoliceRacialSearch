@@ -1,0 +1,72 @@
+---
+title: "Summary statistics search data"
+author: "Monika Sarder"
+date: "2024-09-16"
+output: html_document
+---
+
+```{r setup, echo = FALSE, warning = FALSE, message=FALSE}
+knitr::opts_chunk$set(results = "asis")
+
+library(tidyverse)
+library(plotly)
+library(summarytools)
+library(kableExtra)
+library(magrittr)
+library(rmarkdown)
+library(forcats)
+library(gmodels)
+library(crosstable)
+
+unidat <- readRDS("Output.data/Uniform.searches.with.hierarchy.RDS")
+
+dat <- unidat %>%
+  filter(Unit.type == "Uniform",
+         Contact.Type == "P")
+
+
+```
+
+## Variables of interest
+
+Summary statistics for `r nrow(dat)` field contact reports submitted by uniform police following a person search without a warrant are summarised below.  
+
+`r round(sum(is.na(dat$Racial.appearance))/nrow(dat)*100, digits =2)` percent of records had no racial appearance data entered in the Field report.
+
+```{r summary 2, echo = FALSE, warning = FALSE}
+
+of.interest <- c("Rank.of.Member",  "Metro", "Racial.appearance", "Gender","Contact.Type", "Unit.type", "Found", "Year")
+
+`VicPol station data` <- dat %>%
+  select(all_of(of.interest))%>%
+  mutate(across(everything(), ~ fct_infreq(.)))
+  
+print(dfSummary(`VicPol station data`, 
+          max.distinct.values = 10, 
+           varnumbers   = FALSE, 
+                valid.col    = FALSE, 
+                graph.magnif = 0.76),
+      method = 'render')
+```
+
+
+## Finds by variables in data
+
+An analysis of the hit-rate for features of interest appears below.
+```{r Finds, echo=FALSE, warning=FALSE}
+
+dat %>% 
+  crosstable(c(Year, Metro, Region, Racial.appearance, Gender), by=Found, total=TRUE, 
+           test=TRUE, showNA='ifany', percent_digits=1) %>% 
+  as_flextable()
+```
+
+An analysis of the percentage with racial appearance data missing for features of interest appears below.
+
+```{r Missing, echo=FALSE, warning=FALSE}
+
+dat %>% 
+  crosstable(c(Year, Metro, Region,Gender), by=Racial.missing, total=TRUE, 
+           test=TRUE, showNA='ifany', percent_digits=1) %>% 
+  as_flextable()
+```

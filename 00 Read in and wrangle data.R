@@ -17,11 +17,13 @@ unidat22 <- read_xlsx("Data/Victoria Police Search Data 2022.xlsx",
                       skip =18,
                     .name_repair = "universal")
 
-#Join datasets
+#join datasets
 unidat <- rbind(unidat23, unidat22)
 
+#Year
 unidat <- unidat %>%
   mutate(Year = format(as.Date(Contact.Date), "%Y"))
+
 
 #Assign unit types
 unidat <- unidat %>%
@@ -37,14 +39,17 @@ unidat <- unidat %>%
     )
   )
 
+
+#check if anything was found on the person and summarise
+found<- unidat %>%
+  group_by(FieldContactID)%>%
+  summarise(Found = sum(Quantity, na.rm = T))%>%
+  mutate(Found = ifelse(Found>=1, 1, Found))
+
+
 #Set found variable
 unidat <- unidat %>%
-  mutate(
-    Found = case_when(
-      Quantity == 0 ~ 0,  # If Quantity is 0, set Found to 0
-      Quantity >= 1 ~ 1    # If Quantity is 1 or more, set Found to 1
-    )
-  )%>%
+  left_join(found, by = "FieldContactID")%>%
   mutate(Found = as.factor(Found))
 
 #Set ID variables to char
@@ -56,10 +61,35 @@ unidat <- unidat %>%
   mutate(across(where(is.character), ~na_if(., ".")))%>%
   rename(Field.Contact.Search.Type = Field.Contact.Search.Type...10)
 
-#remove redundant
+#Aggregate race and identify missing
 unidat <- unidat %>%
-  select(-FieldContactID, -Contact.Time, -Field.Contact.Search.Type...9,
-         -Field.Contact.Code, -Hair.Colour, -Hair.Style, -Complexion)
+   mutate(Racial.appearance = case_when(
+    str_detect(Racial.Appearance, "CAUC") ~ "White",
+    str_detect(Racial.Appearance, "ABORIGINAL") ~ "Aboriginal",
+    str_detect(Racial.Appearance, "AFRICAN") ~ "African",
+    Racial.Appearance %in% c("ASIAN","INDIAN SUB-CONTINENTAL") ~ "Asian",
+    str_detect(Racial.Appearance, "MIDDLE") ~ "Middle Eastern",
+    str_detect(Racial.Appearance, "MAORI") ~ "Pacific Islander",
+    Racial.Appearance %in% c("SOUTH AMERICAN", "UNDETERMINED") ~ "Other",
+    TRUE ~ Racial.Appearance))
+
+unidat <- unidat %>%
+  mutate(Racial.missing = ifelse(is.na(Racial.appearance), "Missing", "Not missing"))
+
+
+
+#remove redundant
+#unidat <- unidat %>%
+#  select(-FieldContactID, -Contact.Time, -Field.Contact.Search.Type...9,
+#         -Field.Contact.Code, -Hair.Colour, -Hair.Style, -Complexion)
+
+
+unidat <- unidat %>%
+  group_by(FieldContactID)%>%
+  filter(row_number()==1)%>%
+  ungroup()
 
 saveRDS(unidat, "Output.data/wrangled.search.data.RDS")
+
+
 

@@ -8,7 +8,7 @@ library(writexl)
 unidat <- readRDS("Output.data/wrangled.search.data.RDS")
 
 unidat <- unidat %>%
-  filter(str_detect(Reporting.Station.Description, "UNI"))%>%
+#  filter(str_detect(Reporting.Station.Description, "UNI"))%>%
   mutate(Sta.key = toupper(str_remove(Reporting.Station.Description, "UNI-")))
 
 # Read in PSA and LGA data
@@ -97,7 +97,9 @@ sta.hier <- sta.lga2 %>%
 
 sta.hier <- sta.hier %>%
   mutate(Sta.key = str_remove(Station, " POLICE STATION"))%>%
-  select(Region, Division, Police.Service.Area, Local.Government.Area, Locality, Postcode, Sta.key)
+  select(Region, Division, Police.Service.Area, Local.Government.Area, Locality, Postcode, Sta.key)%>%
+  mutate(Metro = ifelse(str_detect(Region, "Metro"), "Yes", "No"))%>%
+  ungroup()
 
 sta.hier.for.tamar <- sta.hier %>%
   mutate(Station = str_c("UNI-", Sta.key))%>%
