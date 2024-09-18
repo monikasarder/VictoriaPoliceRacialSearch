@@ -110,6 +110,11 @@ sta.hier.for.tamar <- sta.hier %>%
 sta.hier <- unidat %>%
   left_join(sta.hier, by = "Sta.key")
 
+categories <- read_xlsx("Data/Council-category-data.xlsx")
+
+sta.hier <- sta.hier %>%
+  left_join(categories, by = "Local.Government.Area")%>%
+  mutate(Area.type = ifelse(Category %in% c("Metropolitan", "Interface"), "Metro", "Regional"))
+
 saveRDS(sta.hier, "Output.data/Uniform.searches.with.hierarchy.RDS")
 
-names(unidat)

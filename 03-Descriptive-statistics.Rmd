@@ -20,6 +20,8 @@ library(crosstable)
 library(janitor)
 library(DT)
 library(plotly)
+library(sf)
+library(viridis)
 ```
 
 
@@ -38,6 +40,7 @@ bdat <- bdat %>%
 
 dat <- bdat %>%
   filter(!is.na(Racial.appearance))
+
 ```
 
 ## Data overview
@@ -175,6 +178,7 @@ datatable(lga.racial.hit, rownames = FALSE)
 
 ```{r LGA hit rate, echo=FALSE, warning=FALSE, message = FALSE}
 
+
 lga.racial.hit <- dat %>%
   filter(`Area.type` != "Metro")%>%
   group_by(Police.Service.Area, Region)%>%
@@ -190,4 +194,50 @@ lga.racial.hit <- dat %>%
   arrange(desc(Disproportionality))
 
 datatable(lga.racial.hit, rownames = FALSE)
+```
+
+```{r LGA link, echo=FALSE, warning=FALSE, message = FALSE}
+vic <- readRDS("Output.data/victoria.lga.RDS")
+
+mel <- vic %>%
+  filter(Area.type == "Metro")
+lga.racial.hit <- dat %>%
+  filter(Area.type == "Metro")%>%
+  group_by(Local.Government.Area, Racialised)%>%
+  summarise(`Hit rate` = round(sum(Found == 1, na.rm = T)/n()*100, digits =1))%>%
+  pivot_wider(names_from = Racialised, 
+              values_from = c(`Hit rate`))%>%
+  mutate(Disproportionality = round(White/`Non-white`, digits = 2))%>%
+  mutate(Disproportionality = ifelse(is.infinite(Disproportionality), 0, Disproportionality))
+
+mel.disp <-mel %>%
+  left_join(lga.racial.hit, by = "Local.Government.Area")
+
+```  
+
+```{r choropleth creation, echo = FALSE, warning = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, out.width = "100%")
+
+
+g <- list(
+  showlegend = FALSE,
+  showframe = FALSE,
+  showcoastlines = FALSE,
+  projection = list(type = "Mercator")
+)
+
+geospatial.plot <- mel.disp %>%
+  plot_geo(
+    split = ~Local.Government.Area, showlegend = FALSE, hoverinfo = "text", color = ~Disproportionality,
+    colors = viridis_pal(option = "A", direction = -1)(30),
+    text = ~ paste(
+      "LGA:", Local.Government.Area,
+      "<br>", "Disproportionality:", Disproportionality,
+      "<br>", "Racialised hit rate:", `Non-white`
+    )
+  ) %>%
+  add_sf() %>%
+  layout(geo = g)
+
+colorbar(geospatial.plot, len = 0.4, title = "Disproportionality")
 ```
