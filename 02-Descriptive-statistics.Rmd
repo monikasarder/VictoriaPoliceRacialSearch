@@ -17,13 +17,14 @@ library(rmarkdown)
 library(forcats)
 library(gmodels)
 library(crosstable)
+library(janitor)
+library(DT)
 
-unidat <- readRDS("Output.data/Uniform.searches.with.hierarchy.RDS")
+dat <- readRDS("Output.data/Uniform.searches.with.hierarchy.RDS")
 
-dat <- unidat %>%
+dat <- dat %>%
   filter(Unit.type == "Uniform",
          Contact.Type == "P")
-
 
 ```
 
@@ -31,11 +32,10 @@ dat <- unidat %>%
 
 Summary statistics for `r nrow(dat)` field contact reports submitted by uniform police following a person search without a warrant are summarised below.  
 
-`r round(sum(is.na(dat$Racial.appearance))/nrow(dat)*100, digits =2)` percent of records had no racial appearance data entered in the Field report.
 
 ```{r summary 2, echo = FALSE, warning = FALSE}
 
-of.interest <- c("Rank.of.Member",  "Metro", "Racial.appearance", "Gender","Contact.Type", "Unit.type", "Found", "Year")
+of.interest <- c("Rank.of.Member",  "Area.type",  "Racial.appearance", "Gender","Search.type" ,"Found", "Year")
 
 `VicPol station data` <- dat %>%
   select(all_of(of.interest))%>%
@@ -50,23 +50,41 @@ print(dfSummary(`VicPol station data`,
 ```
 
 
-## Finds by variables in data
+## Finds by characteristics
 
 An analysis of the hit-rate for features of interest appears below.
 ```{r Finds, echo=FALSE, warning=FALSE}
 
 dat %>% 
-  crosstable(c(Year, Metro, Region, Racial.appearance, Gender), by=Found, total=TRUE, 
+  crosstable(c(Racial.appearance, Search.type, Gender, Year,  Area.type, Region), by=Found, total=TRUE, 
            test=TRUE, showNA='ifany', percent_digits=1) %>% 
   as_flextable()
 ```
 
-An analysis of the percentage with racial appearance data missing for features of interest appears below.
+## Missing race by characteristics
+
+An analysis of the percentage with racial appearance data missing by chara
 
 ```{r Missing, echo=FALSE, warning=FALSE}
 
 dat %>% 
-  crosstable(c(Year, Metro, Region,Gender), by=Racial.missing, total=TRUE, 
+  crosstable(c(Search.type, Year, Area.type, Region,Gender, Found), by=Racial.missing, total=TRUE, 
            test=TRUE, showNA='ifany', percent_digits=1) %>% 
   as_flextable()
+```
+
+## Hit rates by LGA
+
+```{r LGA, echo=FALSE, warning=FALSE}
+
+
+
+lga.racial <- dat %>%
+  group_by(Area.type, Local.Government.Area, Racial.appearance)%>%
+  summarise(Finds = sum(Found ==1, na.rm = T), Searches = n())%>%
+  pivot_wider(names_from = Racial.appearance,
+    values_from = c(Finds, Searches)
+  )
+
+datatable(lga.racial)
 ```

@@ -98,7 +98,7 @@ sta.hier <- sta.lga2 %>%
 sta.hier <- sta.hier %>%
   mutate(Sta.key = str_remove(Station, " POLICE STATION"))%>%
   select(Region, Division, Police.Service.Area, Local.Government.Area, Locality, Postcode, Sta.key)%>%
-  mutate(Metro = ifelse(str_detect(Region, "Metro"), "Yes", "No"))%>%
+  mutate(Area.type = ifelse(str_detect(Region, "Metro"), "Metro", "Region"))%>%
   ungroup()
 
 sta.hier.for.tamar <- sta.hier %>%
@@ -112,4 +112,4 @@ sta.hier <- unidat %>%
 
 saveRDS(sta.hier, "Output.data/Uniform.searches.with.hierarchy.RDS")
 
-
+names(unidat)

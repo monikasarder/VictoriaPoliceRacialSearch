@@ -156,10 +156,10 @@ table(dat3$Racial.missing)
 #  select(-FieldContactID, -Contact.Time, -Field.Contact.Search.Type...9,
 #         -Field.Contact.Code, -Hair.Colour, -Hair.Style, -Complexion)
 
-length(unique(Field.Contact.ID))
-search <- dat3 %>%
-  filter(Field.Contact.Search.Type == "SEARCH WITHOUT WARRANT TYPES") 
-saveRDS(dat3, "Output.data/wrangled.search.data.RDS")
 
+saveRDS(dat3, "Output.data/data.all.variables.RDS")
 
+act<- act %>%
+  count(Legislation)
 
+write_xlsx(act, "Output.data/Legislation.xlsx")
