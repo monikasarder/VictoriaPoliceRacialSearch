@@ -142,14 +142,12 @@ dat <- dat %>%
   ))
 
 #reorder for sense
-dat <- dat %>%
+fin.dat <- dat %>%
   select(Year, Contact.Date, Contact.Time,FieldReportID, FieldContactID, Psn.Search.ID, Legislative.power, Search.type, 
          Search.items.found, Any.items.found, 
-         Racial.appearance, Racial.appearance.original = Racial.appearance, Racialised.person, Racial.appearance.missing,
+         Racial.appearance, Racial.Appearance.original = Racial.appearance, Racialised.person, Racial.appearance.missing,
          Gender, Age, Reporting.Station.Description, Rank.of.Member)
-saveRDS(dat, "Output.data/data.all.variables.RDS")
 
+saveRDS(fin.dat, "Output.data/data.all.variables.RDS")
 
-check <- dat %>% filter(Search.items.found ==0 & Any.items.found == 1) %>%
-  pull(FieldContactID)
 
