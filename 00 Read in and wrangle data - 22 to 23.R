@@ -18,10 +18,10 @@ unidat22 <- read_xlsx("Data/Victoria Police Search Data 2022.xlsx",
                     .name_repair = "universal")
 
 #Join datasets
-dat <- rbind(unidat23, unidat22)
+unidat <- rbind(unidat23, unidat22)
 
 #add year and rename type
-dat <- dat %>%
+dat <- unidat %>%
   mutate(Year = format(as.Date(Contact.Date), "%Y"))%>%
   rename(Field.Contact.Search.Type = Field.Contact.Search.Type...10)
 
@@ -55,11 +55,9 @@ search.dat <- dat %>%
          str_detect(Field.Contact.Code.Description, "GRAFFITI") ~ "Graffiti",
          TRUE ~ "Unknown"
        ))%>%
-     select(Search.type, Field.Contact.Code.Description, FieldContactID)%>%
+     select(Search.type, Legislative.power = Field.Contact.Code.Description, FieldContactID)%>%
      unique()%>%
-     mutate(Psn.Search.ID = str_c(FieldContactID, Search.type, sep = " - "))%>%
-     group_by(FieldContactID)%>%
-     mutate(Total = n())
+     mutate(Psn.Search.ID = str_c(FieldContactID, Search.type, sep = " - "))
 
 #MAKE ITEMS FOUND TABLE
 #create item with Person search ID and whether an Item was found for that search
@@ -80,15 +78,15 @@ item.dat <- dat %>%
   ))%>%
   mutate(Psn.Search.ID = str_c(FieldContactID, Search.type, sep = " - "))%>%
   group_by(Psn.Search.ID)%>%
-  mutate(Items.found = ifelse(sum(Quantity, na.rm = T)>=1, 1, 0))%>%
+  mutate(Search.items.found = ifelse(sum(Quantity, na.rm = T)>=1, 1, 0))%>%
   ungroup()%>%
-  select(Psn.Search.ID, Items.found)%>%
+  select(Psn.Search.ID, Search.items.found)%>%
   unique()
 
 #Join found items to SEARCH TABLE
 search.dat <- search.dat %>%
   left_join(item.dat, by = "Psn.Search.ID")%>%
-  mutate(Items.found = ifelse(is.na(Items.found), 0, Items.found))
+  mutate(Search.items.found = ifelse(is.na(Search.items.found), 0, Search.items.found))
 
 
 
@@ -96,13 +94,13 @@ person.id <- dat %>%
   #exclude non contrand items with quantity listed
   filter(Field.Contact.Search.Type != "ITEMS USED - VOLATILE SUBS")%>%
   group_by(FieldContactID)%>%
-  mutate(Found = ifelse(sum(Quantity, na.rm = T)>=1, 1, 0))%>%
-  select(Rank.of.Member, Reporting.Station.Description, Contact.Date, Contact.Time, 
-         Contact.Type, FieldContactID, Racial.Appearance, Age, Gender, Year, Found)%>%
+  mutate(Any.items.found = ifelse(sum(Quantity, na.rm = T)>=1, 1, 0))%>%
+  select(FieldReportID, Rank.of.Member, Reporting.Station.Description, Contact.Date, Contact.Time, 
+         Contact.Type, FieldContactID, Racial.Appearance, Age, Gender, Year, Any.items.found)%>%
   unique()
 
-search.dat <- search.dat %>%
-  left_join(person.id, by = "FieldContactID")
+search.dat <- person.id %>%
+  left_join(search.dat, by = "FieldContactID")
 
 #Assign unit types
 dat <- search.dat %>%
@@ -136,8 +134,22 @@ dat <- dat %>%
     TRUE ~ Racial.Appearance))
 
 dat <- dat %>%
-  mutate(Racial.missing = ifelse(is.na(Racial.appearance), "Missing", "Not missing"))
+  mutate(Racial.appearance.missing = ifelse(is.na(Racial.appearance), "Missing", "Not missing"))%>%
+  mutate(Racialised.person = case_when(
+    Racial.appearance == "White" ~ "Not-racialised",
+    Racial.appearance.missing == "Missing" ~ "Missing",
+    TRUE ~ "Racialised"
+  ))
 
+#reorder for sense
+dat <- dat %>%
+  select(Year, Contact.Date, Contact.Time,FieldReportID, FieldContactID, Psn.Search.ID, Legislative.power, Search.type, 
+         Search.items.found, Any.items.found, 
+         Racial.appearance, Racial.appearance.original = Racial.appearance, Racialised.person, Racial.appearance.missing,
+         Gender, Age, Reporting.Station.Description, Rank.of.Member)
 saveRDS(dat, "Output.data/data.all.variables.RDS")
 
+
+check <- dat %>% filter(Search.items.found ==0 & Any.items.found == 1) %>%
+  pull(FieldContactID)
 
