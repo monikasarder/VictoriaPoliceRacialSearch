@@ -64,6 +64,7 @@ search.dat <- dat %>%
 #extract columns with item counts
 items.vec <- c("CONTROLLED WEAPONS","DANGEROUS ARTICLES","PROHIBITED WEAPONS","FIREARMS","GRAFFITI IMPLEMENTS", "OTHER ARTICLE", "VOLATILE SUBSTANCES TYPES")
 
+#Match items found to legislative power for search
 item.dat <- dat %>%
   mutate(Field.Contact.Search.Type = trimws(Field.Contact.Search.Type))%>%
   filter(Field.Contact.Search.Type %in% items.vec)%>%
@@ -77,6 +78,7 @@ item.dat <- dat %>%
     TRUE ~ Field.Contact.Code.Description
   ))%>%
   mutate(Psn.Search.ID = str_c(FieldContactID, Search.type, sep = " - "))%>%
+  #If there is at least one item matching type then search item is found
   group_by(Psn.Search.ID)%>%
   mutate(Search.items.found = ifelse(sum(Quantity, na.rm = T)>=1, 1, 0))%>%
   ungroup()%>%
@@ -91,9 +93,10 @@ search.dat <- search.dat %>%
 
 
 person.id <- dat %>%
-  #exclude non contrand items with quantity listed
+  #exclude non contraband fields with quantity listed (item used for huffing)
   filter(Field.Contact.Search.Type != "ITEMS USED - VOLATILE SUBS")%>%
   group_by(FieldContactID)%>%
+  #If at least one item is found for person then item found
   mutate(Any.items.found = ifelse(sum(Quantity, na.rm = T)>=1, 1, 0))%>%
   select(FieldReportID, Rank.of.Member, Reporting.Station.Description, Contact.Date, Contact.Time, 
          Contact.Type, FieldContactID, Racial.Appearance, Age, Gender, Year, Any.items.found)%>%
@@ -127,15 +130,16 @@ dat <- dat %>%
     str_detect(Racial.Appearance, "CAUC") ~ "White",
     str_detect(Racial.Appearance, "ABORIGINAL") ~ "Aboriginal",
     str_detect(Racial.Appearance, "AFRICAN") ~ "African",
-    Racial.Appearance %in% c("ASIAN","INDIAN SUB-CONTINENTAL") ~ "Asian",
-    str_detect(Racial.Appearance, "MIDDLE") ~ "Middle Eastern",
+    Racial.Appearance == "ASIAN" ~ "Asian",
+    Racial.Appearance == "INDIAN SUB-CONTINENTAL" ~ "South Asian",
+    str_detect(Racial.Appearance, "MIDDLE") ~ "Middle Eastern/Med",
     str_detect(Racial.Appearance, "MAORI") ~ "Pacific Islander",
     Racial.Appearance %in% c("SOUTH AMERICAN", "UNDETERMINED") ~ "Other",
     TRUE ~ Racial.Appearance))
 
 dat <- dat %>%
   mutate(Racial.appearance.missing = ifelse(is.na(Racial.appearance), "Missing", "Not missing"))%>%
-  mutate(Racialised.person = case_when(
+  mutate(VicPol.racialised = case_when(
     Racial.appearance == "White" ~ "Not-racialised",
     Racial.appearance.missing == "Missing" ~ "Missing",
     TRUE ~ "Racialised"
@@ -143,11 +147,14 @@ dat <- dat %>%
 
 #reorder for sense
 fin.dat <- dat %>%
-  select(Year, Contact.Date, Contact.Time,FieldReportID, FieldContactID, Psn.Search.ID, Legislative.power, Search.type, 
+  select(Year, Contact.Date, Contact.Time, FieldContactID, Psn.Search.ID, Legislative.power, Search.type, 
          Search.items.found, Any.items.found, 
-         Racial.appearance, Racial.Appearance.original = Racial.appearance, Racialised.person, Racial.appearance.missing,
+         Racial.appearance, Racial.Appearance.original = Racial.Appearance, VicPol.racialised, Racial.appearance.missing,
          Gender, Age, Reporting.Station.Description, Rank.of.Member)
 
-saveRDS(fin.dat, "Output.data/data.all.variables.RDS")
+
+
+saveRDS(fin.dat, "Output.data/data.22.23.wrangled.RDS")
+
 
 

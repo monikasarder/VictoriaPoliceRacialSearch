@@ -1,0 +1,1 @@
+install.packages(path_to_file, repos = NULL, type="source")
