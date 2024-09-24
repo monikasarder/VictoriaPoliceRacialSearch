@@ -1,9 +1,10 @@
 ---
-title: "Summary statistics search data"
+title: "Racial profiling in searches by Victoria Police carried out without a warrant - data overview"
 author: "Monika Sarder"
 date: "2024-09-16"
 output: html_document
 ---
+
 
 ```{r setup, echo = FALSE, warning = FALSE, message=FALSE}
 knitr::opts_chunk$set(results = "asis")
@@ -20,24 +21,92 @@ library(crosstable)
 library(janitor)
 library(DT)
 
-dat <- readRDS("Output.data/Uniform.searches.with.hierarchy.RDS")
+dat <- readRDS("Output.data/Searches.with.hierarchy.RDS")
 
 dat <- dat %>%
-  filter(Unit.type == "Uniform",
-         Contact.Type == "P")
+  mutate(Any.items.found = factor(Any.items.found))
+
+sdat <- dat %>%
+  group_by(FieldContactID) %>%
+  filter(row_number()==1)%>%
+  ungroup()
 
 ```
 
+# Search without warrant data overview 
+
+The dataset in scope was four years of data - 2018, 2019, 2022 and 2023 - summarising `r nrow(sdat)` instances in which Victoria Police stopped and searched individuals without a warrant. These are the instances in which persons in Victoria may be required to submit to a search going about their everyday lives. 
+
+The legal basis of the stop and search was a 'reasonable grounds' for the officer to suspect that the person was in possession of one of the following types of item:
+
+* **Drugs**: under the section 82 of the *Drugs Poisons and Controlled Substances Act 1981* 
+* **Volatile substances for inhalation** for use by a person under 18: under sections 60E and 60F of the *Drugs Poisons and Controlled Substances Act 1981*  
+* **Weapons or dangerous articles**: under *Section 10 Control of Weapons Act 1990*  
+* **Firearms**: under section 149 of the *Firearms Act 1996*   
+* **Graffiti implements** at a designated place: under section 13 of the *Graffiti Prevention Act* or 
+
+The dataset includes individual searches and includes the following information:  
+
+* Racial appearance of the person according to VicPol  
+* Item suspected to be present 
+* Whether a prohibited search item was found (ie a 'hit')
+* Rank of officer 
+* Unit undertaking the search  
+* Whether the search related to a person 'P' or a vehicle 'V'  
+* For uniform officers at stations, the location of the station.  
+
+Note that 2020 and 2021 data is not included in this analysis due to the extraordinary circumstances of the COVID 19 pandemic. Stop and search data from this period is not a sound basis for which to make inferences about stop and search behaviour, including profiling, in non-pandemic periods.
+
+## Search basis  
+Almost ninety percent of the searches undertaken were done on the basis that an officer susmect
+## 
 ## Variables of interest
 
-Summary statistics for `r nrow(dat)` field contact reports submitted by uniform police following a person search without a warrant are summarised below.  
+Summary statistics for `r nrow(dat)` field contact reports submitted by uniform police following a person search without a warrant are summarised below.
+
+
+```{r search types, echo = FALSE, warning = FALSE}
+sdat %>%
+  mutate(`Search type` = fct_infreq(Search.type))%>%
+  tabyl(`Search type`)%>%
+  adorn_totals("row") %>%
+  adorn_pct_formatting()%>%
+  kable()
+```
+
+`VicPol station data` <- dat %>%
+  select(Search.type)%>%
+  mutate(across(everything(), ~ fct_infreq(.)))
+  
+print(dfSummary(`VicPol station data`, 
+          max.distinct.values = 10, 
+           varnumbers   = FALSE, 
+                valid.col    = FALSE, 
+                graph.magnif = 0.76),
+      method = 'render')
+```
+
+```{r summary 1, echo = FALSE, warning = FALSE}
+
+`VicPol station data` <- dat %>%
+  select(Search.type)%>%
+  mutate(across(everything(), ~ fct_infreq(.)))
+  
+print(dfSummary(`VicPol station data`, 
+          max.distinct.values = 10, 
+           varnumbers   = FALSE, 
+                valid.col    = FALSE, 
+                graph.magnif = 0.76),
+      method = 'render')
+```
 
 
 ```{r summary 2, echo = FALSE, warning = FALSE}
 
-of.interest <- c("Rank.of.Member",  "Area.type",  "Racial.appearance", "Gender","Search.type" ,"Found", "Year")
 
-`VicPol station data` <- dat %>%
+of.interest <- c("Year",  "Area.type", "Unit.type", "Contact.Type" ,"Racial.appearance", "Gender", "Rank.of.Member", "Any.items.found")
+
+`VicPol station data` <- sdat %>%
   select(all_of(of.interest))%>%
   mutate(across(everything(), ~ fct_infreq(.)))
   
@@ -55,8 +124,8 @@ print(dfSummary(`VicPol station data`,
 An analysis of the hit-rate for features of interest appears below.
 ```{r Finds, echo=FALSE, warning=FALSE}
 
-dat %>% 
-  crosstable(c(Racial.appearance, Search.type, Gender, Year,  Area.type, Region), by=Found, total=TRUE, 
+sdat %>% 
+  crosstable(c(Racial.appearance, Unit.type, Gender, Year,  Area.type), by=Any.items.found, total=TRUE, 
            test=TRUE, showNA='ifany', percent_digits=1) %>% 
   as_flextable()
 ```
@@ -67,8 +136,8 @@ An analysis of the percentage with racial appearance data missing by chara
 
 ```{r Missing, echo=FALSE, warning=FALSE}
 
-dat %>% 
-  crosstable(c(Search.type, Year, Area.type, Region,Gender, Found), by=Racial.missing, total=TRUE, 
+sdat %>% 
+  crosstable(c(Search.type, Year, Area.type, Region,Gender, Any.items.found), by=Racial.appearance.missing, total=TRUE, 
            test=TRUE, showNA='ifany', percent_digits=1) %>% 
   as_flextable()
 ```
@@ -79,12 +148,18 @@ dat %>%
 
 
 
-lga.racial <- dat %>%
-  group_by(Area.type, Local.Government.Area, Racial.appearance)%>%
-  summarise(Finds = sum(Found ==1, na.rm = T), Searches = n())%>%
+lga.racial <- sdat %>%
+  filter(Unit.type == "Uniform")%>%
+  group_by(Local.Government.Area)%>%
+  mutate(LGA.Hit.rate = round(sum(Any.items.found ==1, na.rm = T)/n()*100, digits = 1), Total.searches = n())%>%
+  group_by(Area.type, Local.Government.Area, Total.searches, LGA.Hit.rate, Racial.appearance)%>%
+  summarise(Finds = sum(Any.items.found ==1, na.rm = T), Searches = n())%>%
+  mutate(Searches = ifelse(Searches <= 5, NA, Searches))%>%
+  mutate(`Hit rate` = round(Finds/Searches*100, digits = 1))%>%
+  select(-Finds, -Searches)%>%
   pivot_wider(names_from = Racial.appearance,
-    values_from = c(Finds, Searches)
+    values_from = c(`Hit rate`)
   )
 
-datatable(lga.racial)
+datatable(lga.racial, rownames = F)
 ```
