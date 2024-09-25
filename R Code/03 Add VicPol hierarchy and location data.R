@@ -14,12 +14,11 @@ dat2 <- readRDS("./Output.data/data.22.23.wrangled.RDS")
 
 dat <- rbind(dat1,dat2)
 
+dat <- dat %>%
+  mutate(Racial.appearance = ifelse(Racial.appearance == "Missing", NA, Racial.appearance))
 
 
-# Assuming 'data' is your dataframe and 'ReportingStationDescription' is a column in that dataframe
-
-table(dat$Reporting.Station.Description)
-#Strip UNI prefix and create new unit name
+#Strip station prefixes and postscript
 dat <- dat %>%
   mutate(Unit= toupper(str_remove(Reporting.Station.Description, "UNI-")))%>%
   mutate(Unit= toupper(str_remove(Unit, " UNIFORM")))%>%
@@ -190,7 +189,7 @@ table(dat.sr2$Found, dat.sr2$Search.item.found)
 #select final inclusions
 dat.sr2 <- dat.sr2 %>%
   select(FieldReportID,FieldContactID, Year, Contact.Date, Contact.Time,  Contact.Type, 
-         Racial.appearance, Racial.Appearance.original, 
+         Ethnic.appearance = Racial.appearance, Ethnic.Appearance.original = Racial.Appearance.original, 
          Found, Search.item.found,
          `Search.type - Drugs` ,  `Search.type - Weapons` ,
          `Search.type - Firearms` , `Search.type - Graffiti` ,
@@ -213,8 +212,7 @@ dat.sr3 <- dat.sr2 %>%
          )
 
 dat.sr3 <- dat.sr3 %>%
-  select(-Search.item.found)%>%
-  unique()
+  select(-Search.item.found)
 
 write_xlsx(dat.sr3, "Output.data/VicPol Search data for analysis.xlsx")
 
@@ -225,3 +223,5 @@ values <-as.data.frame(values)
 saveRDS(dat.sr3, "Output.data/Clean.search.data.RDS")
 
 write_xlsx(values, "Output.data/dictionary.xlsx")
+
+

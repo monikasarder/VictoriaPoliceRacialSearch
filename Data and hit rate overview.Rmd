@@ -35,7 +35,7 @@ This dataset took significant financial resources to obtain and transform into a
 
 Note that 2020 and 2021 data is not included in this data due to the extraordinary circumstances of the COVID 19 pandemic, which are not a sound basis for inference regarding behaviour during non-pandemic periods.
 
-## Warrantless searches in scope 
+## Search types in scope 
 There are five types of searches without a warrant that are in scope for this dataset, summarised below. These represent searches that can be undertaken where an officer has 'reasonable grounds' to suspect that a person was in possession of a prohibited item specified as part of that search power. 
 
 * **Drugs**: under the section 82 of the *Drugs Poisons and Controlled Substances Act 1981* 
@@ -48,19 +48,21 @@ Almost 90 percent of searches were for drugs.  Note that some individuals were s
 
 ## Ethnic appearance categories  
 
-Victoria Police records the ethnic appearance of the people that they search without warrant based on existing categories. These categories are not based on actual ancestry, but on *perceived ethnicity* as considered by the officer. The collection of this data has been mandatory since 2019.  
+Victoria Police records the ethnic appearance of the people that they search without warrant based on existing categories. These categories are not based on ancestry information, but on *perceived ethnicity* as considered by the officer. 
 
 ***Missing data***
 
-A total of 22,117 search records, or 42% of all records, did not have any ethnic appearance data entered, despite this field being mandatory. Records where the officer was unable to determine the racial appearance were marked as 'Other'.
+A total of 22,117 search records, or 42% of all records, did not have any ethnic appearance data entered, despite this field being mandatory for 'stop and searches' since 2019. Records where the officer was unable to determine the ethnic appearance were marked as 'Other'.
 
 ***Middle Eastern appearance data limitations***  
 
-There is a limitation on our ability to analyse police-targeting of people of Middle Eastern appearance, as in 2020 Victoria Police aggregated Mediterranean and Middle Eastern into a single category.  This presents a challenge to our analysis, as we would ordinarily expect persons of Mediterranean descent (eg people of Italian, Greek, Croatian ancestry) to be categorised as 'non-racialised' or 'White'.  Meanwhile we would ordinarily expect persons of the Middle Eastern appearance to be considered 'racialised'.  The Centre Against Racial Profiling urges Victoria Police to separate 'Middle Eastern' from 'Mediterranean' in order for racial appearance data to be more useful. This is particularly relevant for understanding the effect of the impact of overseas conflicts and resulting protests at home on potential police bias.
+There is a limitation on our ability to analyse police-targeting of people of Middle Eastern appearance, as in 2020 Victoria Police aggregated Mediterranean and Middle Eastern into a single category.  This presents a challenge to our analysis, as we would ordinarily expect persons of Mediterranean descent (eg people of Italian, Greek, Croatian ancestry) to be categorised as 'non-racialised' or 'White'.  Meanwhile we would ordinarily expect persons of the Middle Eastern appearance to be considered 'racialised'.  
+
+The Centre Against Racial Profiling urges Victoria Police to separate 'Middle Eastern' from 'Mediterranean' in order for racial appearance data to be more useful. This is particularly relevant for understanding the effect of the impact of overseas conflicts and resulting protests at home on potential police bias.
 
 ***Aboriginal and Torres Strait Islander appearance data caution***  
 
-Please be reminded that perceived ethnicity data does not enable analysis of search data for police perception white appearing Aboriginal people. This and other ethnic groupings are subjective.  
+Please be reminded that perceived ethnicity data does not enable analysis of search data for police perception white appearing Aboriginal people. This and other ethnic appearances in the dataset are subjective.  
 
 # Summary statistics  
 
@@ -69,11 +71,12 @@ The variables of interest in the dataset are summarised in Table 1 below.
 **Table 1 Characteristics of searches**
 ```{r summary 2, echo = FALSE, warning = FALSE}
 
-of.interest <- c("Year", "Racial.appearance","Gender", "Area.type", "Unit.type", "Contact.Type" ,"Rank.of.Member", "Found")
+of.interest <- c("Year", "Ethnic.appearance","Gender", "Area.type", "Unit.type", "Contact.Type" ,"Rank.of.Member", "Found",
+                 "Search.type - Drugs","Search.type - Weapons","Search.type - Firearms",          
+                  "Search.type - Graffiti","Search.type - Volatile.sub.U18","Search.type - Volatile.sub.adult")
 
 `VicPol station data` <- dat %>%
   select(all_of(of.interest))%>%
-  mutate(Racial.appearance = ifelse(Racial.appearance == "Missing", NA, Racial.appearance))%>%
   mutate(across(everything(), ~ fct_infreq(.)))
   
 print(dfSummary(`VicPol station data`, 
@@ -116,59 +119,72 @@ print(dfSummary(`Search type`,
 
 The 'hit rate' is the percentage of searches which resulted in the officer finding contraband as part of the search.  The average hit rate across all searches was 17.2%.
 
-## Hit rates by ethnic appearance
+## Lower hit rates for racialised appearance categories
 
-Hit rates are lower for people who appeared to be African (12.9%), Middle Eastern/Mediterranean (13.8%), Asian (13.7%), South Asian (13.9%) and Aboriginal and Torres Strait Islander (15.6%) than for people who appeared White (18%).  
+A lower hit rate means that a lower percentage of searches of people in the group are resulting in the discovery of contraband. That is, the 'reasonable grounds' for suspicion is being met more easily on the part of police officers in relation to groups with lower hit rates. This may be due to racial bias, either conscious or unconscious.  For the over-policed group, this is experienced as racial targeting.
+
+Compared with hit rates for people who appeared White (18%), hit rates were much lower for people who appeared African (12.9%), Middle Eastern/Mediterranean (13.8%), Asian (13.7%), South Asian (13.9%) and Aboriginal and Torres Strait Islander (15.6%).  The exception to this is hit rates for people of Pacific Islander appearance (18.8%).
 
 A lower hit rate means that a lower percentage of searches of people in the group are resulting in the discovery of contraband.  That is, the suspicion directed at groups with lower hit rates is more likely to be informed by racial bias, either conscious or unconscious.  This may be evidence of racial targeting.  
 
 **Table 3 Hit rates by variables of interest**
-```{r Finds race, echo=FALSE, warning=FALSE}
+```{r Finds racial, echo=FALSE, warning=FALSE}
+dat <- dat %>%
+  mutate(Found = factor(Found, levels = c("Yes", "No")))
 
 dat %>% 
-  crosstable(c(Racial.appearance), by=Found, total=TRUE, 
+  crosstable(c(Ethnic.appearance), by=Found, total=TRUE, 
            test=TRUE, showNA='ifany', percent_digits=1) %>% 
   as_flextable()
 ```
 
-Figure 1 below shows how the ht rate for different racial appearances changed over the four year period, with a reference line showing the average hit rate for all searches over four years in red.  The following observations are made:  
+Figure 1 below shows how the hit rate for different racial appearances changed over the four year period, with a reference line showing the average hit rate for all searches over four years in red.  The following observations are made:  
 
-* People who appear White experienced higher hit-rates compared with the overall population in most years, except for 2022. This may be due to the effect of pandemic-related measures.  
-* People of African, Middle Eastern/Mediterranean and Asian appearance experienced persistently lower hit rates than the average.  
-* Hit-rates for people appearing to be Aboriginal and Torres Strait Islander have reduced over the four year period.  
+* people who appear White experienced higher hit-rates compared with the overall population in most years, except for 2022. This may be due to the effect of pandemic-related measures.  
+* people of African, Middle Eastern/Mediterranean and Asian appearance experienced persistently lower hit rates than the average.  
+* hit-rates for people appearing to be Aboriginal and Torres Strait Islander have reduced over the four year period from 11% in 2018 to 18.6% in 2023.
 
 
 **Figure 1 Changes in hit rates by racial appearance over time and compared to the average**
 ```{r Finds race year, echo=FALSE, warning=FALSE, message = FALSE}
 trend <- dat %>%
-  filter(!`Racial.appearance` %in% c("Other", "Missing", "South American"))%>%
-  mutate(Racial.appearance = fct_infreq(Racial.appearance))%>%
-  group_by(Year, `Racial.appearance`)%>%
+  filter(!`Ethnic.appearance` %in% c("Other", "Missing", "South American"))%>%
+  mutate(Ethnic.appearance = fct_infreq(Ethnic.appearance))%>%
+  group_by(Year, `Ethnic.appearance`)%>%
   summarise(Finds = sum(Found == "Yes", na.rm = T), `Total searches`= n())%>%
   mutate(`Hit rate` = round(Finds/`Total searches`*100, digits = 1)) %>%
   ungroup()%>%
   ggplot(aes(x = Year, y = `Hit rate`)) +geom_col(fill = "darkblue")+
-  facet_wrap(~`Racial.appearance`)+ 
+  facet_wrap(~`Ethnic.appearance`)+ 
   geom_hline(yintercept = 17.2,linetype="dotted", color = "red") +theme(legend.position = "none")
 
 ggplotly(trend)
 ```
 
 
+Figure 1 below shows how the hit rate for different racial appearances changed over the four year period, with a reference line showing the average hit rate for all searches over four years in red.  The following observations are made:  
+
+* people who appear White experienced higher hit-rates compared with the overall population in most years, except for 2022. This may be due to the effect of pandemic-related measures.  
+* people of African, Middle Eastern/Mediterranean and Asian appearance experienced persistently lower hit rates than the average.  
+* hit-rates for people appearing to be Aboriginal and Torres Strait Islander have reduced over the four year period from 11% in 2018 to 18.6% in 2023.
+
 ## Hit rates by other search characteristics  
 
 Other characteristics which may have influenced hit rates are summarised in Table 4 below.  Different search types had widely different hit rates, with drug-related searches having the lowest hit-rate (15.2%) and graffiti-related searches at designated places, such as train stations, having the highest hit-rate (50.1%), followed by weapons-related searches (32.8%).
 
-**Table 4 Hit rates by other search characteristics**
+**Table 4 Hit rates by legislative power**
 
 ```{r Finds search, echo=FALSE, warning=FALSE}
 
 Search.dat %>%
+  mutate(Found = factor(Found, levels = c("Yes", "No")))%>%
   crosstable(Search.type, by=Found, total=TRUE, 
            test=TRUE, showNA='ifany', percent_digits=1) %>% 
   as_flextable()
 
 ```
+
+**Table 4 Hit rates by other search characteristics**
 ```{r Finds all other, echo=FALSE, warning=FALSE}
 
 dat %>%
@@ -177,13 +193,50 @@ dat %>%
   as_flextable()
 ```
 
+# Racialised hit within police units and local areas  
 
-## Comparison of hit rates for different ethnic appearances by LGA
+Racialised hit rates across different unit types were compared.  Where there were less than five searches for a given group in a Local Government Areas hit rates are not shown, as statistical results may be misleading.
 
-Searches that were undertaken by an officer based at a local Police station were able to be mapped to their Local Government Area.  The hit rates for persons of different ethnic appearances for Local Government Areas appears below.   
+## Unit types
 
-Where there were less than five searches for a given group in a Local Government Areas hit rates are not shown, as statistical results may be misleading.
+**Table 6 Ethnic appearance hit rates by Unit type**
+```{r unit.type, echo=FALSE, warning=FALSE, message = FALSE}
+unit.racial <- dat %>%
+  group_by(Unit.type)%>%
+  mutate(`Overall %` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 1), Total.searches = n())%>%
+  filter(!Ethnic.appearance %in% c("South American", "Other"), !is.na(Ethnic.appearance))%>%
+  mutate(Ethnic.appearance = fct_infreq(Ethnic.appearance))%>%
+  group_by(Unit.type, Total.searches, `Overall %`, Ethnic.appearance)%>%
+  summarise(Finds = sum(Found == "Yes", na.rm = T), Searches = n())%>%
+  ungroup()%>%
+  mutate(Searches = ifelse(Searches <= 5, NA, Searches))%>%
+  mutate(`Hit rate` = round(Finds/Searches*100, digits = 1))%>%
+  select(-Finds, -Searches)%>%
+  pivot_wider(names_from = Ethnic.appearance,
+    values_from = c(`Hit rate`)
+  )%>%
+  arrange(desc(Total.searches))%>%
+  select(Unit.type,
+         `Total searches` = Total.searches,
+         `Overall %`, `White %` = White, `Aboriginal %` = Aboriginal, `Middle Eastern/Med %` = `Middle Eastern/Med`, 
+         `African %`= African, `Asian %` = Asian,`South Asian %` = `South Asian`, `Pacific Islander %` = `Pacific Islander`)
 
+unit.racial %>%
+  datatable(rownames = F, extensions = 'Buttons',
+            options = list(
+              dom = 'Blfrtip',
+              buttons = c('copy', 'excel','print'),
+  pageLength = 10, autoWidth = TRUE
+))
+```
+
+## Local Government Areas
+
+Searches that were undertaken by an officer based at a local Police station were able to be mapped to their Local Government Area.  This includes uniform police as well as police working as part of Highway Patrol, Divisional Response Unit (DRU), Criminal Investigation Unit (CIU) and Sexual Offences and Child Abuse Investigation Teams (SOCIT).  
+
+The hit rates for persons of different ethnic appearances for Local Government Areas appears below.   
+
+**Table 7 Ethnic appearance hit rates by LGA**
 ```{r LGA, echo=FALSE, warning=FALSE, message = FALSE}
 
 lga.psa <- dat %>%
@@ -193,22 +246,23 @@ lga.psa <- dat %>%
 lga.racial <- dat %>%
   filter(!is.na(Police.Service.Area))%>%
   group_by(Police.Service.Area)%>%
-  mutate(`PSA hit rate` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 1), Total.searches = n())%>%
-  filter(!Racial.appearance %in% c("Missing", "South American", "Other"))%>%
-  mutate(Racial.appearance = fct_infreq(Racial.appearance))%>%
-  group_by(Area.type, Police.Service.Area, Total.searches, `PSA hit rate`, Racial.appearance)%>%
+  mutate(`Overall %` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 1), Total.searches = n())%>%
+  filter(!Ethnic.appearance %in% c("South American", "Other"), !is.na(Ethnic.appearance))%>%
+  mutate(Ethnic.appearance = fct_infreq(Ethnic.appearance))%>%
+  group_by(Area.type, Police.Service.Area, Total.searches, `Overall %`, Ethnic.appearance)%>%
   summarise(Finds = sum(Found == "Yes", na.rm = T), Searches = n())%>%
   ungroup()%>%
   mutate(Searches = ifelse(Searches <= 5, NA, Searches))%>%
   mutate(`Hit rate` = round(Finds/Searches*100, digits = 1))%>%
   select(-Finds, -Searches)%>%
-  pivot_wider(names_from = Racial.appearance,
+  pivot_wider(names_from = Ethnic.appearance,
     values_from = c(`Hit rate`)
   )%>%
   left_join(lga.psa, by = "Police.Service.Area")%>%
   select(`Area` = Area.type, `Local Government Area` = Local.Government.Area, `Police Service Area` = Police.Service.Area,
-         `PSA hit rate`, `White hit rate` = White, `Aboriginal hit rate` = Aboriginal, `Middle Eastern/Med hit rate` = `Middle Eastern/Med`, 
-         `African hit rate`= African, `Asian hit rate` = Asian,`South Asian hit rate` = `South Asian`, `Pacific Islander hit rate` = `Pacific Islander`)
+         `Total searches` = Total.searches,
+         `Overall %`, `White %` = White, `Aboriginal %` = Aboriginal, `Middle Eastern/Med %` = `Middle Eastern/Med`, 
+         `African %`= African, `Asian %` = Asian,`South Asian %` = `South Asian`, `Pacific Islander %` = `Pacific Islander`)
 
 lga.racial %>%
   datatable(rownames = F, extensions = 'Buttons',
@@ -222,3 +276,23 @@ lga.racial %>%
 
 ```
 
+# Appendix - ethnic appearance mapping  
+
+Ethnic appearance categories for different years were transformed to enable comparison across the four years. A table of transformations undertaken, along with the number of searches in each category, appears below,
+
+
+```{r Map 1, echo=FALSE, warning=FALSE, message = FALSE}
+
+dat %>%
+  filter(Year %in% c(2022, 2023))%>%
+  count(Ethnic.Appearance.original, Ethnic.appearance, ) %>%
+  kable()
+```
+
+```{r Map 2, echo=FALSE, warning=FALSE, message = FALSE}
+
+dat %>%
+  filter(Year %in% c(2018, 2019))%>%
+  count(Ethnic.Appearance.original, Ethnic.appearance, ) %>%
+  kable()
+```
