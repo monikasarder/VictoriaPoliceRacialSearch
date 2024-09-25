@@ -2,10 +2,9 @@ library(tidyverse)
 library(readxl)
 library(writexl)
 
-#Purpose: add in VicPol unit LGAs and VicPol hierarchy
-# Extract individual units
+#Read in 2018 and 2019 data
 
-unidat19 <- read_xlsx("Data/Victoria Police Search Data 2018 and 2019.xlsx",
+unidat19 <- read_xlsx("./Primary datasets - VicPol Search/Victoria Police Search Data 2018 and 2019.xlsx",
                       sheet = "FINAL_DATA",
                       .name_repair = "universal")
 
@@ -16,19 +15,16 @@ dat <- unidat19
 dat <- dat[,colSums(is.na(dat))<nrow(dat)]
 
 
-#change formats of variables to keep
+#change formats  and rename others
 dat <- dat %>%
   mutate(Contact.ID = as.character(Contact.ID),
         Year = format(as.Date(Contact.Date), "%Y"))%>%
-  #rename variables
   rename(Gender = Sex,
         Age = Age.of.Contact,
         Reporting.Station.Description = Reporting.Station,
         FieldContactID = Contact.ID,
         Rank.of.Member = Contacting.Member.Rank)
 
-
-names(dat)
 #remove all records relating to FPOs
 exclude.fpo <- dat %>%
   filter(..001.FPO.INTENT.TO.CHARGE== TRUE| ..001.FPO.NO.INTENT.TO.CHARGE== TRUE)%>%
@@ -44,6 +40,7 @@ dat <- dat %>%
 #get table of person ID and search type
 powers <-subset(names(dat),grepl("001", names(dat)))
 
+#FOLLOWING CODE PRESERVES SEARCH TYPE DATA AND FINDS
 #set values for Legislative powers based on substring
 search.dat1 <- dat %>%
   select(FieldContactID, all_of(powers))%>%
@@ -158,15 +155,20 @@ dat.s <- dat.s %>%
       str_detect(str_to_upper(Reporting.Station.Description), 'CIU') ~ 'CIU',
       str_detect(str_to_upper(Reporting.Station.Description), 'DRU') ~ 'DRU',
       str_detect(str_to_upper(Reporting.Station.Description), 'HIGHWAY PATROL') | str_detect(str_to_upper(Reporting.Station.Description), 'HWY PATROL') ~ 'Highway Patrol',
-      TRUE ~ 'Crime' # default to 'Crime' for empty or unmatched cases
+      str_detect(Reporting.Station.Description, "OPERATIONS RESPONSE") ~ "Public Order Response",
+      str_detect(Reporting.Station.Description, "PUBLIC ORDER RESPONSE") ~ "Public Order Response",
+      TRUE ~ 'Other' # default to 'Crime' for empty or unmatched cases
     )
   )
 
-fin.dat.2 <- dat.s %>%
-  select(Year, Contact.Date, Contact.Time, FieldContactID, Contact.Type, Psn.Search.ID, Legislative.power,  Search.type, 
-         Search.items.found, Any.items.found, 
-         Racial.appearance, Racial.Appearance.original = Racial.Appearance, VicPol.racialised, Racial.appearance.missing,
-         Gender, Age, Reporting.Station.Description, Rank.of.Member)
 
+fin.dat.2 <- dat.s %>%
+  mutate(FieldReportID = NA)%>%
+  select(FieldReportID,FieldContactID, Psn.Search.ID, Year, Contact.Date, Contact.Time,  Contact.Type, Legislative.power,  Search.type, 
+         Search.items.found, Any.items.found, 
+         Racial.appearance, Racial.Appearance.original = Racial.Appearance, VicPol.racialised, Racial.appearance.missing, 
+         Indigenous.Status = Indigeneous.Status,
+         Gender, Age,   Complexion = Complexion.of.contact, Hair.Colour = Hair.colour.of.contact, Hair.Style = Hair.style.1.of.contact, 
+         Reporting.Station.Description, Unit.type, Rank.of.Member )
 
 saveRDS(fin.dat.2, "Output.data/data.18.19.wrangled.RDS")

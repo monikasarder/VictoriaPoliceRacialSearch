@@ -2,10 +2,9 @@ library(tidyverse)
 library(readxl)
 library(writexl)
 
-#Purpose: add in VicPol unit LGAs and VicPol hierarchy
-# Extract individual units
+## Read in 2022 and 2023 datasets
 
-unidat23 <- read_xlsx("Data/Victoria Police Search Data 2023.xlsx",
+unidat23 <- read_xlsx("./Primary datasets - VicPol Search/Victoria Police Search Data 2023.xlsx",
                     .name_repair = "universal")
 
 unidat23 <- unidat23 %>%
@@ -13,7 +12,7 @@ unidat23 <- unidat23 %>%
          Quantity = Quantity.of.item.Found)
 
 
-unidat22 <- read_xlsx("Data/Victoria Police Search Data 2022.xlsx",
+unidat22 <- read_xlsx("./Primary datasets - VicPol Search/Victoria Police Search Data 2022.xlsx",
                       skip =18,
                     .name_repair = "universal")
 
@@ -34,16 +33,7 @@ has.fpo <- dat %>%
 dat <- dat %>%
   filter(!FieldContactID %in% has.fpo)
 
-combos <- dat %>%
-  count(Field.Contact.Search.Type, Field.Contact.Code.Description)
-
-counts <- dat %>%
-  group_by(Field.Contact.Search.Type, Field.Contact.Code.Description)%>%
-  summarise(Total = sum(Quantity, na.rm = T))
-
-
-#MAKE SEARCH TYPE TABLE
-#extract column of individual and search type combinations
+#EXTRACT AND PRESERVE SEARCH TYPE AND ITEM FOUND DATA
 #extract column of individual and search type combinations
 search.dat <- dat %>%
      filter(Field.Contact.Search.Type == "SEARCH WITHOUT WARRANT TYPES")%>%
@@ -97,15 +87,15 @@ person.id <- dat %>%
   group_by(FieldContactID)%>%
   #If at least one item is found for person then item found
   mutate(Any.items.found = ifelse(sum(Quantity, na.rm = T)>=1, 1, 0))%>%
-  select(FieldReportID, Rank.of.Member, Reporting.Station.Description, Contact.Date, Contact.Time, 
-         Contact.Type, FieldContactID, Racial.Appearance, Age, Gender, Year, Any.items.found)%>%
+  select(FieldReportID, Rank.of.Member, Reporting.Station.Description, Year, Contact.Date, Contact.Time, 
+         Contact.Type, FieldContactID, Racial.Appearance, Indigenous.Status, Gender, Age, Complexion, Hair.Colour, Hair.Style, Any.items.found)%>%
   unique()
 
 search.dat <- person.id %>%
   left_join(search.dat, by = "FieldContactID")
 
 #Assign unit types
-dat <- search.dat %>%
+fdat <- search.dat %>%
   mutate(
     Unit.type = case_when(
       str_detect(str_to_upper(Reporting.Station.Description), 'UNI') ~ 'Uniform',
@@ -114,17 +104,17 @@ dat <- search.dat %>%
       str_detect(str_to_upper(Reporting.Station.Description), 'CIU') ~ 'CIU',
       str_detect(str_to_upper(Reporting.Station.Description), 'DRU') ~ 'DRU',
       str_detect(str_to_upper(Reporting.Station.Description), 'HIGHWAY PATROL') | str_detect(str_to_upper(Reporting.Station.Description), 'HWY PATROL') ~ 'Highway Patrol',
-      TRUE ~ 'Crime' # default to 'Crime' for empty or unmatched cases
+      str_detect(str_to_upper(Reporting.Station.Description), "PUBLIC ORDER RESPONSE") ~ "Public Order Response",
+      TRUE ~ 'Other' # default to 'Crime' for empty or unmatched cases
     )
   )
 
-
 #Set NAs variables to char
-dat <- dat %>%
+fdat <- fdat %>%
   mutate(across(where(is.character), ~na_if(., ".")))
 
 #Aggregate race and identify missing
-dat <- dat %>%
+fdat <- fdat %>%
    mutate(Racial.appearance = case_when(
     str_detect(Racial.Appearance, "CAUC") ~ "White",
     str_detect(Racial.Appearance, "ABORIGINAL") ~ "Aboriginal",
@@ -139,7 +129,7 @@ dat <- dat %>%
 
 
 
-dat <- dat %>%
+fdat <- fdat %>%
   mutate(Racial.appearance.missing = ifelse(Racial.appearance == "Missing", "Missing", "Not missing"))%>%
   mutate(VicPol.racialised = case_when(
     Racial.appearance == "White" ~ "Not-racialised",
@@ -147,17 +137,18 @@ dat <- dat %>%
     TRUE ~ "Racialised"
   ))
 
-
 #reorder for sense
-fin.dat <- dat %>%
-  select(Year, Contact.Date, Contact.Time, FieldContactID, Contact.Type, Psn.Search.ID, Legislative.power, Search.type, 
+fin.dat <- fdat %>%
+  select(FieldReportID, FieldContactID, Psn.Search.ID, Year, Contact.Date, Contact.Time,  Contact.Type,  Legislative.power, Search.type, 
          Search.items.found, Any.items.found, 
-         Racial.appearance, Racial.Appearance.original = Racial.Appearance, VicPol.racialised, Racial.appearance.missing,
-         Gender, Age, Reporting.Station.Description, Rank.of.Member)
+         Racial.appearance, Racial.Appearance.original = Racial.Appearance, VicPol.racialised, Racial.appearance.missing, Indigenous.Status,
+         Gender, Age, Complexion, Hair.Colour, Hair.Style, Reporting.Station.Description, Unit.type, Rank.of.Member)
 
 
 
 saveRDS(fin.dat, "Output.data/data.22.23.wrangled.RDS")
+
+dat18 <- readRDS("./Output.data/data.18.19.wrangled.RDS")
 
 
 

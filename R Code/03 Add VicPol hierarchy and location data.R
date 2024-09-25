@@ -6,9 +6,9 @@ library(writexl)
 # Extract individual units
 
 
-dat1 <- readRDS("Output.data/data.18.19.wrangled.RDS")
+dat1 <- readRDS("./Output.data/data.18.19.wrangled.RDS")
 
-dat2 <- readRDS("Output.data/data.22.23.wrangled.RDS")
+dat2 <- readRDS("./Output.data/data.22.23.wrangled.RDS")
 
 #combine 2018-19 data with 2022-23 data
 
@@ -18,25 +18,6 @@ dat <- rbind(dat1,dat2)
 
 # Assuming 'data' is your dataframe and 'ReportingStationDescription' is a column in that dataframe
 
-dat <- dat %>%
-  mutate(Reporting.Station.Description = str_to_upper(Reporting.Station.Description))
-
-dat <- dat %>%
-  mutate(Unit.type = case_when(
-      str_detect(Reporting.Station.Description, "UNI-") ~ "Uniform",
-      str_detect(Reporting.Station.Description, "UNIFORM") ~ "Uniform",
-      str_detect(Reporting.Station.Description, "TRANSIT") & !str_detect(Reporting.Station.Description, "PSO") ~ "Transit",
-      str_detect(Reporting.Station.Description, "PSO") ~ "PSO",
-      str_detect(Reporting.Station.Description, "CIU") ~ "CIU",
-      str_detect(Reporting.Station.Description, "DRU") ~ "DRU",
-      str_detect(Reporting.Station.Description, "HIGHWAY PATROL") | str_detect(Reporting.Station.Description, "HWY PATROL") ~ "Highway Patrol",
-      str_detect(Reporting.Station.Description, "OPERATIONS RESPONSE") ~ "Public Order Response",
-      str_detect(Reporting.Station.Description, "PUBLIC ORDER RESPONSE") ~ "Public Order Response",
-      TRUE ~ "Other"  # Default value for all other cases
-    )
-  )
-
-
 #Strip UNI prefix and create new unit name
 dat <- dat %>%
   mutate(Unit= toupper(str_remove(Reporting.Station.Description, "UNI-")))%>%
@@ -44,7 +25,7 @@ dat <- dat %>%
 
 
 # Read in PSA and LGA data
-psadat <- read_xlsx("Data/geographicclassification.xlsx",
+psadat <- read_xlsx("Secondary datasets/geographicclassification.xlsx",
                     skip = 12,
                     .name_repair = "universal")
 
@@ -57,7 +38,7 @@ psadat <- psadat %>%
 
 
 # Read in VicPol hierarchy data
-hierdat1 <- read_xlsx("Data/Victoria-Police-employee-numbers-June-2024.xlsx",
+hierdat1 <- read_xlsx("Secondary datasets/Victoria-Police-employee-numbers-June-2024.xlsx",
                     skip = 8,
                     .name_repair = "universal")
 
@@ -105,7 +86,7 @@ hierdat1 <- hierdat %>%
 
   
 #Read in station to LGA data
-sta.lga <- read_excel("Data/Police.station.location.xlsx")
+sta.lga <- read_excel("Secondary datasets/Police.station.location.xlsx")
 
 sta.lga1 <- sta.lga %>%
   mutate(LGA = gsub(" Shire Council.*$", "", Municipality))%>%
@@ -142,7 +123,7 @@ dat <- dat %>%
 dat.hier <- dat %>%
   left_join(sta.hier, by = "Unit")
 
-categories <- read_xlsx("Data/Council-category-data.xlsx")
+categories <- read_xlsx("Secondary datasets/Council-category-data.xlsx")
 
 dat.hier <- dat.hier %>%
   left_join(categories, by = "Local.Government.Area")%>%
@@ -154,5 +135,59 @@ dat.hier <- dat.hier %>%
 dat.hier <- dat.hier %>%
   filter(!is.na(Legislative.power))
 
-saveRDS(dat.hier, "Output.data/Searches.with.hierarchy.RDS")
+#saveRDS(dat.hier, "Output.data/Searches.with.hierarchy.RDS")
 
+#create single row is single search data - pivot based on search power
+dat.sr <- dat.hier %>%
+  mutate(Search.items.found = as.character(Search.items.found))%>%
+  mutate(Search.items.found = case_when(
+    Search.items.found == 1 ~ "Searched - found", 
+    Search.items.found == 0 ~ "Searched - not found",
+    TRUE ~ "Not search basis")) %>%
+  select(-Search.type, -Psn.Search.ID)%>% 
+  pivot_wider(names_from = Legislative.power, values_from = Search.items.found)%>%
+  unique()
+
+#choose better names
+dat.sr1 <- dat.sr %>%
+  rename(`Search.type - Drugs` = `DP&CS S.82`,  `Search.type - Weapons`  = `CONTROL OF WEAPONS ACT`,
+         `Search.type - Firearms` = `FIREARMS ACT`, `Search.type - Graffiti` = `GRAFFITI PREVENTION ACT`,
+         `Search.type - Volatile.sub.U18` = `VOLATILE SUB U/18 60E`, `Search.type - Volatile.sub.adult` = `VOLATILE SUB 18+ 60F`)
+
+#check if item for which a search occurred was found
+dat.sr2 <- dat.sr1 %>%
+     mutate(Search.item.found = case_when(
+         `Search.type - Drugs` == "Searched - found"|
+           `Search.type - Weapons` == "Searched - found"|
+           `Search.type - Firearms` == "Searched - found"|
+             `Search.type - Graffiti`== "Searched - found"|          
+           `Search.type - Volatile.sub.U18`== "Searched - found"|
+           `Search.type - Volatile.sub.adult`== "Searched - found" ~ "Search item found",
+         TRUE ~"Nothing found")
+       )
+
+dat.sr2 <- dat.sr2 %>%
+  mutate(Search.item.found = 
+           ifelse(Search.item.found == "Nothing found" & Found == "Yes", "Another item found", Search.item.found))
+#select final inclusions
+dat.sr2 <- dat.sr2 %>%
+  select(FieldReportID,FieldContactID, Year, Contact.Date, Contact.Time,  Contact.Type, 
+         Racial.appearance, Racial.Appearance.original, 
+         Found, Search.item.found,
+         `Search.type - Drugs` ,  `Search.type - Weapons` ,
+         `Search.type - Firearms` , `Search.type - Graffiti` ,
+         `Search.type - Volatile.sub.U18` , `Search.type - Volatile.sub.adult`,
+         Indigenous.Status,
+         Gender, Age,   Complexion, Hair.Colour, Hair.Style, 
+         Reporting.Station.Description, Unit.type, Rank.of.Member, Region, Division, Police.Service.Area, Area.type, Local.Government.Area, Locality,
+         Postcode)
+
+#add if non search item found!!!
+#write data to Excel file
+write_xlsx(dat.sr2, "VicPol Search data for analysis.xlsx")
+
+values <- names(dat.sr2)
+
+values <-as.data.frame(values)
+#save data for analysis
+saveRDS(dat.sr2, "Output.data/Clean.search.data.RDS")
