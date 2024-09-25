@@ -213,14 +213,15 @@ dat.sr3 <- dat.sr2 %>%
          )
 
 dat.sr3 <- dat.sr3 %>%
-  select(-Search.item.found)
+  select(-Search.item.found)%>%
+  unique()
 
-write_xlsx(dat.sr2, "Output.data/VicPol Search data for analysis.xlsx")
+write_xlsx(dat.sr3, "Output.data/VicPol Search data for analysis.xlsx")
 
-values <- names(dat.sr2)
+values <- names(dat.sr3)
 
 values <-as.data.frame(values)
 #save data for analysis
-saveRDS(dat.sr2, "Output.data/Clean.search.data.RDS")
+saveRDS(dat.sr3, "Output.data/Clean.search.data.RDS")
 
 write_xlsx(values, "Output.data/dictionary.xlsx")
