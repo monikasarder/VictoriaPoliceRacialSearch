@@ -148,7 +148,7 @@ Figure 1 below shows how the hit rate for different racial appearances changed o
 **Figure 1 Changes in hit rates by racial appearance over time and compared to the average**
 ```{r Finds race year, echo=FALSE, warning=FALSE, message = FALSE}
 trend <- dat %>%
-  filter(!`Ethnic.appearance` %in% c("Other", "Missing", "South American"))%>%
+  filter(!`Ethnic.appearance` %in% c("Other", "Missing", "South American"), !is.na(Ethnic.appearance))%>%
   mutate(Ethnic.appearance = fct_infreq(Ethnic.appearance))%>%
   group_by(Year, `Ethnic.appearance`)%>%
   summarise(Finds = sum(Found == "Yes", na.rm = T), `Total searches`= n())%>%
