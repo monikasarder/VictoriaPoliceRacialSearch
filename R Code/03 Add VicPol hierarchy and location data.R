@@ -18,11 +18,19 @@ dat <- rbind(dat1,dat2)
 
 # Assuming 'data' is your dataframe and 'ReportingStationDescription' is a column in that dataframe
 
+table(dat$Reporting.Station.Description)
 #Strip UNI prefix and create new unit name
 dat <- dat %>%
   mutate(Unit= toupper(str_remove(Reporting.Station.Description, "UNI-")))%>%
-  mutate(Unit= toupper(str_remove(Unit, " UNIFORM")))
-
+  mutate(Unit= toupper(str_remove(Unit, " UNIFORM")))%>%
+  mutate(Unit= toupper(str_remove(Unit, "CIU-")))%>%
+  mutate(Unit= toupper(str_remove(Unit, " CIU")))%>%
+  mutate(Unit= toupper(str_remove(Unit, "DRU-")))%>%
+  mutate(Unit= toupper(str_remove(Unit, " DRU")))%>%
+  mutate(Unit= toupper(str_remove(Unit, "HIGHWAY PATROL-")))%>%
+  mutate(Unit= toupper(str_remove(Unit, " HIGHWAY PATROL")))%>%
+  mutate(Unit= toupper(str_remove(Unit, "SOCIT-")))%>%
+  mutate(Unit= toupper(str_remove(Unit, " SOCIT")))
 
 # Read in PSA and LGA data
 psadat <- read_xlsx("Secondary datasets/geographicclassification.xlsx",
@@ -111,8 +119,8 @@ sta.hier <- sta.lga2 %>%
 sta.hier <- sta.hier %>%
   mutate(Unit = str_remove(Station, " POLICE STATION"))%>%
   select(Region, Division, Police.Service.Area, Local.Government.Area, Locality, Postcode, Unit)%>%
-  mutate(Area.type = ifelse(str_detect(Region, "Metro"), "Metro", "Region"))%>%
   ungroup()
+
 
 #Link hierarchy and location with search data
 
@@ -127,7 +135,11 @@ categories <- read_xlsx("Secondary datasets/Council-category-data.xlsx")
 
 dat.hier <- dat.hier %>%
   left_join(categories, by = "Local.Government.Area")%>%
-  mutate(Area.type = ifelse(Category %in% c("Metropolitan", "Interface"), "Metro", "Regional"))
+  mutate(Area.type = case_when(
+    Category %in% c("Metropolitan", "Interface") ~ "Metro", 
+    Category %in% c("Large shire", "Regional", "Small shire") ~ "Regional",
+    TRUE ~ NA))
+
 
 dat.hier <- dat.hier %>%
   mutate(Found = ifelse(Any.items.found == 1, "Yes", "No"))
@@ -141,12 +153,13 @@ dat.hier <- dat.hier %>%
 dat.sr <- dat.hier %>%
   mutate(Search.items.found = as.character(Search.items.found))%>%
   mutate(Search.items.found = case_when(
-    Search.items.found == 1 ~ "Searched - found", 
-    Search.items.found == 0 ~ "Searched - not found",
+    Search.items.found == 1 ~ "Search item found", 
+    Search.items.found == 0 ~ "Nothing found",
     TRUE ~ "Not search basis")) %>%
   select(-Search.type, -Psn.Search.ID)%>% 
   pivot_wider(names_from = Legislative.power, values_from = Search.items.found)%>%
   unique()
+
 
 #choose better names
 dat.sr1 <- dat.sr %>%
@@ -154,21 +167,26 @@ dat.sr1 <- dat.sr %>%
          `Search.type - Firearms` = `FIREARMS ACT`, `Search.type - Graffiti` = `GRAFFITI PREVENTION ACT`,
          `Search.type - Volatile.sub.U18` = `VOLATILE SUB U/18 60E`, `Search.type - Volatile.sub.adult` = `VOLATILE SUB 18+ 60F`)
 
+table(dat.sr1$`Search.type - Drugs`)
 #check if item for which a search occurred was found
 dat.sr2 <- dat.sr1 %>%
      mutate(Search.item.found = case_when(
-         `Search.type - Drugs` == "Searched - found"|
-           `Search.type - Weapons` == "Searched - found"|
-           `Search.type - Firearms` == "Searched - found"|
-             `Search.type - Graffiti`== "Searched - found"|          
-           `Search.type - Volatile.sub.U18`== "Searched - found"|
-           `Search.type - Volatile.sub.adult`== "Searched - found" ~ "Search item found",
+         `Search.type - Drugs` == "Search item found"|
+           `Search.type - Weapons` == "Search item found"|
+           `Search.type - Firearms` == "Search item found"|
+             `Search.type - Graffiti`== "Search item found"|          
+           `Search.type - Volatile.sub.U18`== "Search item found"|
+           `Search.type - Volatile.sub.adult`== "Search item found" ~ "Search item found",
          TRUE ~"Nothing found")
        )
 
-dat.sr2 <- dat.sr2 %>%
-  mutate(Search.item.found = 
-           ifelse(Search.item.found == "Nothing found" & Found == "Yes", "Another item found", Search.item.found))
+
+table(dat.sr2$Found, dat.sr2$Search.item.found)
+
+#dat.sr2 <- dat.sr2 %>%
+#  mutate(Search.item.found = 
+#           ifelse(Search.item.found == "Nothing found" & Found == "Yes", "Non-search item found", Search.item.found))
+
 #select final inclusions
 dat.sr2 <- dat.sr2 %>%
   select(FieldReportID,FieldContactID, Year, Contact.Date, Contact.Time,  Contact.Type, 
@@ -182,12 +200,27 @@ dat.sr2 <- dat.sr2 %>%
          Reporting.Station.Description, Unit.type, Rank.of.Member, Region, Division, Police.Service.Area, Area.type, Local.Government.Area, Locality,
          Postcode)
 
-#add if non search item found!!!
-#write data to Excel file
-write_xlsx(dat.sr2, "VicPol Search data for analysis.xlsx")
+
+search.types <- c("Search.type - Drugs", "Search.type - Weapons","Search.type - Firearms",          
+                  "Search.type - Graffiti" , "Search.type - Volatile.sub.U18","Search.type - Volatile.sub.adult")
+
+
+dat.sr3 <- dat.sr2 %>%
+  mutate(across(all_of(search.types), 
+                ~ ifelse(Found == "Yes" & .x == "Nothing found",
+                         "Non-search item found", .x)
+                )
+         )
+
+dat.sr3 <- dat.sr3 %>%
+  select(-Search.item.found)
+
+write_xlsx(dat.sr2, "Output.data/VicPol Search data for analysis.xlsx")
 
 values <- names(dat.sr2)
 
 values <-as.data.frame(values)
 #save data for analysis
 saveRDS(dat.sr2, "Output.data/Clean.search.data.RDS")
+
+write_xlsx(values, "Output.data/dictionary.xlsx")

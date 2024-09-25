@@ -1,0 +1,78 @@
+---
+title: "Victoria Police search data overview and racial appearance hit rates"
+author: "Monika Sarder"
+date: "2024-09-16"
+output: html_document
+---
+
+
+```{r setup, echo = FALSE, warning = FALSE, message=FALSE}
+knitr::opts_chunk$set(results = "asis")
+
+library(tidyverse)
+library(plotly)
+library(summarytools)
+library(kableExtra)
+library(magrittr)
+library(rmarkdown)
+library(forcats)
+library(gmodels)
+library(crosstable)
+library(janitor)
+library(DT)
+
+dat <- readRDS("Output.data/Clean.search.data.RDS")
+
+```
+
+# Victoria Police Search Data 
+
+This dataset, which contains the summary of over 50,000 searches carried out by Victoria Police in the years 2018,2019, 2022 and 2023, was prepared as part of [**The Racial Profiling Data Monitoring Project**](https://khaki-pepper-b3rf.squarespace.com/), a project of the [Centre Against Racial Profiling](https://www.centreagainstracialprofiling.au/).  For more information about this dataset, and the significant resources and effort required to obtain it, go to [Annual Data](https://khaki-pepper-b3rf.squarespace.com/annual-data), or to donate to the project [here](https://khaki-pepper-b3rf.squarespace.com/checkout/donate?donatePageId=666baedd575e81339bc863ff). 
+
+## Stop and search information in scope 
+The five types of searches without a warrant that are included in this dataset are summarised below. They all represent stop and searches that Victoria Police can undertake where there is 'reasonable grounds' for the officer to suspect that the person was in possession of a prohibited item. Note that almost ninety percent of searches are drug related.  
+
+* **Drugs**: under the section 82 of the *Drugs Poisons and Controlled Substances Act 1981* 
+* **Volatile substances for inhalation** for use by a person under 18: under sections 60E and 60F of the *Drugs Poisons and Controlled Substances Act 1981*  
+* **Weapons or dangerous articles**: under *Section 10 Control of Weapons Act 1990*  
+* **Firearms**: under section 149 of the *Firearms Act 1996*   
+* **Graffiti implements** at a designated place: under section 13 of the *Graffiti Prevention Act*  
+
+Note that 2020 and 2021 data is not included in this analysis due to the extraordinary circumstances of the COVID 19 pandemic. Stop and search data from this period is not a sound basis for which to make inferences about stop and search behaviour, including profiling, in non-pandemic periods.
+
+## Search basis  
+Almost ninety percent of the searches undertaken were done on the basis that an officer susmect
+## 
+## Variables of interest
+
+Summary statistics for `r nrow(dat)` field contact reports submitted by uniform police following a person search without a warrant are summarised below.
+
+
+```{r summary 2, echo = FALSE, warning = FALSE}
+
+of.interest <- c("Year","Racial.appearance", "Gender", "Area.type", "Unit.type", "Contact.Type" ,"Rank.of.Member", "Found")
+
+`VicPol station data` <- dat %>%
+  select(all_of(of.interest))%>%
+  mutate(across(everything(), ~ fct_infreq(.)))
+  
+print(dfSummary(`VicPol station data`, 
+          max.distinct.values = 10, 
+           varnumbers   = FALSE, 
+                valid.col    = FALSE, 
+                graph.magnif = 0.76),
+      method = 'render')
+```
+
+
+## Finds by characteristics
+
+An analysis of the hit-rate for features of interest appears below.
+```{r Finds, echo=FALSE, warning=FALSE}
+
+dat %>% 
+  crosstable(c(Racial.appearance, Unit.type, Gender, Year,  Area.type), by=Found, total=TRUE, 
+           test=TRUE, showNA='ifany', percent_digits=1) %>% 
+  as_flextable()
+```
+
