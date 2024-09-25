@@ -22,6 +22,7 @@ library(gmodels)
 library(crosstable)
 library(janitor)
 library(DT)
+library(writexl)
 
 dat <- readRDS("Output.data/Clean.search.data.RDS")
 
@@ -281,16 +282,21 @@ Ethnic appearance categories for different years were transformed to enable comp
 
 ```{r Map 1, echo=FALSE, warning=FALSE, message = FALSE}
 
-dat %>%
+ethnic.mapping1 <-dat %>%
   filter(Year %in% c(2022, 2023))%>%
-  count(Ethnic.Appearance.original, Ethnic.appearance, ) %>%
+  count(Ethnic.Appearance.original, Ethnic.appearance)
+
+ethnic.mapping1 %>%
   kable()
 ```
 
 ```{r Map 2, echo=FALSE, warning=FALSE, message = FALSE}
 
-dat %>%
+ethnic.mapping2 <- dat %>%
   filter(Year %in% c(2018, 2019))%>%
-  count(Ethnic.Appearance.original, Ethnic.appearance, ) %>%
+  count(Ethnic.Appearance.original, Ethnic.appearance) 
+
+
+ethnic.mapping2 %>%
   kable()
 ```
