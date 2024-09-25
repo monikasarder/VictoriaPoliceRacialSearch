@@ -125,8 +125,6 @@ A lower hit rate means that a lower percentage of searches of people in the grou
 
 Compared with hit rates for people who appeared White (18%), hit rates were much lower for people who appeared African (12.9%), Middle Eastern/Mediterranean (13.8%), Asian (13.7%), South Asian (13.9%) and Aboriginal and Torres Strait Islander (15.6%).  The exception to this is hit rates for people of Pacific Islander appearance (18.8%).
 
-A lower hit rate means that a lower percentage of searches of people in the group are resulting in the discovery of contraband.  That is, the suspicion directed at groups with lower hit rates is more likely to be informed by racial bias, either conscious or unconscious.  This may be evidence of racial targeting.  
-
 **Table 3 Hit rates by variables of interest**
 ```{r Finds racial, echo=FALSE, warning=FALSE}
 dat <- dat %>%
