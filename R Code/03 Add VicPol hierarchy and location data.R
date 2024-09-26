@@ -219,9 +219,49 @@ write_xlsx(dat.sr3, "Output.data/VicPol Search data for analysis.xlsx")
 values <- names(dat.sr3)
 
 values <-as.data.frame(values)
+
 #save data for analysis
 saveRDS(dat.sr3, "Output.data/Clean.search.data.RDS")
 
 write_xlsx(values, "Output.data/dictionary.xlsx")
 
+#Create Local level data file
+dat <- dat.sr3
+
+lga.psa <- dat %>%
+  select(Police.Service.Area, Local.Government.Area)%>%
+  unique()
+
+lga.psa <- dat %>%
+  select(Police.Service.Area, Local.Government.Area)%>%
+  unique()
+
+lga.racial <- dat %>%
+  filter(!is.na(Police.Service.Area))%>%
+  group_by(Police.Service.Area)%>%
+  mutate(`Overall %` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 1), Total.searches = n())%>%
+  filter(!Ethnic.appearance %in% c("South American", "Other"), !is.na(Ethnic.appearance))%>%
+  mutate(Ethnic.appearance = fct_infreq(Ethnic.appearance))%>%
+  group_by(Area.type, Police.Service.Area, Total.searches, `Overall %`, Ethnic.appearance)%>%
+  summarise(Finds = sum(Found == "Yes", na.rm = T), Searches = n())%>%
+  ungroup()%>%
+  mutate(Searches1 = ifelse(Searches <= 5, NA, Searches))%>%
+  mutate(`Hit rate` = round(Finds/Searches1*100, digits = 1))%>%
+  select(-Finds, -Searches1)%>%
+  pivot_wider(names_from = Ethnic.appearance,
+              values_from = c(`Hit rate`, Searches))%>%
+  left_join(lga.psa, by = "Police.Service.Area")%>%
+  select(`Area` = Area.type, `Local Government Area` = Local.Government.Area, `Police Service Area` = Police.Service.Area,
+         `Total searches` = Total.searches,
+         `Overall %`, `Searches White` = Searches_White, `White %` = `Hit rate_White`, 
+         `Searches Aboriginal` = Searches_Aboriginal, `Aboriginal %` = `Hit rate_Aboriginal`, 
+         `Searches Middle Eastern/Med`= `Searches_Middle Eastern/Med`, `Middle Eastern/Med %` = `Hit rate_Middle Eastern/Med`, 
+         `Searches African` = Searches_African,
+         `African %`= `Hit rate_African`, 
+          
+         `Searches Asian` = Searches_Asian, `Asian %` = `Hit rate_Asian`,
+         `Searches South Asian` = `Searches_South Asian`, `South Asian %` = `Hit rate_South Asian`, 
+         `Searches Pacific Islander` = `Searches_Pacific Islander`,  `Pacific Islander %` = `Hit rate_Pacific Islander`)
+
+write_xlsx(lga.racial, "Output.data/LGA station searches.xlsx")
 
