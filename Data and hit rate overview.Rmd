@@ -231,7 +231,7 @@ unit.racial %>%
 
 ## Local Government Areas
 
-Searches that were undertaken by an officer based at a local Police station were able to be mapped to their Local Government Area.  This includes uniform police as well as police working as part of Highway Patrol, Divisional Response Unit (DRU), Criminal Investigation Unit (CIU) and Sexual Offences and Child Abuse Investigation Teams (SOCIT).  
+Searches that were undertaken by a uniform officer based at a local Police station were able to be mapped to their Local Government Area.  
 
 The hit rates for persons of different ethnic appearances for Local Government Areas appears below.   
 
@@ -243,7 +243,7 @@ lga.psa <- dat %>%
   unique()
 
 lga.racial <- dat %>%
-  filter(!is.na(Police.Service.Area))%>%
+  filter(!is.na(Police.Service.Area), Unit.type == "Uniform")%>%
   group_by(Police.Service.Area)%>%
   mutate(`Overall %` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 1), Total.searches = n())%>%
   filter(!Ethnic.appearance %in% c("South American", "Other"), !is.na(Ethnic.appearance))%>%
