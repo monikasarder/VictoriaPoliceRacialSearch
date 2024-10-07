@@ -30,7 +30,7 @@ The five types of searches without a warrant that are included in this dataset a
 * **Firearms**: under section 149 of the *Firearms Act 1996*   
 * **Graffiti implements** at a designated place: under section 13 of the *Graffiti Prevention Act*  
 
-## Notes on racial appearance categories created by Victoria Police  
+### Racial appearance categories created by Victoria Police  
 
 Victoria Police records the ethnic appearance of the people that they search without warrant based on existing categories. These categories are not based on ancestry information, but on *perceived ethnicity* as considered by the officer. 
 
@@ -42,13 +42,11 @@ A total of 22,117 search records, or 42% of all records, did not have any ethnic
 
 There is a limitation on our ability to analyse police-targeting of people of Middle Eastern appearance, as in 2020 Victoria Police aggregated Mediterranean and Middle Eastern into a single category.  This presents a challenge to our analysis, as we would ordinarily expect persons of Mediterranean descent (eg people of Italian, Greek, Croatian ancestry) to be categorised as 'non-racialised' or 'White'.  Meanwhile we would ordinarily expect persons of the Middle Eastern appearance to be considered 'racialised'.  
 
-The Centre Against Racial Profiling urges Victoria Police to separate 'Middle Eastern' from 'Mediterranean' in order for racial appearance data to be more useful. This is particularly relevant for understanding the effect of the impact of overseas conflicts and resulting protests at home on potential police bias.
-
-### Notes on station location  
+### Station location versus location of search   
 
 Station location information is provided where the unit which the officer conducting the search was a part of is based in a local police station. This data is available for searches conducted by uniform police as well as searches conducted by police working as part of a specific unit such as Highway Patrol, Divisional Response Unit (DRU), Criminal Investigation Unit (CIU) and Sexual Offences and Child Abuse Investigation Teams (SOCIT).  
 
-Please note that whilst most searches conducted by uniform police will occur within the Local Government Area in which the station is located, searches conducted by police working in specific units may have occurred in surrounding areas within the broader Police Division.
+Most searches conducted by uniform police will occur within the Local Government Area in which the station is located.  Meanwhile, searches conducted by police working in specific units may have occurred in surrounding areas within the broader Police Division (ie across several Local Government Areas).  
 
 ## Contact  
 
