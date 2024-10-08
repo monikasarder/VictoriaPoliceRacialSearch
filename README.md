@@ -1,12 +1,10 @@
 # Victoria Police Search Data 
 
-This dataset, which contains the summary of over 50,000 searches carried out by Victoria Police in the years 2018,2019, 2022 and 2023, was prepared as part of [**The Racial Profiling Data Monitoring Project**](https://khaki-pepper-b3rf.squarespace.com/), a project of the [Centre Against Racial Profiling](https://www.centreagainstracialprofiling.au/).  For more information about this dataset, and the significant resources and effort required to obtain it, go to [Annual Data](https://khaki-pepper-b3rf.squarespace.com/annual-data), or to donate to the project [here](https://khaki-pepper-b3rf.squarespace.com/checkout/donate?donatePageId=666baedd575e81339bc863ff). 
+This dataset, which contains the summary of over 50,000 searches carried out by Victoria Police in the years 2018,2019, 2022 and 2023, was prepared as part of [**The Racial Profiling Data Monitoring Project**](https://khaki-pepper-b3rf.squarespace.com/), a project of the [Centre Against Racial Profiling](https://www.centreagainstracialprofiling.au/).  
 
 ## Purpose of this repository  
 
 This repository was prepared to provide data and *R code* that can be used by stakeholders interested in police accountability with the means and methods to transform raw police search data into useable information to understand racial profiling in their communities. Station location information and Police Division hierarchy data not present in the raw dataset has also been added.  
-
-The raw datasets that can be downloaded from the [**The Racial Profiling Data Monitoring Project**](https://khaki-pepper-b3rf.squarespace.com/).  
 
 Repository inclusions are as follows:  
 
