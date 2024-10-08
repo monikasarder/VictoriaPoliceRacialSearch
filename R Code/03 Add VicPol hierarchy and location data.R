@@ -187,9 +187,22 @@ table(dat.sr2$Found, dat.sr2$Search.item.found)
 #           ifelse(Search.item.found == "Nothing found" & Found == "Yes", "Non-search item found", Search.item.found))
 
 #select final inclusions
+
+
+dat.sr2 <- dat.sr2 %>%
+  mutate(Ethnic.appearance.abridged = 
+           case_when(Racial.appearance %in% c("South American", "Pacific Islander") ~ "Other",
+                     Racial.appearance == "South Asian" ~ "Asian",
+                     TRUE ~ Racial.appearance))%>%
+  mutate(Racialised = 
+  case_when(Racial.appearance == "White" ~ "No",
+            Racial.appearance != "White" ~ "Yes",
+            TRUE ~ Racial.appearance))
+  
+
 dat.sr2 <- dat.sr2 %>%
   select(FieldReportID,FieldContactID, Year, Contact.Date, Contact.Time,  Contact.Type, 
-         Ethnic.appearance = Racial.appearance, Ethnic.Appearance.original = Racial.Appearance.original, 
+         Racialised, Ethnic.appearance = Racial.appearance, Ethnic.Appearance.original = Racial.Appearance.original, Ethnic.appearance.abridged,
          Found, Search.item.found,
          `Search.type - Drugs` ,  `Search.type - Weapons` ,
          `Search.type - Firearms` , `Search.type - Graffiti` ,
@@ -224,44 +237,4 @@ values <-as.data.frame(values)
 saveRDS(dat.sr3, "Output.data/Clean.search.data.RDS")
 
 write_xlsx(values, "Output.data/dictionary.xlsx")
-
-#Create Local level data file
-dat <- dat.sr3
-
-lga.psa <- dat %>%
-  select(Police.Service.Area, Local.Government.Area)%>%
-  unique()
-
-lga.psa <- dat %>%
-  select(Police.Service.Area, Local.Government.Area)%>%
-  unique()
-
-lga.racial <- dat %>%
-  filter(!is.na(Police.Service.Area))%>%
-  group_by(Police.Service.Area)%>%
-  mutate(`Overall %` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 1), Total.searches = n())%>%
-  filter(!Ethnic.appearance %in% c("South American", "Other"), !is.na(Ethnic.appearance))%>%
-  mutate(Ethnic.appearance = fct_infreq(Ethnic.appearance))%>%
-  group_by(Area.type, Police.Service.Area, Total.searches, `Overall %`, Ethnic.appearance)%>%
-  summarise(Finds = sum(Found == "Yes", na.rm = T), Searches = n())%>%
-  ungroup()%>%
-  mutate(Searches1 = ifelse(Searches <= 5, NA, Searches))%>%
-  mutate(`Hit rate` = round(Finds/Searches1*100, digits = 1))%>%
-  select(-Finds, -Searches1)%>%
-  pivot_wider(names_from = Ethnic.appearance,
-              values_from = c(`Hit rate`, Searches))%>%
-  left_join(lga.psa, by = "Police.Service.Area")%>%
-  select(`Area` = Area.type, `Local Government Area` = Local.Government.Area, `Police Service Area` = Police.Service.Area,
-         `Total searches` = Total.searches,
-         `Overall %`, `Searches White` = Searches_White, `White %` = `Hit rate_White`, 
-         `Searches Aboriginal` = Searches_Aboriginal, `Aboriginal %` = `Hit rate_Aboriginal`, 
-         `Searches Middle Eastern/Med`= `Searches_Middle Eastern/Med`, `Middle Eastern/Med %` = `Hit rate_Middle Eastern/Med`, 
-         `Searches African` = Searches_African,
-         `African %`= `Hit rate_African`, 
-          
-         `Searches Asian` = Searches_Asian, `Asian %` = `Hit rate_Asian`,
-         `Searches South Asian` = `Searches_South Asian`, `South Asian %` = `Hit rate_South Asian`, 
-         `Searches Pacific Islander` = `Searches_Pacific Islander`,  `Pacific Islander %` = `Hit rate_Pacific Islander`)
-
-write_xlsx(lga.racial, "Output.data/LGA station searches.xlsx")
 
