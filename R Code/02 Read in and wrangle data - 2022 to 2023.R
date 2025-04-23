@@ -113,6 +113,7 @@ fdat <- search.dat %>%
 fdat <- fdat %>%
   mutate(across(where(is.character), ~na_if(., ".")))
 
+table(fdat$Racial.Appearance)
 #Aggregate race and identify missing
 fdat <- fdat %>%
    mutate(Racial.appearance = case_when(
@@ -121,7 +122,7 @@ fdat <- fdat %>%
     str_detect(Racial.Appearance, "AFRICAN") ~ "African",
     Racial.Appearance == "ASIAN" ~ "Asian",
     Racial.Appearance == "INDIAN SUB-CONTINENTAL" ~ "South Asian",
-    str_detect(Racial.Appearance, "MIDDLE") ~ "Middle Eastern/Med",
+    str_detect(Racial.Appearance, "MIDDLE") ~ "Mediterarranean/Mid",
     str_detect(Racial.Appearance, "MAORI") ~ "Pacific Islander",
     Racial.Appearance == "SOUTH AMERICAN" ~ "South American",
     Racial.Appearance == "UNDETERMINED" ~ "Other",
@@ -148,7 +149,6 @@ fin.dat <- fdat %>%
 
 saveRDS(fin.dat, "Output.data/data.22.23.wrangled.RDS")
 
-dat18 <- readRDS("./Output.data/data.18.19.wrangled.RDS")
 
 
 

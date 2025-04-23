@@ -122,18 +122,21 @@ dat.s <- dat.s %>%
     str_detect(Racial.Appearance, "AFRICAN") ~ "African",
     Racial.Appearance == "ASIAN" ~ "Asian",
     str_detect(Racial.Appearance, "INDIAN") ~ "South Asian",
-    str_detect(Racial.Appearance, "MIDDLE") ~ "Middle Eastern/Med",
+    Racial.Appearance == "MEDITERRANEAN/MIDDLE-EASTERN" ~ "Mediterarranean/Mid",
+    Racial.Appearance == "MIDDLE-EASTERN" ~ "Middle Eastern",
+    Racial.Appearance =="AFRICA/MIDEAST (DONT USE)"~ "Middle Eastern",
     Racial.Appearance == "MAORI" ~ "Pacific Islander",
     str_detect(Racial.Appearance, "PACIFIC") ~ "Pacific Islander",
-    Racial.Appearance == "ARAB" ~  "Middle Eastern/Med",
+    Racial.Appearance == "ARAB" ~  "Middle Eastern",
     Racial.Appearance == "BLACK" ~ "African",
-    Racial.Appearance == "SOUTH/EUROPE" ~  "Middle Eastern/Med",
+    Racial.Appearance == "SOUTH/EUROPE" ~  "White",
     Racial.Appearance == "NORTH/EUROPE" ~ "White",
     Racial.Appearance %in% c("LATIN AMERICAN", 
                              "SOUTH AMERICAN") ~ "South American",
-    Racial.Appearance %in% c("UNDETERMINED", "AFRICA/MIDEAST (DONT USE)", "UNKNOWN",
+    Racial.Appearance %in% c("UNDETERMINED", "UNKNOWN",
                              "UNCLASSIFIED/OTHER RACE") ~ "Other",
     TRUE ~ "Missing"))
+
 
 dat.s <- dat.s %>%
   mutate(Racial.appearance.missing = ifelse(Racial.Appearance =="Missing", "Missing", "Not missing"))%>%
@@ -172,3 +175,5 @@ fin.dat.2 <- dat.s %>%
          Reporting.Station.Description, Unit.type, Rank.of.Member )
 
 saveRDS(fin.dat.2, "Output.data/data.18.19.wrangled.RDS")
+
+

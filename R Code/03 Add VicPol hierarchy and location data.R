@@ -169,37 +169,29 @@ dat.sr1 <- dat.sr %>%
 table(dat.sr1$`Search.type - Drugs`)
 #check if item for which a search occurred was found
 dat.sr2 <- dat.sr1 %>%
-     mutate(Search.item.found = case_when(
-         `Search.type - Drugs` == "Search item found"|
-           `Search.type - Weapons` == "Search item found"|
-           `Search.type - Firearms` == "Search item found"|
-             `Search.type - Graffiti`== "Search item found"|          
-           `Search.type - Volatile.sub.U18`== "Search item found"|
-           `Search.type - Volatile.sub.adult`== "Search item found" ~ "Search item found",
+     mutate(
+       Search.item.found = case_when(
+          `Search.type - Drugs` == "Search item found"|
+          `Search.type - Weapons` == "Search item found"|
+          `Search.type - Firearms` == "Search item found"|
+          `Search.type - Graffiti`== "Search item found"|          
+          `Search.type - Volatile.sub.U18`== "Search item found"|
+          `Search.type - Volatile.sub.adult`== "Search item found" ~ "Search item found",
          TRUE ~"Nothing found")
        )
 
 
-table(dat.sr2$Found, dat.sr2$Search.item.found)
-
-#dat.sr2 <- dat.sr2 %>%
-#  mutate(Search.item.found = 
-#           ifelse(Search.item.found == "Nothing found" & Found == "Yes", "Non-search item found", Search.item.found))
-
-#select final inclusions
-
-
 dat.sr2 <- dat.sr2 %>%
   mutate(Ethnic.appearance.abridged = 
-           case_when(Racial.appearance %in% c("South American", "Pacific Islander") ~ "Other",
-                     Racial.appearance == "South Asian" ~ "Asian",
+           case_when(Racial.appearance %in% c("South American", "Other") ~ "Other racialised",
+                     is.na(Racial.appearance) ~ "Missing",
                      TRUE ~ Racial.appearance))%>%
   mutate(Racialised = 
   case_when(Racial.appearance == "White" ~ "No",
             Racial.appearance != "White" ~ "Yes",
             TRUE ~ Racial.appearance))
   
-
+table(dat.sr2$Ethnic.appearance.abridged)
 dat.sr2 <- dat.sr2 %>%
   select(FieldReportID,FieldContactID, Year, Contact.Date, Contact.Time,  Contact.Type, 
          Racialised, Ethnic.appearance = Racial.appearance, Ethnic.Appearance.original = Racial.Appearance.original, Ethnic.appearance.abridged,
@@ -208,7 +200,7 @@ dat.sr2 <- dat.sr2 %>%
          `Search.type - Firearms` , `Search.type - Graffiti` ,
          `Search.type - Volatile.sub.U18` , `Search.type - Volatile.sub.adult`,
          Indigenous.Status,
-         Gender, Age,   Complexion, Hair.Colour, Hair.Style, 
+         Gender, Age,   Complexion, Hair.Colour, Hair.Style, Unit,
          Reporting.Station.Description, Unit.type, Rank.of.Member, Region, Division, Police.Service.Area, Area.type, Local.Government.Area, Locality,
          Postcode)
 
@@ -237,4 +229,6 @@ values <-as.data.frame(values)
 saveRDS(dat.sr3, "Output.data/Clean.search.data.RDS")
 
 write_xlsx(values, "Output.data/dictionary.xlsx")
+
+table(dat.sr3$Unit)
 
