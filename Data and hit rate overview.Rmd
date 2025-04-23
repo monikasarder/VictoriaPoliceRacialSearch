@@ -72,7 +72,7 @@ The variables of interest in the dataset are summarised in Table 1 below.
 **Table 1 Characteristics of searches**
 ```{r summary 2, echo = FALSE, warning = FALSE}
 
-of.interest <- c("Year", "Ethnic.appearance","Gender", "Area.type", "Unit.type", "Contact.Type" ,"Rank.of.Member", "Found",
+of.interest <- c("Year", "Ethnic.appearance.abridged","Gender", "Area.type", "Unit.type", "Contact.Type" ,"Rank.of.Member", "Found",
                  "Search.type - Drugs","Search.type - Weapons","Search.type - Firearms",          
                   "Search.type - Graffiti","Search.type - Volatile.sub.U18","Search.type - Volatile.sub.adult")
 
@@ -147,8 +147,7 @@ Figure 1 below shows how the hit rate for different racial appearances changed o
 **Figure 1 Changes in hit rates by racial appearance over time and compared to the average**
 ```{r Finds race year, echo=FALSE, warning=FALSE, message = FALSE}
 trend <- dat %>%
-  filter(!`Ethnic.appearance` %in% c("Other", "Missing", "South American"), !is.na(Ethnic.appearance))%>%
-  mutate(Ethnic.appearance = fct_infreq(Ethnic.appearance))%>%
+  mutate(Ethnic.appearance = fct_infreq(Ethnic.appearance.abridged))%>%
   group_by(Year, `Ethnic.appearance`)%>%
   summarise(Finds = sum(Found == "Yes", na.rm = T), `Total searches`= n())%>%
   mutate(`Hit rate` = round(Finds/`Total searches`*100, digits = 1)) %>%
@@ -203,8 +202,7 @@ Racialised hit rates across different unit types were compared.  Where there wer
 unit.racial <- dat %>%
   group_by(Unit.type)%>%
   mutate(`Overall %` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 1), Total.searches = n())%>%
-  filter(!Ethnic.appearance %in% c("South American", "Other"), !is.na(Ethnic.appearance))%>%
-  mutate(Ethnic.appearance = fct_infreq(Ethnic.appearance))%>%
+  mutate(Ethnic.appearance = fct_infreq(Ethnic.appearance.abridged))%>%
   group_by(Unit.type, Total.searches, `Overall %`, Ethnic.appearance)%>%
   summarise(Finds = sum(Found == "Yes", na.rm = T), Searches = n())%>%
   ungroup()%>%
@@ -217,7 +215,7 @@ unit.racial <- dat %>%
   arrange(desc(Total.searches))%>%
   select(Unit.type,
          `Total searches` = Total.searches,
-         `Overall %`, `White %` = White, `Aboriginal %` = Aboriginal, `Middle Eastern/Med %` = `Middle Eastern/Med`, 
+         `Overall %`, `White %` = White, `Aboriginal %` = Aboriginal, `Middle Eastern %` = `Middle Eastern`, 
          `African %`= African, `Asian %` = Asian,`South Asian %` = `South Asian`, `Pacific Islander %` = `Pacific Islander`)
 
 unit.racial %>%
@@ -246,8 +244,7 @@ lga.racial <- dat %>%
   filter(!is.na(Police.Service.Area), Unit.type == "Uniform")%>%
   group_by(Police.Service.Area)%>%
   mutate(`Overall %` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 1), Total.searches = n())%>%
-  filter(!Ethnic.appearance %in% c("South American", "Other"), !is.na(Ethnic.appearance))%>%
-  mutate(Ethnic.appearance = fct_infreq(Ethnic.appearance))%>%
+  mutate(Ethnic.appearance = fct_infreq(Ethnic.appearance.abridged))%>%
   group_by(Area.type, Police.Service.Area, Total.searches, `Overall %`, Ethnic.appearance)%>%
   summarise(Finds = sum(Found == "Yes", na.rm = T), Searches = n())%>%
   ungroup()%>%
@@ -260,7 +257,7 @@ lga.racial <- dat %>%
   left_join(lga.psa, by = "Police.Service.Area")%>%
   select(`Area` = Area.type, `Local Government Area` = Local.Government.Area, `Police Service Area` = Police.Service.Area,
          `Total searches` = Total.searches,
-         `Overall %`, `White %` = White, `Aboriginal %` = Aboriginal, `Middle Eastern/Med %` = `Middle Eastern/Med`, 
+         `Overall %`, `White %` = White, `Aboriginal %` = Aboriginal, `Middle Eastern %` = `Middle Eastern`, `Mediterranean/Mid %` = `Mediterarranean/Mid`,
          `African %`= African, `Asian %` = Asian,`South Asian %` = `South Asian`, `Pacific Islander %` = `Pacific Islander`)
 
 lga.racial %>%
@@ -279,22 +276,25 @@ lga.racial %>%
 
 Ethnic appearance categories for different years were transformed to enable comparison across the four years. A table of transformations undertaken, along with the number of searches in each category, appears below,
 
+# 2022 and 2023 mapping  
 
 ```{r Map 1, echo=FALSE, warning=FALSE, message = FALSE}
 
 ethnic.mapping1 <-dat %>%
   filter(Year %in% c(2022, 2023))%>%
-  count(Ethnic.Appearance.original, Ethnic.appearance)
+  count(Ethnic.Appearance.original, Ethnic.appearance.abridged)
 
 ethnic.mapping1 %>%
   kable()
 ```
 
+# 2018 and 2019 mapping  
+
 ```{r Map 2, echo=FALSE, warning=FALSE, message = FALSE}
 
 ethnic.mapping2 <- dat %>%
   filter(Year %in% c(2018, 2019))%>%
-  count(Ethnic.Appearance.original, Ethnic.appearance) 
+  count(Ethnic.Appearance.original, Ethnic.appearance.abridged) 
 
 
 ethnic.mapping2 %>%
