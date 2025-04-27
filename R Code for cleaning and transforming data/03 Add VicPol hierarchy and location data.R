@@ -230,7 +230,7 @@ dat.sr3 <- dat.sr3 %>%
 saveRDS(dat.sr3, "Output.data/Clean.search.data.RDS")
 
 # Load the existing workbook
-wb <- loadWorkbook("Output.data/VicPol Search data for analysis.xlsx")
+wb <- loadWorkbook("VicPol Search data for analysis.xlsx")
 
 #addWorksheet(wb, "Data")
 
@@ -238,6 +238,6 @@ wb <- loadWorkbook("Output.data/VicPol Search data for analysis.xlsx")
 writeData(wb, sheet = "Data", x = dat.sr3)
 
 # Save the workbook
-saveWorkbook(wb, "Output.data/VicPol Search data for analysis.xlsx", overwrite = TRUE)
+saveWorkbook(wb, "VicPol Search data for analysis.xlsx", overwrite = TRUE)
 
 
