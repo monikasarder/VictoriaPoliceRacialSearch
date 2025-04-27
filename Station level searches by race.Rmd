@@ -52,14 +52,14 @@ Where fewer than 20 individuals from a particular racial appearance group were s
 ```{r Station, echo=FALSE, warning=FALSE, message = FALSE}
 
 loc.racial <- dat %>%
-  filter(!is.na(Unit),Contact.Type == "P", 
+  filter(!is.na(Station.uniform),Contact.Type == "P", 
          !is.na(`Search.type - Drugs`),
         Area.type == "Metro")%>%
-  group_by(Division, Unit)%>%
+  group_by(Division, Station.uniform)%>%
   mutate(`Finds all (%)` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 0), 
          Total.searches = n())%>%
   mutate(Racial.appearance.abridged = fct_infreq(Racial.appearance.abridged))%>%
-  group_by(Division, Unit, Total.searches, `Finds all (%)`, Racial.appearance.abridged)%>%
+  group_by(Division, Station.uniform, Total.searches, `Finds all (%)`, Racial.appearance.abridged)%>%
   summarise(Finds = sum(Found == "Yes", na.rm = T), Searches = n())%>%
   ungroup()%>%
   mutate(`Hit rate` = round(Finds/Searches*100, digits = 1))%>%
@@ -70,7 +70,8 @@ loc.racial <- dat %>%
   )%>%
  select(
    Division,
-    Station = Unit, 
+    Station = Station.uniform, 
+   `Total drug searches` = Total.searches, 
     `Finds all (%)`,  
      `Finds: White (%)` = `Hit rate_White`, 
     `Finds: African (%)` = `Hit rate_African`, 
@@ -81,7 +82,7 @@ loc.racial <- dat %>%
     `Finds: Pacific Islander (%)` = `Hit rate_Pacific Islander`, 
     `Finds: Other non-White (%)` = `Hit rate_Other racialised`,
     `Finds: Missing (%)` = `Hit rate_Missing`,
-    `Searches all` = Total.searches, 
+    
   #  `Searches: White` = `Searches_White`, 
   #  `Searches: African` = `Searches_African`
   #  `Searches: Asian` = `Searches_Asian`, 
