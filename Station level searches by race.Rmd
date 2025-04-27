@@ -1,5 +1,5 @@
 ---
-title: "Victoria Police drug stop and search data"
+title: "Victoria Police Drug Stop and Search Data"
 author: "Monika Sarder"
 date: "`r Sys.Date()`"
 output: 
@@ -30,26 +30,24 @@ dat <- readRDS("Output.data/Clean.search.data.RDS")
 
 # Data overview 
 
-This contains the summary of over 13,000 warrantless searches carried out by regular uniform police across Victoria under the drugs power whilst on foot patrol in public places, in the years 2018, 2019, 2022 and 2023, available from  [**The Racial Profiling Data Monitoring Project**](https://khaki-pepper-b3rf.squarespace.com/).
+This report summarises over 13,000 warrantless drug searches conducted by uniformed Victoria Police officers while patrolling on foot in public places. The data covers the years 2018, 2019, 2022, and 2023, and is sourced from  [**The Racial Profiling Data Monitoring Project**](https://khaki-pepper-b3rf.squarespace.com/). Data from 2020 and 2021 is excluded due to the extraordinary circumstances of the COVID-19 pandemic.
 
-Note that 2020 and 2021 data is not included in this data due to the extraordinary circumstances of the COVID 19 pandemic.
+Under section 82 of the [*Drugs Poisons and Controlled Substances Act 1981*](http://classic.austlii.edu.au/au/legis/vic/consol_act/dpacsa1981422/s82.html), a police officer may stop and search a person in a public place if they reasonably suspect the person is in possession of illegal drugs. Drug searches are the most common type of warrantless search carried out by police in Victoria.
 
-Under section 82 of the [*Drugs Poisons and Controlled Substances Act 1981*](http://classic.austlii.edu.au/au/legis/vic/consol_act/dpacsa1981422/s82.html) a police officer who believes there are reasonable ground for suspecting that a person is in possession of an illegal drug in a public place, may stop and search a person.
+## Racial appearance categories  
 
-Drug searches the most common warrantless search undertaken by police in Victoria.
-
-## Ethnic appearance categories  
-
-Victoria Police records the ethnic appearance of the people that they search without warrant based on existing categories. These categories are not based on ancestry information, but on *perceived ethnicity* as considered by the officer. 
+Victoria Police records the perceived racial appearance of individuals subjected to stop and search. These categories are based on the officer’s perception, not the individual's self-reported ancestry or identity. 
 
 ***Missing data***
 
-A total of 2,860 search records, or 21% of all records, did not have any ethnic appearance data entered, despite this field being mandatory for 'stop and searches' since 2019. 
+Racial appearance was not recorded in 2,860 search records — approximately 21% of all records — despite being a mandatory field for stop and search data collection since 2019.
 
+## Melbourne Drug Searches – Evidence of Racial Profiling by Station  
 
-## Melbourne drug searches - which stations show evidence of racial profiling?
+Find rates — the percentage of searches resulting in the discovery of illegal drugs — for people of different recorded racial appearances at stations across Melbourne are presented below.
 
-The find rates for persons of different racial appearances at stations across Melbourne appears below. Where less than 20 people from a particular racial group had been search, no find rates are reported, as the sample is too small to be meaningful.
+Where fewer than 20 individuals from a particular racial appearance group were searched at a station, find rates are not reported, as small sample sizes limit meaningful analysis.
+
 
 ```{r Station, echo=FALSE, warning=FALSE, message = FALSE}
 
@@ -60,14 +58,14 @@ loc.racial <- dat %>%
   group_by(Division, Unit)%>%
   mutate(`Finds all (%)` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 0), 
          Total.searches = n())%>%
-  mutate(Ethnic.appearance.abridged = fct_infreq(Ethnic.appearance.abridged))%>%
-  group_by(Division, Unit, Total.searches, `Finds all (%)`, Ethnic.appearance.abridged)%>%
+  mutate(Racial.appearance.abridged = fct_infreq(Racial.appearance.abridged))%>%
+  group_by(Division, Unit, Total.searches, `Finds all (%)`, Racial.appearance.abridged)%>%
   summarise(Finds = sum(Found == "Yes", na.rm = T), Searches = n())%>%
   ungroup()%>%
   mutate(`Hit rate` = round(Finds/Searches*100, digits = 1))%>%
   mutate(`Hit rate` = ifelse(Searches <= 20, NA, `Hit rate`))%>%
   select(-Finds)%>%
-  pivot_wider(names_from = Ethnic.appearance.abridged,
+  pivot_wider(names_from = Racial.appearance.abridged,
     values_from = c(`Hit rate`, Searches)
   )%>%
  select(
@@ -85,7 +83,7 @@ loc.racial <- dat %>%
     `Finds: Missing (%)` = `Hit rate_Missing`,
     `Searches all` = Total.searches, 
   #  `Searches: White` = `Searches_White`, 
-    `Searches: African` = `Searches_African`
+  #  `Searches: African` = `Searches_African`
   #  `Searches: Asian` = `Searches_Asian`, 
   #  `Searches: South Asian` = `Searches_South Asian`,
   #  `Searches: Aboriginal` = Searches_Aboriginal, 
@@ -120,7 +118,7 @@ Ethnic appearance categories for different years were transformed to enable comp
 
 ethnic.mapping1 <-dat %>%
   filter(Year %in% c(2022, 2023))%>%
-  count(Ethnic.Appearance.original, Ethnic.appearance.abridged)
+  count(Racial.Appearance.original, Racial.appearance.abridged)
 
 ethnic.mapping1 %>%
   kable()
@@ -130,7 +128,7 @@ ethnic.mapping1 %>%
 
 ethnic.mapping2 <- dat %>%
   filter(Year %in% c(2018, 2019))%>%
-  count(Ethnic.Appearance.original, Ethnic.appearance.abridged) 
+  count(Racial.Appearance.original, Racial.appearance.abridged) 
 
 
 ethnic.mapping2 %>%
