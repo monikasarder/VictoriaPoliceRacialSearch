@@ -34,7 +34,6 @@ This contains the summary of over 13,000 warrantless searches carried out by reg
 
 Note that 2020 and 2021 data is not included in this data due to the extraordinary circumstances of the COVID 19 pandemic.
 
-
 Under section 82 of the [*Drugs Poisons and Controlled Substances Act 1981*](http://classic.austlii.edu.au/au/legis/vic/consol_act/dpacsa1981422/s82.html) a police officer who believes there are reasonable ground for suspecting that a person is in possession of an illegal drug in a public place, may stop and search a person.
 
 Drug searches the most common warrantless search undertaken by police in Victoria.
@@ -48,230 +47,9 @@ Victoria Police records the ethnic appearance of the people that they search wit
 A total of 2,860 search records, or 21% of all records, did not have any ethnic appearance data entered, despite this field being mandatory for 'stop and searches' since 2019. 
 
 
-## Melbourne drug searches - which areas and groups are subject to racial profiling
+## Melbourne drug searches - which stations show evidence of racial profiling?
 
-The find rates for persons of different ethnic appearances for Local Government Areas appears below. Find rates for ethnic appearances in areas where less than twenty searches were recorded were excluded from the analysis.
-
-
-**Table 1 Ethnic appearance hit rates by LGA**
-```{r LGA, echo=FALSE, warning=FALSE, message = FALSE}
-
-lga.racial <- dat %>%
-  filter(!is.na(Police.Service.Area),Contact.Type == "P", 
-         !is.na(`Search.type - Drugs`),
-        Area.type == "Metro")%>%
-  group_by(Division, Local.Government.Area)%>%
-  mutate(`Finds all (%)` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 0), 
-         Total.searches = n())%>%
-  mutate(Ethnic.appearance.abridged = fct_infreq(Ethnic.appearance.abridged))%>%
-  group_by( Division, Local.Government.Area, Total.searches, `Finds all (%)`, Ethnic.appearance.abridged)%>%
-  summarise(Finds = sum(Found == "Yes", na.rm = T), Searches = n())%>%
-  ungroup()%>%
-  mutate(`Hit rate` = round(Finds/Searches*100, digits = 1))%>%
-  mutate(`Hit rate` = ifelse(Searches <= 20, NA, `Hit rate`))%>%
-  select(-Finds)%>%
-  pivot_wider(names_from = Ethnic.appearance.abridged,
-    values_from = c(`Hit rate`, Searches)
-  )%>%
-  filter(Searches_African>=20)%>%
-  select(Division,
-    `Local Government Area` = Local.Government.Area, 
-    `Finds all (%)`,  
-    `Finds: White (%)` = `Hit rate_White`, 
-    `Finds: African (%)` = `Hit rate_African`, 
-    `Finds: Aboriginal (%)` = `Hit rate_Aboriginal`, 
-    `Finds: Middle Eastern (%)`= `Hit rate_Middle Eastern` , 
-    `Finds: Asian (%)` = `Hit rate_Asian`, 
-    `Finds: South Asian (%)` = `Hit rate_South Asian`, 
-    `Finds: Pacific Islander (%)` = `Hit rate_Pacific Islander`, 
-    `Finds: Other non-White (%)` = `Hit rate_Other racialised`,
-    `Finds: Missing (%)` = `Hit rate_Missing`,
-    `Searches all` = Total.searches, 
-    `Searches: White` = `Searches_White`, 
-    `Searches: African` = `Searches_African`, 
-    `Searches: Aboriginal` = Searches_Aboriginal, 
-    `Searches: Middle Eastern` = `Searches_Middle Eastern`, 
-    `Searches: Asian` = `Searches_Asian`, 
-    `Searches: South Asian` = `Searches_South Asian`,
-    `Searches: Pacific Islander` = `Searches_Pacific Islander`,
-    `Searches: Mediterranean/Mid` = `Searches_Mediterarranean/Mid`,
-    `Searches: Other non-White` = `Searches_Other racialised`,
-    `Searches: Missing` = Searches_Missing)
-
-lga.racial %>%
-  datatable(rownames = F, extensions = 'Buttons',
-            options = list(
-              dom = 'Blfrtip',
-              buttons = c('copy', 'excel','print'),
-  pageLength = 20, autoWidth = TRUE
-))
-
-
-```
-
-```{r LGA all, echo=FALSE, warning=FALSE, message = FALSE}
-
-pdat <- dat %>%
-  filter(!is.na(Police.Service.Area),Contact.Type == "P", 
-         !is.na(`Search.type - Drugs`),
-         Area.type == "Metro", Unit.type == "Uniform")
-
-lga.racial.sum <- pdat %>%
-  mutate(`Finds all (%)` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 1), 
-         Total.searches = n())%>%
-  mutate(Ethnic.appearance.abridged = fct_infreq(Ethnic.appearance.abridged))%>%
-  group_by( Ethnic.appearance.abridged)%>%
-  summarise(Finds = sum(Found == "Yes", na.rm = T), 
-            Searches = n())%>%
-  ungroup()%>%
-  mutate(`Hit rate` = round(Finds/Searches*100, digits = 0))%>%
-  mutate(`Hit rate` = ifelse(Searches <= 20, NA, `Hit rate`))%>%
-  arrange(desc(`Hit rate`))
-
-
-lga.racial.sum %>% kable()
-```
-
-```{r LGA reg, echo=FALSE, warning=FALSE, message = FALSE}
-
-pdat <- dat %>%
-  filter(!is.na(Police.Service.Area),Contact.Type == "P", 
-         !is.na(`Search.type - Drugs`),
-         Area.type == "Regional", Unit.type == "Uniform")
-
-lga.racial.sum <- pdat %>%
-  mutate(`Finds all (%)` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 1), 
-         Total.searches = n())%>%
-  mutate(Ethnic.appearance.abridged = fct_infreq(Ethnic.appearance.abridged))%>%
-  group_by( Ethnic.appearance.abridged)%>%
-  summarise(Finds = sum(Found == "Yes", na.rm = T), 
-            Searches = n())%>%
-  ungroup()%>%
-  mutate(`Hit rate` = round(Finds/Searches*100, digits = 0))%>%
-  mutate(`Hit rate` = ifelse(Searches <= 20, NA, `Hit rate`))%>%
-  arrange(desc(`Hit rate`))
-
-
-lga.racial.sum %>% kable()
-```
-
-## Melbourne drug searches - which PSAs and groups are subject to racial profiling
-
-The find rates for persons of different ethnic appearances for Police Service Areas appears below. Find rates for ethnic appearances in areas where less than twenty searches were recorded were excluded from the analysis.
-
-
-**Table 2 Ethnic appearance hit rates by PSA**
-```{r Division, echo=FALSE, warning=FALSE, message = FALSE}
-
-div.racial <- dat %>%
-  filter(!is.na(Division),Contact.Type == "P", 
-         !is.na(`Search.type - Drugs`),
-        Area.type == "Metro")%>%
-  group_by(Division)%>%
-  mutate(`Finds all (%)` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 0), 
-         Total.searches = n())%>%
-  mutate(Ethnic.appearance.abridged = fct_infreq(Ethnic.appearance.abridged))%>%
-  group_by( Division, Total.searches, `Finds all (%)`, Ethnic.appearance.abridged)%>%
-  summarise(Finds = sum(Found == "Yes", na.rm = T), Searches = n())%>%
-  ungroup()%>%
-  mutate(`Hit rate` = round(Finds/Searches*100, digits = 0))%>%
-  mutate(`Hit rate` = ifelse(Searches <= 20, NA, `Hit rate`))%>%
-  select(-Finds)%>%
-  pivot_wider(names_from = Ethnic.appearance.abridged,
-    values_from = c(`Hit rate`, Searches)
-  )%>%
-   filter(Searches_African>=20)%>%
- select(
-    Division, 
-     `Finds all (%)`,  
-    `Finds: White (%)` = `Hit rate_White`, 
-    `Finds: African (%)` = `Hit rate_African`, 
-    `Finds: Aboriginal (%)` = `Hit rate_Aboriginal`, 
-    `Finds: Middle Eastern (%)`= `Hit rate_Middle Eastern` , 
-    `Finds: Asian (%)` = `Hit rate_Asian`, 
-    `Finds: South Asian (%)` = `Hit rate_South Asian`, 
-    `Finds: Pacific Islander (%)` = `Hit rate_Pacific Islander`, 
-    `Finds: Other non-White (%)` = `Hit rate_Other racialised`,
-    `Finds: Missing (%)` = `Hit rate_Missing`,
-    `Searches all` = Total.searches, 
-    `Searches: White` = `Searches_White`, 
-    `Searches: African` = `Searches_African`, 
-    `Searches: Aboriginal` = Searches_Aboriginal, 
-    `Searches: Middle Eastern` = `Searches_Middle Eastern`, 
-    `Searches: Asian` = `Searches_Asian`, 
-    `Searches: South Asian` = `Searches_South Asian`,
-    `Searches: Pacific Islander` = `Searches_Pacific Islander`,
-    `Searches: Mediterranean/Mid` = `Searches_Mediterarranean/Mid`,
-    `Searches: Other non-White` = `Searches_Other racialised`,
-    `Searches: Missing` = Searches_Missing)
-
-div.racial %>%
-  datatable(rownames = F, extensions = 'Buttons',
-            options = list(
-              dom = 'Blfrtip',
-              buttons = c('copy', 'excel','print'),
-  pageLength = 20, autoWidth = TRUE
-))
-
-
-```
-
-
-```{r Locality, echo=FALSE, warning=FALSE, message = FALSE}
-
-loc.racial <- dat %>%
-  filter(!is.na(Locality),Contact.Type == "P", 
-         !is.na(`Search.type - Drugs`),
-        Area.type == "Metro")%>%
-  group_by(Division, Locality)%>%
-  mutate(`Finds all (%)` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 0), 
-         Total.searches = n())%>%
-  mutate(Ethnic.appearance.abridged = fct_infreq(Ethnic.appearance.abridged))%>%
-  group_by(Division, Locality, Total.searches, `Finds all (%)`, Ethnic.appearance.abridged)%>%
-  summarise(Finds = sum(Found == "Yes", na.rm = T), Searches = n())%>%
-  ungroup()%>%
-  mutate(`Hit rate` = round(Finds/Searches*100, digits = 1))%>%
-  mutate(`Hit rate` = ifelse(Searches <= 20, NA, `Hit rate`))%>%
-  select(-Finds)%>%
-  pivot_wider(names_from = Ethnic.appearance.abridged,
-    values_from = c(`Hit rate`, Searches)
-  )%>%
- select(
-   Division,
-    Locality, 
-    `Finds all (%)`,  
-     `Finds: White (%)` = `Hit rate_White`, 
-    `Finds: African (%)` = `Hit rate_African`, 
-    `Finds: Aboriginal (%)` = `Hit rate_Aboriginal`, 
-    `Finds: Middle Eastern (%)`= `Hit rate_Middle Eastern` , 
-    `Finds: Asian (%)` = `Hit rate_Asian`, 
-    `Finds: South Asian (%)` = `Hit rate_South Asian`, 
-    `Finds: Pacific Islander (%)` = `Hit rate_Pacific Islander`, 
-    `Finds: Other non-White (%)` = `Hit rate_Other racialised`,
-    `Finds: Missing (%)` = `Hit rate_Missing`,
-    `Searches all` = Total.searches, 
-    `Searches: White` = `Searches_White`, 
-    `Searches: African` = `Searches_African`, 
-    `Searches: Aboriginal` = Searches_Aboriginal, 
-    `Searches: Middle Eastern` = `Searches_Middle Eastern`, 
-    `Searches: Asian` = `Searches_Asian`, 
-    `Searches: South Asian` = `Searches_South Asian`,
-    `Searches: Pacific Islander` = `Searches_Pacific Islander`,
-    `Searches: Mediterranean/Mid` = `Searches_Mediterarranean/Mid`,
-    `Searches: Other non-White` = `Searches_Other racialised`,
-    `Searches: Missing` = Searches_Missing)
-
-
-loc.racial %>%
-  datatable(rownames = F, extensions = 'Buttons',
-            options = list(
-              dom = 'Blfrtip',
-              buttons = c('copy', 'excel','print'),
-  pageLength = 20, autoWidth = TRUE
-))
-
-
-```
+The find rates for persons of different racial appearances at stations across Melbourne appears below. Where less than 20 people from a particular racial group had been search, no find rates are reported, as the sample is too small to be meaningful.
 
 ```{r Station, echo=FALSE, warning=FALSE, message = FALSE}
 
@@ -306,21 +84,22 @@ loc.racial <- dat %>%
     `Finds: Other non-White (%)` = `Hit rate_Other racialised`,
     `Finds: Missing (%)` = `Hit rate_Missing`,
     `Searches all` = Total.searches, 
-    `Searches: White` = `Searches_White`, 
-    `Searches: African` = `Searches_African`, 
-    `Searches: Asian` = `Searches_Asian`, 
-    `Searches: South Asian` = `Searches_South Asian`,
-    `Searches: Aboriginal` = Searches_Aboriginal, 
-    `Searches: Middle Eastern` = `Searches_Middle Eastern`, 
-    `Searches: Pacific Islander` = `Searches_Pacific Islander`,
-    `Searches: Mediterranean/Mid` = `Searches_Mediterarranean/Mid`,
-    `Searches: Other non-White` = `Searches_Other racialised`,
-    `Searches: Missing` = Searches_Missing)
+  #  `Searches: White` = `Searches_White`, 
+    `Searches: African` = `Searches_African`
+  #  `Searches: Asian` = `Searches_Asian`, 
+  #  `Searches: South Asian` = `Searches_South Asian`,
+  #  `Searches: Aboriginal` = Searches_Aboriginal, 
+  #  `Searches: Middle Eastern` = `Searches_Middle Eastern`, 
+  #  `Searches: Pacific Islander` = `Searches_Pacific Islander`,
+  #  `Searches: Mediterranean/Mid` = `Searches_Mediterarranean/Mid`,
+  #  `Searches: Other non-White` = `Searches_Other racialised`,
+  #  `Searches: Missing` = Searches_Missing
+  )
 
 
 loc.racial %>%
-  filter(Division %in% c("NWMR Division 2", "NWMR Division 3", "NWMR Division 4"))%>%
-  filter(!is.na(`Finds: African (%)`))%>%
+#  filter(Division %in% c("NWMR Division 2", "NWMR Division 3", "NWMR Division 4"))%>%
+#  filter(!is.na(`Finds: African (%)`))%>%
   datatable(rownames = F, extensions = 'Buttons',
             options = list(
               dom = 'Blfrtip',
