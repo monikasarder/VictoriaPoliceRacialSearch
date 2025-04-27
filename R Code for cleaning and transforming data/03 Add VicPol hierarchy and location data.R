@@ -32,7 +32,7 @@ dat <- dat %>%
   mutate(Unit= toupper(str_remove(Unit, " SOCIT")))
 
 # Read in PSA and LGA data
-psadat <- read_xlsx("Secondary datasets/geographicclassification.xlsx",
+psadat <- read_xlsx("Secondary and intermediate datasets/geographicclassification.xlsx",
                     skip = 12,
                     .name_repair = "universal")
 
@@ -45,7 +45,7 @@ psadat <- psadat %>%
 
 
 # Read in VicPol hierarchy data
-hierdat1 <- read_xlsx("Secondary datasets/Victoria-Police-employee-numbers-June-2024.xlsx",
+hierdat1 <- read_xlsx("Secondary and intermediate datasets/Victoria-Police-employee-numbers-June-2024.xlsx",
                     skip = 8,
                     .name_repair = "universal")
 
@@ -93,7 +93,7 @@ hierdat1 <- hierdat %>%
 
   
 #Read in station to LGA data
-sta.lga <- read_excel("Secondary datasets/Police.station.location.xlsx")
+sta.lga <- read_excel("Secondary and intermediate datasets/Police.station.location.xlsx")
 
 sta.lga1 <- sta.lga %>%
   mutate(LGA = gsub(" Shire Council.*$", "", Municipality))%>%
@@ -130,7 +130,7 @@ dat <- dat %>%
 dat.hier <- dat %>%
   left_join(sta.hier, by = "Unit")
 
-categories <- read_xlsx("Secondary datasets/Council-category-data.xlsx")
+categories <- read_xlsx("Secondary and intermediate datasets/Council-category-data.xlsx")
 
 dat.hier <- dat.hier %>%
   left_join(categories, by = "Local.Government.Area")%>%
@@ -182,7 +182,7 @@ dat.sr2 <- dat.sr1 %>%
 
 
 dat.sr2 <- dat.sr2 %>%
-  mutate(Ethnic.appearance.abridged = 
+  mutate(Racial.appearance.abridged = 
            case_when(Racial.appearance %in% c("South American", "Other") ~ "Other racialised",
                      is.na(Racial.appearance) ~ "Missing",
                      TRUE ~ Racial.appearance))%>%
@@ -191,10 +191,10 @@ dat.sr2 <- dat.sr2 %>%
             Racial.appearance != "White" ~ "Yes",
             TRUE ~ Racial.appearance))
   
-table(dat.sr2$Ethnic.appearance.abridged)
 dat.sr2 <- dat.sr2 %>%
   select(FieldReportID,FieldContactID, Year, Contact.Date, Contact.Time,  Contact.Type, 
-         Racialised, Ethnic.appearance = Racial.appearance, Ethnic.Appearance.original = Racial.Appearance.original, Ethnic.appearance.abridged,
+         Racialised, Racial.appearance.transformed = Racial.appearance, Racial.Appearance.original, 
+         Racial.appearance.abridged,
          Found, Search.item.found,
          `Search.type - Drugs` ,  `Search.type - Weapons` ,
          `Search.type - Firearms` , `Search.type - Graffiti` ,

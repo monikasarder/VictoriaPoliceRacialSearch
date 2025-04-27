@@ -123,7 +123,7 @@ dat.s <- dat.s %>%
     Racial.Appearance == "ASIAN" ~ "Asian",
     str_detect(Racial.Appearance, "INDIAN") ~ "South Asian",
     Racial.Appearance == "MEDITERRANEAN/MIDDLE-EASTERN" ~ "Mediterarranean/Mid",
-    Racial.Appearance == "MIDDLE-EASTERN" ~ "Middle Eastern",
+    Racial.Appearance == "MIDDLE EASTERN" ~ "Middle Eastern",
     Racial.Appearance =="AFRICA/MIDEAST (DONT USE)"~ "Middle Eastern",
     Racial.Appearance == "MAORI" ~ "Pacific Islander",
     str_detect(Racial.Appearance, "PACIFIC") ~ "Pacific Islander",

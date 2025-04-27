@@ -30,14 +30,12 @@ dat <- readRDS("Output.data/Clean.search.data.RDS")
 
 # Victoria Police Search Data 
 
-This dataset, which contains the summary of over 50,000 searches carried out by Victoria Police in the years 2018, 2019, 2022 and 2023, was prepared as part of [**The Racial Profiling Data Monitoring Project**](https://khaki-pepper-b3rf.squarespace.com/), a project of the [Centre Against Racial Profiling](https://www.centreagainstracialprofiling.au/).  
-
-This dataset took significant financial resources to obtain and transform into a user-friendly format. To find out more about how this dataset was obtained go to [Annual Data](https://khaki-pepper-b3rf.squarespace.com/annual-data). You can donate to the project [here](https://khaki-pepper-b3rf.squarespace.com/checkout/donate?donatePageId=666baedd575e81339bc863ff). 
+This dataset, which contains the summary of over 50,000 searches carried out by Victoria Police in the years 2018, 2019, 2022 and 2023, was provided by the [**The Racial Profiling Data Monitoring Project**](https://khaki-pepper-b3rf.squarespace.com/), a project of the [Centre Against Racial Profiling](https://www.centreagainstracialprofiling.au/).  
 
 Note that 2020 and 2021 data is not included in this data due to the extraordinary circumstances of the COVID 19 pandemic, which are not a sound basis for inference regarding behaviour during non-pandemic periods.
 
 ## Search types in scope 
-There are five types of searches without a warrant that are in scope for this dataset, summarised below. These represent searches that can be undertaken where an officer has 'reasonable grounds' to suspect that a person was in possession of a prohibited item specified as part of that search power. 
+There are five types of searches without a warrant included in this dataset. These represent searches that can be undertaken where an officer has 'reasonable grounds' to suspect that a person was in possession of a prohibited item specified as part of that search power. 
 
 * **Drugs**: under the section 82 of the *Drugs Poisons and Controlled Substances Act 1981* 
 * **Volatile substances for inhalation** for use by a person under 18: under sections 60E and 60F of the *Drugs Poisons and Controlled Substances Act 1981*  
@@ -59,12 +57,6 @@ A total of 22,117 search records, or 42% of all records, did not have any ethnic
 
 There is a limitation on our ability to analyse police-targeting of people of Middle Eastern appearance, as in 2020 Victoria Police aggregated Mediterranean and Middle Eastern into a single category.  This presents a challenge to our analysis, as we would ordinarily expect persons of Mediterranean descent (eg people of Italian, Greek, Croatian ancestry) to be categorised as 'non-racialised' or 'White'.  Meanwhile we would ordinarily expect persons of the Middle Eastern appearance to be considered 'racialised'.  
 
-The Centre Against Racial Profiling urges Victoria Police to separate 'Middle Eastern' from 'Mediterranean' in order for racial appearance data to be more useful. This is particularly relevant for understanding the effect of the impact of overseas conflicts and resulting protests at home on potential police bias.
-
-***Aboriginal and Torres Strait Islander appearance data caution***  
-
-Please be reminded that perceived ethnicity data does not enable analysis of search data for police perception white appearing Aboriginal people. This and other ethnic appearances in the dataset are subjective.  
-
 # Summary statistics  
 
 The variables of interest in the dataset are summarised in Table 1 below.  
@@ -72,7 +64,7 @@ The variables of interest in the dataset are summarised in Table 1 below.
 **Table 1 Characteristics of searches**
 ```{r summary 2, echo = FALSE, warning = FALSE}
 
-of.interest <- c("Year", "Ethnic.appearance.abridged","Gender", "Area.type", "Unit.type", "Contact.Type" ,"Rank.of.Member", "Found",
+of.interest <- c("Year", "Racial.appearance.abridged","Gender", "Area.type", "Unit.type", "Contact.Type" ,"Rank.of.Member", "Found",
                  "Search.type - Drugs","Search.type - Weapons","Search.type - Firearms",          
                   "Search.type - Graffiti","Search.type - Volatile.sub.U18","Search.type - Volatile.sub.adult")
 
@@ -132,7 +124,7 @@ dat <- dat %>%
   mutate(Found = factor(Found, levels = c("Yes", "No")))
 
 dat %>% 
-  crosstable(c(Ethnic.appearance), by=Found, total=TRUE, 
+  crosstable(c(Racial.appearance.transformed), by=Found, total=TRUE, 
            test=TRUE, showNA='ifany', percent_digits=1) %>% 
   as_flextable()
 ```
@@ -147,13 +139,13 @@ Figure 1 below shows how the hit rate for different racial appearances changed o
 **Figure 1 Changes in hit rates by racial appearance over time and compared to the average**
 ```{r Finds race year, echo=FALSE, warning=FALSE, message = FALSE}
 trend <- dat %>%
-  mutate(Ethnic.appearance = fct_infreq(Ethnic.appearance.abridged))%>%
-  group_by(Year, `Ethnic.appearance`)%>%
+  mutate(Racial.appearance = fct_infreq(Racial.appearance.abridged))%>%
+  group_by(Year, `Racial.appearance`)%>%
   summarise(Finds = sum(Found == "Yes", na.rm = T), `Total searches`= n())%>%
   mutate(`Hit rate` = round(Finds/`Total searches`*100, digits = 1)) %>%
   ungroup()%>%
   ggplot(aes(x = Year, y = `Hit rate`)) +geom_col(fill = "darkblue")+
-  facet_wrap(~`Ethnic.appearance`)+ 
+  facet_wrap(~`Racial.appearance`)+ 
   geom_hline(yintercept = 17.2,linetype="dotted", color = "red") +theme(legend.position = "none")
 
 ggplotly(trend)
@@ -202,14 +194,14 @@ Racialised hit rates across different unit types were compared.  Where there wer
 unit.racial <- dat %>%
   group_by(Unit.type)%>%
   mutate(`Overall %` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 1), Total.searches = n())%>%
-  mutate(Ethnic.appearance = fct_infreq(Ethnic.appearance.abridged))%>%
-  group_by(Unit.type, Total.searches, `Overall %`, Ethnic.appearance)%>%
+  mutate(Racial.appearance = fct_infreq(Racial.appearance.abridged))%>%
+  group_by(Unit.type, Total.searches, `Overall %`, Racial.appearance)%>%
   summarise(Finds = sum(Found == "Yes", na.rm = T), Searches = n())%>%
   ungroup()%>%
   mutate(Searches = ifelse(Searches <= 5, NA, Searches))%>%
   mutate(`Hit rate` = round(Finds/Searches*100, digits = 1))%>%
   select(-Finds, -Searches)%>%
-  pivot_wider(names_from = Ethnic.appearance,
+  pivot_wider(names_from = Racial.appearance,
     values_from = c(`Hit rate`)
   )%>%
   arrange(desc(Total.searches))%>%
@@ -244,14 +236,14 @@ lga.racial <- dat %>%
   filter(!is.na(Police.Service.Area), Unit.type == "Uniform")%>%
   group_by(Police.Service.Area)%>%
   mutate(`Overall %` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 1), Total.searches = n())%>%
-  mutate(Ethnic.appearance = fct_infreq(Ethnic.appearance.abridged))%>%
-  group_by(Area.type, Police.Service.Area, Total.searches, `Overall %`, Ethnic.appearance)%>%
+  mutate(Racial.appearance = fct_infreq(Racial.appearance.abridged))%>%
+  group_by(Area.type, Police.Service.Area, Total.searches, `Overall %`, Racial.appearance)%>%
   summarise(Finds = sum(Found == "Yes", na.rm = T), Searches = n())%>%
   ungroup()%>%
   mutate(Searches = ifelse(Searches <= 5, NA, Searches))%>%
   mutate(`Hit rate` = round(Finds/Searches*100, digits = 1))%>%
   select(-Finds, -Searches)%>%
-  pivot_wider(names_from = Ethnic.appearance,
+  pivot_wider(names_from = Racial.appearance,
     values_from = c(`Hit rate`)
   )%>%
   left_join(lga.psa, by = "Police.Service.Area")%>%
@@ -282,7 +274,7 @@ Ethnic appearance categories for different years were transformed to enable comp
 
 ethnic.mapping1 <-dat %>%
   filter(Year %in% c(2022, 2023))%>%
-  count(Ethnic.Appearance.original, Ethnic.appearance.abridged)
+  count(Racial.Appearance.original, Racial.appearance.abridged)
 
 ethnic.mapping1 %>%
   kable()
@@ -294,7 +286,7 @@ ethnic.mapping1 %>%
 
 ethnic.mapping2 <- dat %>%
   filter(Year %in% c(2018, 2019))%>%
-  count(Ethnic.Appearance.original, Ethnic.appearance.abridged) 
+  count(Racial.Appearance.original, Racial.appearance.abridged) 
 
 
 ethnic.mapping2 %>%
