@@ -1,6 +1,7 @@
 library(tidyverse)
 library(readxl)
 library(writexl)
+library(openxlsx)
 
 #Purpose: add in VicPol unit LGAs and VicPol hierarchy
 # Extract individual units
@@ -30,6 +31,10 @@ dat <- dat %>%
   mutate(Unit= toupper(str_remove(Unit, " HIGHWAY PATROL")))%>%
   mutate(Unit= toupper(str_remove(Unit, "SOCIT-")))%>%
   mutate(Unit= toupper(str_remove(Unit, " SOCIT")))
+
+#Blank if not uniform
+dat <- dat %>%
+  mutate(Unit = ifelse(Unit.type == "Uniform", Unit, ""))
 
 # Read in PSA and LGA data
 psadat <- read_xlsx("Secondary and intermediate datasets/geographicclassification.xlsx",
@@ -88,8 +93,7 @@ hierdat1 <- hierdat %>%
   select(-PSA)%>%
   filter(!(is.na(Police.Service.Area)))%>%
   select(Region, Division, Police.Service.Area)%>%
-  unique()# %>%
-  #mutate_at(c('PSO','PCO', 'Police','VPS'), as.numeric)
+  unique()
 
   
 #Read in station to LGA data
@@ -193,15 +197,17 @@ dat.sr2 <- dat.sr2 %>%
   
 dat.sr2 <- dat.sr2 %>%
   select(FieldReportID,FieldContactID, Year, Contact.Date, Contact.Time,  Contact.Type, 
-         Racialised, Racial.appearance.transformed = Racial.appearance, Racial.Appearance.original, 
+         Racial.Appearance.original, 
+         Racial.appearance.transformed = Racial.appearance, 
          Racial.appearance.abridged,
          Found, Search.item.found,
          `Search.type - Drugs` ,  `Search.type - Weapons` ,
          `Search.type - Firearms` , `Search.type - Graffiti` ,
          `Search.type - Volatile.sub.U18` , `Search.type - Volatile.sub.adult`,
          Indigenous.Status,
-         Gender, Age,   Complexion, Hair.Colour, Hair.Style, Unit,
-         Reporting.Station.Description, Unit.type, Rank.of.Member, Region, Division, Police.Service.Area, Area.type, Local.Government.Area, Locality,
+         Gender, Age,   Complexion, Hair.Colour, Hair.Style, 
+         Reporting.Station.Description, Station.uniform = Unit,
+         Unit.type, Rank.of.Member, Region, Division, Police.Service.Area, Area.type, Local.Government.Area, Locality,
          Postcode)
 
 
@@ -219,16 +225,19 @@ dat.sr3 <- dat.sr2 %>%
 dat.sr3 <- dat.sr3 %>%
   select(-Search.item.found)
 
-write_xlsx(dat.sr3, "Output.data/VicPol Search data for analysis.xlsx")
-
-values <- names(dat.sr3)
-
-values <-as.data.frame(values)
 
 #save data for analysis
 saveRDS(dat.sr3, "Output.data/Clean.search.data.RDS")
 
-write_xlsx(values, "Output.data/dictionary.xlsx")
+# Load the existing workbook
+wb <- loadWorkbook("Output.data/VicPol Search data for analysis.xlsx")
 
-table(dat.sr3$Unit)
+#addWorksheet(wb, "Data")
+
+# Write the data.frame 'dat.sr3' to the sheet named 'Data'
+writeData(wb, sheet = "Data", x = dat.sr3)
+
+# Save the workbook
+saveWorkbook(wb, "Output.data/VicPol Search data for analysis.xlsx", overwrite = TRUE)
+
 
