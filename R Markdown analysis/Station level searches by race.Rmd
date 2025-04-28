@@ -57,7 +57,7 @@ loc.racial <- dat %>%
          !is.na(`Search.type - Drugs`),
         Area.type == "Metro")%>%
   group_by(Division, Station.uniform)%>%
-  mutate(`Finds all (%)` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 1), 
+  mutate(`Finds all (%)` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 0), 
          Total.searches = n())%>%
   mutate(Racial.appearance.abridged = fct_infreq(Racial.appearance.abridged))%>%
   group_by(Division, Station.uniform, Total.searches, `Finds all (%)`, Racial.appearance.abridged)%>%
@@ -71,18 +71,15 @@ loc.racial <- dat %>%
     values_from = c(`Hit rate`, Searches)
   )%>%
   #Add disproportionality ratio
-  mutate(`Relative likelihood: African` = round(((`Hit rate_African`-`Hit rate_White`)/`Hit rate_White`)*100, 
-         digits = 1 ),
-         `Relative likelihood: Asian` = round(((`Hit rate_Asian`-`Hit rate_White`)/`Hit rate_White`)*100, 
-         digits = 1 ),
-         `Relative likelihood: South Asian` = round(((`Hit rate_South Asian`-`Hit rate_White`)/`Hit rate_White`)*100, 
-         digits = 1 ),
-         `Relative likelihood: Aboriginal` = round(((`Hit rate_Aboriginal`-`Hit rate_White`)/`Hit rate_White`)*100, 
-         digits = 1 ),
-         `Relative likelihood: Middle Eastern` = round(((`Hit rate_Middle Eastern`-`Hit rate_White`)/`Hit rate_White`)*100, 
-         digits = 1 ),
-         `Relative likelihood: Pacific Islander` = round(((`Hit rate_Pacific Islander`-`Hit rate_White`)/`Hit rate_White`)*100, 
-         digits = 1 ))
+  #Add disproportionality ratio
+  mutate(`Relative likelihood: African` = 
+           ifelse(
+             `Hit rate_African`>0, 
+             round(((`Hit rate_White`-`Hit rate_African`)/`Hit rate_African`)*100, digits = 0 ), 
+             round((`Hit rate_White`-`Hit rate_African`)/(`Hit rate_African` + 1)*100, digits = 0 )
+                  )
+         )
+         
          
 
 loc.racial.data <- loc.racial%>%
@@ -112,12 +109,12 @@ loc.racial.data <- loc.racial%>%
     `Searches: Other non-White` = `Searches_Other racialised`,
     `Searches: Missing` = Searches_Missing
   )%>%
-  arrange(`Relative likelihood: African`, .by_group = TRUE)
+  arrange(desc(`Relative likelihood: African`), is.na(`Relative likelihood: African`))
 
 loc.racial.display <- loc.racial.data %>%
  select(
     Station,
-     `Relative likelihood: African compared with White` = `Relative likelihood: African`,
+     `Search success likelihood: White compared with African` = `Relative likelihood: African`,
      `Finds: White (%)` , 
     `Finds: African (%)` , 
     `Finds: Asian (%)` , 
@@ -147,10 +144,10 @@ loc.racial.display %>%
   pageLength = 20, autoWidth = TRUE
 ))%>%
   formatStyle(
-    'Relative likelihood: African compared with White',
+    'Search success likelihood: White compared with African',
     backgroundColor = styleInterval(    # Apply background color based on value
-      c(-50, -15,15),                       # Define breakpoints for the color intervals
-      c("#fb6a4a", "#fec44f", "#a1d99b","#8c96c6")  # Red, orange, and dark blue
+      c(-25, 25,50),                       # Define breakpoints for the color intervals
+      c("#8c96c6","#a1d99b","#fec44f","#fb6a4a" )  # Red, orange, and dark blue
     ),
     fontWeight = 'bold'  # Make the text bold
   )
@@ -176,7 +173,7 @@ loc.racial <- dat %>%
   mutate(`Finds all (%)` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 1), 
          Total.searches = n())%>%
   mutate(Racial.appearance.abridged = fct_infreq(Racial.appearance.abridged))%>%
-  group_by(Local.Government.Area, Station.uniform, Total.searches, `Finds all (%)`, Racial.appearance.abridged)%>%
+  group_by(Local.Government.Area, Total.searches, `Finds all (%)`, Racial.appearance.abridged)%>%
   summarise(Finds = sum(Found == "Yes", na.rm = T), Searches = n())%>%
   ungroup()%>%
   mutate(`Hit rate` = round(Finds/Searches*100, digits = 1))%>%
@@ -187,24 +184,13 @@ loc.racial <- dat %>%
     values_from = c(`Hit rate`, Searches)
   )%>%
   #Add disproportionality ratio
-  mutate(`Relative likelihood: African` = round(((`Hit rate_African`-`Hit rate_White`)/`Hit rate_White`)*100, 
-         digits = 1 ),
-         `Relative likelihood: Asian` = round(((`Hit rate_Asian`-`Hit rate_White`)/`Hit rate_White`)*100, 
-         digits = 1 ),
-         `Relative likelihood: South Asian` = round(((`Hit rate_South Asian`-`Hit rate_White`)/`Hit rate_White`)*100, 
-         digits = 1 ),
-         `Relative likelihood: Aboriginal` = round(((`Hit rate_Aboriginal`-`Hit rate_White`)/`Hit rate_White`)*100, 
-         digits = 1 ),
-         `Relative likelihood: Middle Eastern` = round(((`Hit rate_Middle Eastern`-`Hit rate_White`)/`Hit rate_White`)*100, 
-         digits = 1 ),
-         `Relative likelihood: Pacific Islander` = round(((`Hit rate_Pacific Islander`-`Hit rate_White`)/`Hit rate_White`)*100, 
+  mutate(`Relative likelihood: African` = round(((`Hit rate_White`-`Hit rate_African`)/`Hit rate_African`)*100, 
          digits = 1 ))
          
 
 loc.racial.data <- loc.racial%>%
  select(
    LGA = Local.Government.Area,
-    Station = Station.uniform, 
    `Relative likelihood: African`,
      `Finds: White (%)` = `Hit rate_White`, 
     `Finds: African (%)` = `Hit rate_African`, 
@@ -228,14 +214,14 @@ loc.racial.data <- loc.racial%>%
     `Searches: Other non-White` = `Searches_Other racialised`,
     `Searches: Missing` = Searches_Missing
   )%>%
-  arrange(`Relative likelihood: African`, .by_group = TRUE)
+  arrange(desc(`Relative likelihood: African`), is.na(`Relative likelihood: African`))
 
 loc.racial.display <- loc.racial.data %>%
  select(
     LGA,
+    `Search success likelihood: White compared with African`=`Relative likelihood: African`,
      `Finds: White (%)` , 
     `Finds: African (%)` , 
-    `Relative likelihood: African compared with White`=`Relative likelihood: African`,
     `Finds: Asian (%)` , 
     `Finds: South Asian (%)` , 
     `Finds: Aboriginal (%)` , 
@@ -260,13 +246,13 @@ loc.racial.display %>%
             options = list(
               dom = 'Blfrtip',
               buttons = c('copy', 'excel','print'),
-  pageLength = 10, autoWidth = TRUE
+  pageLength = 20, autoWidth = TRUE
 ))%>%
   formatStyle(
-    'Relative likelihood: African compared with White',
+    'Search success likelihood: White compared with African',
     backgroundColor = styleInterval(    # Apply background color based on value
-      c(-50, -15,15),                       # Define breakpoints for the color intervals
-      c("#fb6a4a", "#fec44f", "#a1d99b","#8c96c6")  # Red, orange, and dark blue
+       c(-25, 25,50),                       # Define breakpoints for the color intervals
+       c("#8c96c6","#a1d99b","#fec44f","#fb6a4a" )  # Red, orange, and dark blue
     ),
     fontWeight = 'bold'  # Make the text bold
   )
