@@ -23,6 +23,7 @@ library(crosstable)
 library(janitor)
 library(DT)
 library(writexl)
+library(viridis)
 
 dat <- readRDS("../Output.data/Clean.search.data.RDS")
 
@@ -56,23 +57,27 @@ loc.racial <- dat %>%
          !is.na(`Search.type - Drugs`),
         Area.type == "Metro")%>%
   group_by(Division, Station.uniform)%>%
-  mutate(`Finds all (%)` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 0), 
+  mutate(`Finds all (%)` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 1), 
          Total.searches = n())%>%
   mutate(Racial.appearance.abridged = fct_infreq(Racial.appearance.abridged))%>%
   group_by(Division, Station.uniform, Total.searches, `Finds all (%)`, Racial.appearance.abridged)%>%
   summarise(Finds = sum(Found == "Yes", na.rm = T), Searches = n())%>%
   ungroup()%>%
   mutate(`Hit rate` = round(Finds/Searches*100, digits = 1))%>%
+  # Limit to 20 in group
   mutate(`Hit rate` = ifelse(Searches <= 20, NA, `Hit rate`))%>%
   select(-Finds)%>%
   pivot_wider(names_from = Racial.appearance.abridged,
     values_from = c(`Hit rate`, Searches)
   )%>%
+  #Add disproportionality ratio
+  mutate(`Ratio: African to White appearance finds` = round(`Hit rate_African`/`Hit rate_White`, digits = 1 ))
+
+loc.racial.data <- loc.racial%>%
  select(
    Division,
     Station = Station.uniform, 
-   `Total drug searches` = Total.searches, 
-    `Finds all (%)`,  
+   `Ratio: African to White appearance finds`,
      `Finds: White (%)` = `Hit rate_White`, 
     `Finds: African (%)` = `Hit rate_African`, 
     `Finds: Asian (%)` = `Hit rate_Asian`, 
@@ -82,29 +87,61 @@ loc.racial <- dat %>%
     `Finds: Pacific Islander (%)` = `Hit rate_Pacific Islander`, 
     `Finds: Other non-White (%)` = `Hit rate_Other racialised`,
     `Finds: Missing (%)` = `Hit rate_Missing`,
-    
-  #  `Searches: White` = `Searches_White`, 
-  #  `Searches: African` = `Searches_African`
-  #  `Searches: Asian` = `Searches_Asian`, 
-  #  `Searches: South Asian` = `Searches_South Asian`,
-  #  `Searches: Aboriginal` = Searches_Aboriginal, 
-  #  `Searches: Middle Eastern` = `Searches_Middle Eastern`, 
-  #  `Searches: Pacific Islander` = `Searches_Pacific Islander`,
-  #  `Searches: Mediterranean/Mid` = `Searches_Mediterarranean/Mid`,
-  #  `Searches: Other non-White` = `Searches_Other racialised`,
-  #  `Searches: Missing` = Searches_Missing
-  )
+    `Finds all (%)`,  
+    `Total drug searches` = Total.searches,
+    `Searches: White` = `Searches_White`, 
+    `Searches: African` = `Searches_African`,
+    `Searches: Asian` = `Searches_Asian`, 
+    `Searches: South Asian` = `Searches_South Asian`,
+    `Searches: Aboriginal` = Searches_Aboriginal, 
+    `Searches: Middle Eastern` = `Searches_Middle Eastern`, 
+    `Searches: Pacific Islander` = `Searches_Pacific Islander`,
+    `Searches: Mediterranean/Mid` = `Searches_Mediterarranean/Mid`,
+    `Searches: Other non-White` = `Searches_Other racialised`,
+    `Searches: Missing` = Searches_Missing
+  )%>%
+  arrange(`Ratio: African to White appearance finds`, .by_group = TRUE)
+
+loc.racial.display <- loc.racial.data %>%
+ select(
+    Station,
+   `Ratio: African to White appearance finds`,
+     `Finds: White (%)` , 
+    `Finds: African (%)` , 
+    `Finds: Asian (%)` , 
+    `Finds: South Asian (%)` , 
+    `Finds: Aboriginal (%)` , 
+    `Finds: Middle Eastern (%)` , 
+    `Finds: Pacific Islander (%)`, 
+    `Finds all (%)`,
+    `Total drug searches` 
+  
+   )
+ 
+```
+
+```{r display, echo=FALSE, warning=FALSE, message = FALSE}
 
 
-loc.racial %>%
-#  filter(Division %in% c("NWMR Division 2", "NWMR Division 3", "NWMR Division 4"))%>%
-#  filter(!is.na(`Finds: African (%)`))%>%
-  datatable(rownames = F, extensions = 'Buttons',
+# Apply the custom cell background color and bold text to the 'Ratio: African to White appearance finds' column
+
+#display data 
+loc.racial.display %>%
+  datatable(rownames = F,
+            class = 'cell-border stripe', extensions = 'Buttons',
             options = list(
               dom = 'Blfrtip',
               buttons = c('copy', 'excel','print'),
-  pageLength = 20, autoWidth = TRUE
-))
+  pageLength = 10, autoWidth = TRUE
+))%>%
+  formatStyle(
+    'Ratio: African to White appearance finds',
+    backgroundColor = styleInterval(    # Apply background color based on value
+      c(0.5, 1),                       # Define breakpoints for the color intervals
+      c("#fc9272", "#fee391", "#9ecae1")  # Red, orange, and dark blue
+    ),
+    fontWeight = 'bold'  # Make the text bold
+  )
 
 
 ```

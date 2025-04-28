@@ -1,6 +1,8 @@
 ## About the Dataset
 
-This dataset summarises over 50,000 searches conducted by Victoria Police in 2018, 2019, 2022, and 2023. It was compiled as part of the [**The Racial Profiling Data Monitoring Project**](https://khaki-pepper-b3rf.squarespace.com/), a project of the [Centre Against Racial Profiling](https://www.centreagainstracialprofiling.au/). 
+This dataset summarises over 50,000 searches conducted by Victoria Police in 2018, 2019, 2022, and 2023, in a format that can be analysed by public interest groups, data journalists and government. 
+
+The original raw data was obtained from Victoria Police under the FOI Act by the [Centre Against Racial Profiling](https://www.centreagainstracialprofiling.au/), and is available on their website. 
 
 ## Purpose of This Repository
 
@@ -18,7 +20,7 @@ The aim is to enable users to turn raw data into actionable insights about racia
 - **R Code** – scripts for data cleaning and transformation  
 - **Primary Datasets** – raw search data from Victoria Police  
 - **Secondary Datasets** – supplementary data, including station location information and intermediate outputs from the cleaning process  
-- **Data and Hit Rate Overview** – a preliminary analysis in RMarkdown format  
+- **R Markdown analysis** – a preliminary analysis in R Markdown format  
 
 ---
 
@@ -52,9 +54,6 @@ Since 2020, Victoria Police have combined "Mediterranean" and "Middle Eastern" i
 
 ## Interpreting Search Locations
 
-The dataset includes the **station location** of the officer's unit, which may or may not reflect where the actual search occurred:
-
-- **Uniformed police** typically conduct searches within the same Local Government Area (LGA) as their station.
-- **Specialist units** (e.g., Highway Patrol, Divisional Response Unit, CIU, SOCIT) often operate across multiple LGAs within a broader Police Division, so searches may have taken place in surrounding areas.
+The dataset includes Police station-level information for searches conducted by *uniform police*. It does not contain police station information for **specialist units** (e.g., Highway Patrol, Divisional Response Unit, CIU, SOCIT) often operate across multiple LGAs within a broader Police Division, so searches may have taken place in surrounding areas.
 
 
