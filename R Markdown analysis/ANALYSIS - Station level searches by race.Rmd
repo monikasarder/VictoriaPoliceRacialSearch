@@ -60,9 +60,6 @@ melbs <- melbs %>%
   filter(state_name_2021 == "Victoria") #
 
 
-melbs %>%   # let's just look Melbourne
-  ggplot() +
-  geom_sf(aes(geometry = geometry))  # use the geometry variable
 ```
 
 
@@ -74,15 +71,15 @@ loc.racial <- dat %>%
   group_by(Division, Station.uniform)%>%
   mutate(`Finds all (%)` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 0), 
          Total.searches = n())%>%
-  mutate(Racial.appearance.abridged = fct_infreq(Racial.appearance.abridged))%>%
-  group_by(Division, Station.uniform, Total.searches, `Finds all (%)`, Racial.appearance.abridged)%>%
+  mutate(Racial.appearance.transformed = fct_infreq(Racial.appearance.transformed))%>%
+  group_by(Division, Station.uniform, Total.searches, `Finds all (%)`, Racial.appearance.transformed)%>%
   summarise(Finds = sum(Found == "Yes", na.rm = T), Searches = n())%>%
   ungroup()%>%
   mutate(`Hit rate` = round(Finds/Searches*100, digits = 1))%>%
   # Limit to 20 in group
   mutate(`Hit rate` = ifelse(Searches <= 20, NA, `Hit rate`))%>%
   select(-Finds)%>%
-  pivot_wider(names_from = Racial.appearance.abridged,
+  pivot_wider(names_from = Racial.appearance.transformed,
     values_from = c(`Hit rate`, Searches)
   )%>%
   #Add disproportionality ratio
@@ -122,14 +119,10 @@ loc.racial.data <- loc.racial %>%
     `Searches: Middle Eastern` = `Searches_Middle Eastern`, 
     `Finds: Middle Eastern (%)`= `Hit rate_Middle Eastern` , 
    
-    `Searches: Mediterranean/Mid` = `Searches_Mediterarranean/Mid`,
-    `Finds: Middle Eastern/Mid (%)`=`Hit rate_Mediterarranean/Mid`,
-   
+  
     `Searches: Pacific Islander` = `Searches_Pacific Islander`,
     `Finds: Pacific Islander (%)` = `Hit rate_Pacific Islander`, 
    
-    `Searches: Other racialised` = `Searches_Other racialised`,
-    `Finds: Other racialised (%)` = `Hit rate_Other racialised`,
     `Searches: Missing` = Searches_Missing,
     `Finds: Missing (%)` = `Hit rate_Missing`,
     `Relative likelihood: African`)%>%
@@ -202,15 +195,15 @@ loc.racial <- dat %>%
   group_by(Local.Government.Area)%>%
   mutate(`Finds all (%)` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 1), 
          Total.searches = n())%>%
-  mutate(Racial.appearance.abridged = fct_infreq(Racial.appearance.abridged))%>%
-  group_by(Local.Government.Area, Total.searches, `Finds all (%)`, Racial.appearance.abridged)%>%
+  mutate(Racial.appearance.transformed = fct_infreq(Racial.appearance.transformed))%>%
+  group_by(Local.Government.Area, Total.searches, `Finds all (%)`, Racial.appearance.transformed)%>%
   summarise(Finds = sum(Found == "Yes", na.rm = T), Searches = n())%>%
   ungroup()%>%
   mutate(`Hit rate` = round(Finds/Searches*100, digits = 1))%>%
   # Limit to 20 in group
   mutate(`Hit rate` = ifelse(Searches <= 10, NA, `Hit rate`))%>%
   select(-Finds)%>%
-  pivot_wider(names_from = Racial.appearance.abridged,
+  pivot_wider(names_from = Racial.appearance.transformed,
     values_from = c(`Hit rate`, Searches)
   )%>%
   #Add disproportionality ratio
@@ -242,14 +235,10 @@ loc.racial.data <- loc.racial%>%
     `Searches: Middle Eastern` = `Searches_Middle Eastern`, 
     `Finds: Middle Eastern (%)`= `Hit rate_Middle Eastern` , 
    
-    `Searches: Mediterranean/Mid` = `Searches_Mediterarranean/Mid`,
-    `Finds: Middle Eastern/Mid (%)`=`Hit rate_Mediterarranean/Mid`,
-   
+
     `Searches: Pacific Islander` = `Searches_Pacific Islander`,
     `Finds: Pacific Islander (%)` = `Hit rate_Pacific Islander`, 
    
-    `Searches: Other racialised` = `Searches_Other racialised`,
-    `Finds: Other racialised (%)` = `Hit rate_Other racialised`,
     `Searches: Missing` = Searches_Missing,
     `Finds: Missing (%)` = `Hit rate_Missing`,
     `Relative likelihood: African`)%>%
@@ -408,7 +397,7 @@ Ethnic appearance categories for different years were transformed to enable comp
 
 ethnic.mapping1 <-dat %>%
   filter(Year %in% c(2022, 2023))%>%
-  count(Racial.Appearance.original, Racial.appearance.abridged)
+  count(Racial.Appearance.original, Racial.appearance.transformed)
 
 ethnic.mapping1 %>%
   kable()
@@ -418,7 +407,7 @@ ethnic.mapping1 %>%
 
 ethnic.mapping2 <- dat %>%
   filter(Year %in% c(2018, 2019))%>%
-  count(Racial.Appearance.original, Racial.appearance.abridged) 
+  count(Racial.Appearance.original, Racial.appearance.transformed) 
 
 
 ethnic.mapping2 %>%
