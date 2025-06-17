@@ -51,8 +51,8 @@ psadat <- psadat %>%
 
 # Read in VicPol hierarchy data
 hierdat1 <- read_xlsx("Secondary and intermediate datasets/Victoria-Police-employee-numbers-June-2024.xlsx",
-                    skip = 8,
-                    .name_repair = "universal")
+                      skip = 8,
+                      .name_repair = "universal")
 
 
 hierdat1 <-hierdat1[,c(1:2,4,6,8,9,10)]
@@ -95,7 +95,7 @@ hierdat1 <- hierdat %>%
   select(Region, Division, Police.Service.Area)%>%
   unique()
 
-  
+
 #Read in station to LGA data
 sta.lga <- read_excel("Secondary and intermediate datasets/Police.station.location.xlsx")
 
@@ -117,7 +117,7 @@ sta.lga2 <- sta.lga1 %>%
 #Link LGA with Region and Division
 sta.hier <- sta.lga2 %>%
   left_join(hierdat1, by = "Police.Service.Area")
-  
+
 
 sta.hier <- sta.hier %>%
   mutate(Unit = str_remove(Station, " POLICE STATION"))%>%
@@ -173,33 +173,29 @@ dat.sr1 <- dat.sr %>%
 table(dat.sr1$`Search.type - Drugs`)
 #check if item for which a search occurred was found
 dat.sr2 <- dat.sr1 %>%
-     mutate(
-       Search.item.found = case_when(
-          `Search.type - Drugs` == "Search item found"|
-          `Search.type - Weapons` == "Search item found"|
-          `Search.type - Firearms` == "Search item found"|
-          `Search.type - Graffiti`== "Search item found"|          
-          `Search.type - Volatile.sub.U18`== "Search item found"|
-          `Search.type - Volatile.sub.adult`== "Search item found" ~ "Search item found",
-         TRUE ~"Nothing found")
-       )
+  mutate(
+    Search.item.found = case_when(
+      `Search.type - Drugs` == "Search item found"|
+        `Search.type - Weapons` == "Search item found"|
+        `Search.type - Firearms` == "Search item found"|
+        `Search.type - Graffiti`== "Search item found"|          
+        `Search.type - Volatile.sub.U18`== "Search item found"|
+        `Search.type - Volatile.sub.adult`== "Search item found" ~ "Search item found",
+      TRUE ~"Nothing found")
+  )
 
 
 dat.sr2 <- dat.sr2 %>%
-  mutate(Racial.appearance.abridged = 
-           case_when(Racial.appearance %in% c("South American", "Other") ~ "Other racialised",
+  mutate(Racial.appearance.transformed = 
+           case_when(Racial.appearance == "Other" ~ "Other",
                      is.na(Racial.appearance) ~ "Missing",
-                     TRUE ~ Racial.appearance))%>%
-  mutate(Racialised = 
-  case_when(Racial.appearance == "White" ~ "No",
-            Racial.appearance != "White" ~ "Yes",
-            TRUE ~ Racial.appearance))
-  
+                     Racial.appearance == "Mediterarranean/Mid" ~ "Mediterranean AND Middle Eastern - DO NOT USE",
+                     TRUE ~ Racial.appearance))
+
 dat.sr2 <- dat.sr2 %>%
   select(FieldReportID,FieldContactID, Year, Contact.Date, Contact.Time,  Contact.Type, 
          Racial.Appearance.original, 
-         Racial.appearance.transformed = Racial.appearance, 
-         Racial.appearance.abridged,
+         Racial.appearance.transformed, 
          Found, Search.item.found,
          `Search.type - Drugs` ,  `Search.type - Weapons` ,
          `Search.type - Firearms` , `Search.type - Graffiti` ,
@@ -219,8 +215,8 @@ dat.sr3 <- dat.sr2 %>%
   mutate(across(all_of(search.types), 
                 ~ ifelse(Found == "Yes" & .x == "Nothing found",
                          "Non-search item found", .x)
-                )
-         )
+  )
+  )
 
 dat.sr3 <- dat.sr3 %>%
   select(-Search.item.found)
@@ -240,4 +236,5 @@ writeData(wb, sheet = "Data", x = dat.sr3)
 # Save the workbook
 saveWorkbook(wb, "VicPol Search data for analysis.xlsx", overwrite = TRUE)
 
+table(dat.sr3$Racial.appearance.transformed)
 

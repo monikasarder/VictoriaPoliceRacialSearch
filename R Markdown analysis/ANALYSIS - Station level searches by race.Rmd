@@ -152,8 +152,9 @@ loc.racial.display <- loc.racial.data %>%
 # Apply the custom cell background color and bold text to the 'Ratio: African to White appearance finds' column
 
 #display data 
-cols_to_colour <- names(loc.racial.data)[c(4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24)]
+cols_to_colour <- names(loc.racial.data)[c(4, 6, 8, 10, 12, 14, 16, 18, 20)]
 
+names(loc.racial.data)[c(4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24)]
 # Build the base table
 dt <- datatable(
   loc.racial.data,
@@ -362,8 +363,9 @@ p
 # Apply the custom cell background color and bold text to the 'Ratio: African to White appearance finds' column
 
 #display data 
-cols_to_colour <- names(loc.racial.data)[c(3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23)]
+cols_to_colour <- names(loc.racial.data)[c(3, 5, 7, 9, 11, 13, 15, 17, 19)]
 
+cols_to_colour
 # Build the base table
 dt <- datatable(
   loc.racial.data,
