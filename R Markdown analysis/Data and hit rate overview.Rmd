@@ -133,13 +133,14 @@ dat %>%
 Figure 1 below shows how the hit rate for different racial appearances changed over the four year period, with a reference line showing the average hit rate for all searches over four years in red.  The following observations are made:  
 
 * people who appear White experienced higher hit-rates compared with the overall population in most years, except for 2022. This may be due to the effect of pandemic-related measures.  
-* people of African, Middle Eastern/Mediterranean and Asian appearance experienced persistently lower hit rates than the average.  
-* hit-rates for people appearing to be Aboriginal and Torres Strait Islander have reduced over the four year period from 11% in 2018 to 18.6% in 2023.
+* people of African, Middle Eastern and Asian appearance experienced persistently lower hit rates than the average.  
+* hit-rates for people appearing to be Aboriginal and Torres Strait Islander have increased over the four year period from 11% in 2018 to 18.6% in 2023 - suggesting fewer racially biased searches.
 
 
 **Figure 1 Changes in hit rates by racial appearance over time and compared to the average**
 ```{r Finds race year, echo=FALSE, warning=FALSE, message = FALSE}
 trend <- dat %>%
+  filter(!Racial.appearance.transformed %in% c("Missing", "Mediterranean AND Middle Eastern - DO NOT USE", "Other"))%>%
   mutate(Racial.appearance = fct_infreq(Racial.appearance.transformed))%>%
   group_by(Year, `Racial.appearance`)%>%
   summarise(Finds = sum(Found == "Yes", na.rm = T), `Total searches`= n())%>%
