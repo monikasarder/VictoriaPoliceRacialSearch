@@ -56,7 +56,7 @@ A total of 22,117 search records, or 42% of all records, did not have any ethnic
 
 ***Middle Eastern appearance data limitations***  
 
-There is a limitation on our ability to analyse police-targeting of people of Middle Eastern appearance, as in 2020 Victoria Police aggregated Mediterranean and Middle Eastern into a single category.  This presents a challenge to our analysis, as we would ordinarily expect persons of Mediterranean descent (eg people of Italian, Greek, Croatian ancestry) to be categorised as 'non-racialised' or 'White'.  Meanwhile we would ordinarily expect persons of the Middle Eastern appearance to be considered 'racialised'.  
+There is a limitation on our ability to analyse police-targeting of people of Middle Eastern appearance, as in 2020 Victoria Police aggregated Mediterranean and Middle Eastern into a single category.  This presents a challenge to our analysis, as we would ordinarily expect persons of Mediterranean descent to be categorised as 'non-racialised' or 'White'.  Meanwhile we would ordinarily expect persons of the Middle Eastern appearance to be considered 'racialised'.  
 
 # Summary statistics  
 

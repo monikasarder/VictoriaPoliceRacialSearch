@@ -355,8 +355,11 @@ display: none;
 <div id="about-the-dataset" class="section level2">
 <h2>About the Dataset</h2>
 <p>This dataset summarises over 50,000 searches conducted by Victoria
-Police in 2018, 2019, 2022, and 2023, in a format that can be analysed
-by public interest groups, data journalists and government.</p>
+Police in 2018, 2019, 2022, and 2023, by racial appearance category, in
+a format that is accessible to public and community stakeholders. The
+aim of this repository is to provide public and community stakeholders
+with the means to understand whether racial profiling may be present in
+communities in Victoria.</p>
 <p>The original raw data was obtained from Victoria Police under the FOI
 Act by the <a href="https://www.centreagainstracialprofiling.au/">Centre
 Against Racial Profiling</a>, and is available on their website.</p>
@@ -366,15 +369,14 @@ Against Racial Profiling</a>, and is available on their website.</p>
 <p>This repository was developed to support stakeholders working on
 police accountability by providing:</p>
 <ul>
-<li>Access to cleaned and raw police search data<br />
+<li>Access to cleaned and raw police search data</li>
+<li>Access to analysis of stop and search data<br />
 </li>
-<li>R code to transform and analyse the data<br />
-</li>
+<li>R code to transform and analyse the data and to verify robustness of
+analysis</li>
 <li>Additional contextual information such as police station locations
 and Victoria Police’s organisational hierarchy</li>
 </ul>
-<p>The aim is to enable users to turn raw data into actionable insights
-about racial profiling in their communities.</p>
 </div>
 <div id="contents-of-the-repository" class="section level2">
 <h2>Contents of the Repository</h2>
@@ -392,8 +394,11 @@ Police<br />
 station location information and intermediate outputs from the cleaning
 process<br />
 </li>
-<li><strong>R Markdown analysis</strong> – a preliminary analysis in R
-Markdown format</li>
+<li><strong>Data overview</strong> – an overview of the dataset to
+support further work</li>
+<li><strong>Data analysis</strong> - an evaluation of evidence of racial
+profiling in Melbourne’s LGAs and police stations based on established
+‘hit rate’ methodology</li>
 </ul>
 <hr />
 </div>
@@ -445,13 +450,12 @@ Eastern” into a single category labeled <strong>“Mediterranean/Middle
 Eastern”</strong>. This change obscures the experiences of people
 specifically of Middle Eastern appearance and limits the ability to
 analyse targeted policing of this group.</p>
-<hr />
 </div>
 </div>
 <div id="interpreting-search-locations" class="section level2">
 <h2>Interpreting Search Locations</h2>
-<p>The dataset includes Police station-level information for searches
-conducted by <em>uniform police</em>. It does not contain police station
+<p>The dataset includes Police station location information for searches
+conducted by <em>uniform police</em>. It does not contain location
 information for <strong>specialist units</strong> (e.g., Highway Patrol,
 Divisional Response Unit, CIU, SOCIT) often operate across multiple LGAs
 within a broader Police Division, so searches may have taken place in

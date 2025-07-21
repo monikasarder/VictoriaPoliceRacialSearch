@@ -1,6 +1,6 @@
 ## About the Dataset
 
-This dataset summarises over 50,000 searches conducted by Victoria Police in 2018, 2019, 2022, and 2023, in a format that can be analysed by public interest groups, data journalists and government. 
+This dataset summarises over 50,000 searches conducted by Victoria Police in 2018, 2019, 2022, and 2023, by racial appearance category, in a format that is accessible to public and community stakeholders. The aim of this repository is to provide public and community stakeholders with the means to understand whether racial profiling may be present in communities in Victoria.
 
 The original raw data was obtained from Victoria Police under the FOI Act by the [Centre Against Racial Profiling](https://www.centreagainstracialprofiling.au/), and is available on their website. 
 
@@ -8,11 +8,10 @@ The original raw data was obtained from Victoria Police under the FOI Act by the
 
 This repository was developed to support stakeholders working on police accountability by providing:
 
-- Access to cleaned and raw police search data  
-- R code to transform and analyse the data  
+- Access to cleaned and raw police search data
+- Access to analysis of stop and search data  
+- R code to transform and analyse the data and to verify robustness of analysis 
 - Additional contextual information such as police station locations and Victoria Police’s organisational hierarchy  
-
-The aim is to enable users to turn raw data into actionable insights about racial profiling in their communities.
 
 ## Contents of the Repository
 
@@ -20,7 +19,8 @@ The aim is to enable users to turn raw data into actionable insights about racia
 - **R Code** – scripts for data cleaning and transformation  
 - **Primary Datasets** – raw search data from Victoria Police  
 - **Secondary Datasets** – supplementary data, including station location information and intermediate outputs from the cleaning process  
-- **R Markdown analysis** – a preliminary analysis in R Markdown format  
+- **Data overview** – an overview of the dataset to support further work
+- **Data analysis** - an evaluation of evidence of racial profiling in Melbourne's LGAs and police stations based on established 'hit rate' methodology
 
 ---
 
@@ -50,10 +50,7 @@ Despite being a mandatory field since 2019, **42% of search records (22,117 reco
 
 Since 2020, Victoria Police have combined "Mediterranean" and "Middle Eastern" into a single category labeled **"Mediterranean/Middle Eastern"**. This change obscures the experiences of people specifically of Middle Eastern appearance and limits the ability to analyse targeted policing of this group.
 
----
 
 ## Interpreting Search Locations
 
-The dataset includes Police station-level information for searches conducted by *uniform police*. It does not contain police station information for **specialist units** (e.g., Highway Patrol, Divisional Response Unit, CIU, SOCIT) often operate across multiple LGAs within a broader Police Division, so searches may have taken place in surrounding areas.
-
-
+The dataset includes Police station location information for searches conducted by *uniform police*. It does not contain location information for **specialist units** (e.g., Highway Patrol, Divisional Response Unit, CIU, SOCIT) often operate across multiple LGAs within a broader Police Division, so searches may have taken place in surrounding areas.
