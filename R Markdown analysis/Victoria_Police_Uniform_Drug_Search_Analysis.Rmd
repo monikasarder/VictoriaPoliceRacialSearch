@@ -1,0 +1,832 @@
+---
+title: "Victoria Police Drug Stop and Search Data"
+author: "Monika Sarder"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: yes
+---
+
+```{r load-packages-and-data, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(results = "asis")
+
+library(strayr)
+library(sf)
+library(broom)
+library(tidyverse)
+library(plotly)
+library(summarytools)
+library(kableExtra)
+library(magrittr)
+library(rmarkdown)
+library(forcats)
+library(gmodels)
+library(crosstable)
+library(janitor)
+library(DT)
+library(writexl)
+library(viridis)
+
+dat <- readRDS("../Output.data/Clean.search.data.RDS")
+```
+
+# Data overview
+
+This report summarises over 13,000 warrantless drug searches conducted by uniformed Victoria Police officers while patrolling on foot in public places in Melbourne. The data covers the years 2018, 2019, 2022, and 2023, and is sourced from [**The Racial Profiling Data Monitoring Project**](https://khaki-pepper-b3rf.squarespace.com/). Data from 2020 and 2021 is excluded due to the extraordinary circumstances of the COVID-19 pandemic.
+
+Under section 82 of the [*Drugs, Poisons and Controlled Substances Act 1981*](http://classic.austlii.edu.au/au/legis/vic/consol_act/dpacsa1981422/s82.html), a police officer may stop and search a person in a public place if they reasonably suspect the person is in possession of illegal drugs. Drug searches are the most common type of warrantless search carried out by police in Victoria.
+
+## Racial appearance categories
+
+Victoria Police records the perceived racial appearance of individuals subjected to stop and search. These categories are based on the officer’s perception, not the individual's self-reported ancestry or identity.
+
+**Missing data:**  
+Racial appearance was not recorded in 2,860 search records — approximately 21% of all records — despite being a mandatory field for stop and search data collection since 2019.
+
+## Difference at PSA level
+
+```{r prop-test-psa, warning=FALSE, message=FALSE}
+
+
+# Prepare data for PSA-level testing
+psa_test_data <- dat %>%
+  filter(Racial.appearance.transformed %in% c("African", "White"),
+         Contact.Type == "P",
+         Area.type == "Metro",
+         !is.na(`Search.type - Drugs`),
+         !is.na(Found),
+         !is.na(`Police.Service.Area`)) %>%
+  mutate(found_flag = ifelse(Found == "Yes", 1, 0))
+
+# Summarise by PSA and Racial Appearance
+psa_summary <- psa_test_data %>%
+  group_by(Police.Service.Area, Racial.appearance.transformed) %>%
+  summarise(
+    Total_Searches = n(),
+    Total_Hits = sum(found_flag),
+    .groups = "drop"
+  ) %>%
+  pivot_wider(
+    names_from = Racial.appearance.transformed,
+    values_from = c(Total_Searches, Total_Hits)
+  ) %>%
+  filter(Total_Searches_African >= 20, Total_Searches_White >= 20)
+
+# Run proportion tests
+psa_test_results <- psa_summary %>%
+  rowwise() %>%
+  mutate(
+    test_result = list(prop.test(
+      x = c(Total_Hits_African, Total_Hits_White),
+      n = c(Total_Searches_African, Total_Searches_White),
+      correct = FALSE
+    )),
+    p_value = test_result$p.value,
+    ci_low = test_result$conf.int[1] * 100,
+    ci_high = test_result$conf.int[2] * 100,
+    hit_rate_african = round((Total_Hits_African / Total_Searches_African) * 100, 1),
+    hit_rate_white = round((Total_Hits_White / Total_Searches_White) * 100, 1),
+    CI_text = paste0(round(ci_low, 1), "% to ", round(ci_high, 1), "%")
+  ) %>%
+  ungroup() %>%
+  select(
+    `Police Service Area` = Police.Service.Area,
+    `Searches (African)` = Total_Searches_African,
+    `Finds (African)` = Total_Hits_African,
+    `Hit rate (African) %` = hit_rate_african,
+    `Searches (White)` = Total_Searches_White,
+    `Finds (White)` = Total_Hits_White,
+    `Hit rate (White) %` = hit_rate_white,
+    `p-value` = p_value,
+    `95% CI for Difference` = CI_text
+  ) %>%
+  arrange(`p-value`)
+
+# Display table
+kable(
+  psa_test_results,
+  caption = "Statistical Comparison of Drug Search Hit Rates by Police Service Area (African vs White Appearance, PSAs with ≥ 20 African Searches)",
+  align = "lccccccc"
+)
+```
+
+## Difference at Division level
+
+
+
+```{r prop-test-division, warning=FALSE, message=FALSE}
+
+# Prepare data for Division-level testing
+division_test_data <- dat %>%
+  filter(Racial.appearance.transformed %in% c("African", "White"),
+         Contact.Type == "P",
+         Area.type == "Metro",
+         !is.na(`Search.type - Drugs`),
+         !is.na(Found),
+         !is.na(Division)) %>%
+  mutate(found_flag = ifelse(Found == "Yes", 1, 0))
+
+# Summarise by Division and Race
+division_summary <- division_test_data %>%
+  group_by(Division, Racial.appearance.transformed) %>%
+  summarise(
+    Total_Searches = n(),
+    Total_Hits = sum(found_flag),
+    .groups = "drop"
+  ) %>%
+  pivot_wider(
+    names_from = Racial.appearance.transformed,
+    values_from = c(Total_Searches, Total_Hits)
+  ) %>%
+  filter(Total_Searches_African >= 20, Total_Searches_White >= 20)
+
+# Proportion test explicitly unpacked
+division_test_results <- division_summary %>%
+  rowwise() %>%
+  mutate(
+    test_result = list(prop.test(
+      x = c(Total_Hits_African, Total_Hits_White),
+      n = c(Total_Searches_African, Total_Searches_White),
+      correct = FALSE
+    )),
+    p_value = test_result$p.value,
+    ci_low = test_result$conf.int[1] * 100,
+    ci_high = test_result$conf.int[2] * 100,
+    hit_rate_african = round((Total_Hits_African / Total_Searches_African) * 100, 1),
+    hit_rate_white = round((Total_Hits_White / Total_Searches_White) * 100, 1),
+    CI_text = paste0(round(ci_low, 1), "% to ", round(ci_high, 1), "%")
+  ) %>%
+  ungroup() %>%
+  select(
+    Division,
+    `Searches (African)` = Total_Searches_African,
+    `Finds (African)` = Total_Hits_African,
+    `Hit rate (African) %` = hit_rate_african,
+    `Searches (White)` = Total_Searches_White,
+    `Finds (White)` = Total_Hits_White,
+    `Hit rate (White) %` = hit_rate_white,
+    `p-value` = p_value,
+    `95% CI for Difference` = CI_text
+  ) %>%
+  arrange(`p-value`)
+
+# Display table
+kable(
+  division_test_results,
+  caption = "Statistical Comparison of Drug Search Hit Rates by Division (African vs White Appearance, Divisions with ≥ 20 African Searches)",
+  align = "lccccccc"
+)
+
+```
+## Difference at Region level
+
+
+---
+
+## ✅ **Region-level proportion test code**
+
+
+```{r prop-test-region, warning=FALSE, message=FALSE}
+
+
+
+# Prepare data for Region-level testing
+region_test_data <- dat %>%
+  filter(Racial.appearance.transformed %in% c("African", "White"),
+         Contact.Type == "P",
+         Area.type == "Metro",
+         !is.na(`Search.type - Drugs`),
+         !is.na(Found),
+         !is.na(Region)) %>%
+  mutate(found_flag = ifelse(Found == "Yes", 1, 0))
+
+# Summarise by Region and Race
+region_summary <- region_test_data %>%
+  group_by(Region, Racial.appearance.transformed) %>%
+  summarise(
+    Total_Searches = n(),
+    Total_Hits = sum(found_flag),
+    .groups = "drop"
+  ) %>%
+  pivot_wider(
+    names_from = Racial.appearance.transformed,
+    values_from = c(Total_Searches, Total_Hits)
+  ) %>%
+  filter(Total_Searches_African >= 20, Total_Searches_White >= 20)
+
+# Proportion test explicitly unpacked
+region_test_results <- region_summary %>%
+  rowwise() %>%
+  mutate(
+    test_result = list(prop.test(
+      x = c(Total_Hits_African, Total_Hits_White),
+      n = c(Total_Searches_African, Total_Searches_White),
+      correct = FALSE
+    )),
+    p_value = test_result$p.value,
+    ci_low = test_result$conf.int[1] * 100,
+    ci_high = test_result$conf.int[2] * 100,
+    hit_rate_african = round((Total_Hits_African / Total_Searches_African) * 100, 1),
+    hit_rate_white = round((Total_Hits_White / Total_Searches_White) * 100, 1),
+    CI_text = paste0(round(ci_low, 1), "% to ", round(ci_high, 1), "%")
+  ) %>%
+  ungroup() %>%
+  select(
+    Region,
+    `Searches (African)` = Total_Searches_African,
+    `Finds (African)` = Total_Hits_African,
+    `Hit rate (African) %` = hit_rate_african,
+    `Searches (White)` = Total_Searches_White,
+    `Finds (White)` = Total_Hits_White,
+    `Hit rate (White) %` = hit_rate_white,
+    `p-value` = p_value,
+    `95% CI for Difference` = CI_text
+  ) %>%
+  arrange(`p-value`)
+
+# Display table
+kable(
+  region_test_results,
+  caption = "Statistical Comparison of Drug Search Hit Rates by Region (African vs White Appearance, Regions with ≥ 20 African Searches)",
+  align = "lccccccc"
+)
+```
+
+## Hit Rate Analysis by Station
+
+The following results present **hit rates**—the percentage of stop and searches that resulted in the discovery of illegal drugs—for different racial appearance groups across Melbourne police stations. A **hit rate** is commonly used in policing research to assess whether stop and search practices are yielding actual results, and to identify potential disparities across racial groups. Comparing hit rates helps to reveal whether certain groups are being searched on a weaker evidentiary basis, which may indicate racial profiling.
+
+To ensure statistical reliability, hit rates are only shown for racial appearance groups where **at least 20 searches** were conducted at a given station. Where fewer than 20 individuals of a particular racial group were searched, the hit rate is not reported, as the sample size is too small to draw meaningful conclusions.
+
+```{r summarise-station-level-hit-rates,  echo=FALSE, warning=FALSE, message = FALSE}
+
+table(dat$Division)
+loc.racial <- dat %>%
+  filter(!is.na(Station.uniform), Contact.Type == "P", 
+         !is.na(`Search.type - Drugs`), Area.type == "Metro") %>%
+  group_by(Division, Station.uniform) %>%
+  mutate(
+    `Finds all (%)` = round(mean(Found == "Yes", na.rm = TRUE) * 100),
+    Total.searches = n()
+  ) %>%
+  mutate(Racial.appearance.transformed = fct_infreq(Racial.appearance.transformed)) %>%
+  group_by(Division, Station.uniform, Total.searches, `Finds all (%)`, Racial.appearance.transformed) %>%
+  summarise(
+    Finds = sum(Found == "Yes", na.rm = TRUE),
+    Searches = n(),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    `Hit rate` = ifelse(Searches > 20, round(Finds / Searches * 100, 1), NA)
+  ) %>%
+  select(-Finds) %>%
+  pivot_wider(names_from = Racial.appearance.transformed, values_from = c(`Hit rate`, Searches)) %>%
+  rename_with(
+    ~ gsub("^Searches_", "Searches: ", .x), 
+    starts_with("Searches_")
+  ) %>%
+  mutate(
+    `Relative likelihood: African` = round((`Hit rate_African` / `Hit rate_White` - 1) * 100, 1),
+    Interpretation = case_when(
+      `Relative likelihood: African` < 0 ~ paste0(abs(`Relative likelihood: African`), "% less likely"),
+      `Relative likelihood: African` > 0 ~ paste0(`Relative likelihood: African`, "% more likely"),
+      TRUE ~ "Insufficient data"
+    )
+  )
+```
+
+```{r create-station-summary-table,  echo=FALSE, warning=FALSE, message = FALSE}
+loc.racial.data <- loc.racial %>%
+  select(
+    Division,
+    Station = Station.uniform,
+    `Total drug searches` = Total.searches,
+    `Finds all (%)`,
+    
+    `Searches: White`,
+    `Finds: White (%)` = `Hit rate_White`,
+    
+    `Searches: African`,
+    `Finds: African (%)` = `Hit rate_African`,
+    
+    `Searches: Asian`,
+    `Finds: Asian (%)` = `Hit rate_Asian`,
+    
+    `Searches: South Asian`,
+    `Finds: South Asian (%)` = `Hit rate_South Asian`,
+    
+    `Searches: Aboriginal`,
+    `Finds: Aboriginal (%)` = `Hit rate_Aboriginal`,
+    
+    `Searches: Middle Eastern`,
+    `Finds: Middle Eastern (%)` = `Hit rate_Middle Eastern`,
+    
+    `Searches: Pacific Islander`,
+    `Finds: Pacific Islander (%)` = `Hit rate_Pacific Islander`,
+    
+    `Searches: Missing`,
+    `Finds: Missing (%)` = `Hit rate_Missing`,
+    
+    `Relative likelihood: African`,
+    Interpretation
+  ) %>%
+  arrange(desc(`Searches: African`))
+
+
+
+loc.racial.data %>%
+  select(-Interpretation, -`Relative likelihood: African`) %>%
+  datatable(
+  rownames = FALSE,
+  class = 'cell-border stripe',
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'excel', 'print'),
+    pageLength = 20,
+    autoWidth = TRUE
+  )
+)
+
+
+```
+## Station-Level Focus on Racial Profiling of African Communities
+
+This section presents a **station-level analysis** of potential racial profiling targeting individuals perceived to be of **African appearance**. The table below compares the **hit rates**—the percentage of drug searches that resulted in a positive find—for people of **White appearance** and **African appearance** at each police station in metropolitan Melbourne.
+
+A **relative likelihood ratio** has been calculated to indicate whether individuals of African appearance were more or less likely to be found with drugs compared to White-appearing individuals at each station. Where meaningful comparisons can be made, an **interpretation column** provides a plain-language explanation of the disparity. This focused analysis helps to identify localised patterns of potential racial bias in how drug search powers are exercised across Victoria Police stations.
+
+```{r station-interpretation-table,  echo=FALSE, warning=FALSE, message = FALSE}
+datatable(
+  loc.racial.data %>%
+    select(
+      Station,
+      Interpretation,
+      `Search success likelihood: African compared with white` = `Relative likelihood: African`,
+      `Searches: White`,
+      `Finds: White (%)`,
+      `Searches: African`,
+      `Finds: African (%)`
+    ) %>%
+    arrange(`Search success likelihood: African compared with white`),
+  rownames = FALSE,
+  class = 'cell-border stripe',
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'excel', 'print'),
+    pageLength = 20,
+    autoWidth = FALSE,
+    columnDefs = list(list(width = '100px', targets = "_all"))
+  )
+) %>%
+  formatStyle(
+    'Interpretation',
+    valueColumns = 'Search success likelihood: African compared with white',
+    backgroundColor = styleInterval(
+      c(-50, -20, 50),
+      c(
+        "#fb6a4a",  # Red: 50%+ less likely
+        "#fec44f",  # Orange: 20–49% less likely
+        "#ffeb3b",  # Yellow: within ±20%
+        "#9c27b0"   # Purple: 50%+ more likely
+      )
+    ),
+    fontWeight = 'bold'
+  )
+
+```
+
+The following table indicates that for all stations where a likelihood ratio is calculated the difference between hit rates for people of white and African appearance were different at a level that was statistically significant.
+
+```{r prop-test-station, warning=FALSE, message=FALSE}
+
+
+# Prepare the data for testing
+station_test_data <- dat %>%
+  filter(Racial.appearance.transformed %in% c("African", "White"),
+         Contact.Type == "P",
+         Area.type == "Metro",
+         !is.na(`Search.type - Drugs`),
+         !is.na(Found),
+         !is.na(Station.uniform)) %>%
+  mutate(found_flag = ifelse(Found == "Yes", 1, 0))
+
+# Summarise by Station and Racial Appearance
+station_summary <- station_test_data %>%
+  group_by(Station.uniform, Racial.appearance.transformed) %>%
+  summarise(
+    Total_Searches = n(),
+    Total_Hits = sum(found_flag),
+    .groups = "drop"
+  ) %>%
+  pivot_wider(
+    names_from = Racial.appearance.transformed,
+    values_from = c(Total_Searches, Total_Hits)
+  ) %>%
+  filter(Total_Searches_African >= 20, Total_Searches_White >= 20)
+
+# Run proportion test and store explicitly
+station_test_results <- station_summary %>%
+  rowwise() %>%
+  mutate(
+    test_result = list(prop.test(
+      x = c(Total_Hits_African, Total_Hits_White),
+      n = c(Total_Searches_African, Total_Searches_White),
+      correct = FALSE
+    ))
+  ) %>%
+  mutate(
+    p_value = test_result$p.value,
+    ci_low = test_result$conf.int[1] * 100,
+    ci_high = test_result$conf.int[2] * 100,
+    hit_rate_african = round((Total_Hits_African / Total_Searches_African) * 100, 1),
+    hit_rate_white = round((Total_Hits_White / Total_Searches_White) * 100, 1),
+    CI_text = paste0(round(ci_low, 1), "% to ", round(ci_high, 1), "%")
+  ) %>%
+  ungroup() %>%
+  select(
+    Station = Station.uniform,
+    `Searches (African)` = Total_Searches_African,
+    `Finds (African)` = Total_Hits_African,
+    `Hit rate (African) %` = hit_rate_african,
+    `Searches (White)` = Total_Searches_White,
+    `Finds (White)` = Total_Hits_White,
+    `Hit rate (White) %` = hit_rate_white,
+    `p-value` = p_value,
+    `95% CI for Difference` = CI_text
+  ) %>%
+  arrange(`p-value`)
+
+# Display table
+kable(
+  station_test_results,
+  caption = "Statistical Comparison of Drug Search Hit Rates by Station (African vs White Appearance, Stations with ≥ 20 African Searches)",
+  align = "lccccccc"
+)
+```
+
+## Hit Rate Analysis by LGA
+
+This section presents a **Local Government Area (LGA)–level analysis** of police drug searches, recognising that people live and move within communities—not just around police stations. By focusing on where people live, rather than where they are searched, this analysis offers a community-based perspective on policing.
+
+The table below shows the **number of drug searches** and the corresponding **hit rates** (percentage of searches that resulted in the discovery of illegal drugs) for all recorded **racial appearance groups** across metropolitan LGAs. This provides a broader view of how different communities are being impacted by stop and search practices, and sets the foundation for identifying racial disparities in outcomes across the region.
+
+```{r summarise-lga-level-hit-rates,  echo=FALSE, warning=FALSE, message = FALSE}
+loc.racial <- dat %>%
+  filter(!is.na(Station.uniform), Contact.Type == "P", 
+         !is.na(`Search.type - Drugs`), Area.type == "Metro") %>%
+  group_by(Local.Government.Area) %>%
+  mutate(
+    `Finds all (%)` = round(mean(Found == "Yes", na.rm = TRUE) * 100, 1),
+    Total.searches = n()
+  ) %>%
+  mutate(Racial.appearance.transformed = fct_infreq(Racial.appearance.transformed)) %>%
+  group_by(Local.Government.Area, Total.searches, `Finds all (%)`, Racial.appearance.transformed) %>%
+  summarise(
+    Finds = sum(Found == "Yes", na.rm = TRUE),
+    Searches = n(),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    `Hit rate` = ifelse(Searches > 20, round(Finds / Searches * 100, 1), NA)
+  ) %>%
+  select(-Finds) %>%
+  pivot_wider(names_from = Racial.appearance.transformed, values_from = c(`Hit rate`, Searches)) %>%
+  rename_with(
+    ~ gsub("^Searches_", "Searches: ", .x), 
+    starts_with("Searches_")
+  ) %>%
+  mutate(
+    `Relative likelihood: African` = round((`Hit rate_African` / `Hit rate_White` - 1) * 100, 1),
+    Interpretation = case_when(
+      `Relative likelihood: African` < 0 ~ paste0(abs(`Relative likelihood: African`), "% less likely"),
+      `Relative likelihood: African` > 0 ~ paste0(`Relative likelihood: African`, "% more likely"),
+      TRUE ~ "Insufficient data"
+    )
+  )
+```
+
+```{r create-lga-summary-table,  echo=FALSE, warning=FALSE, message = FALSE}
+loc.racial.data <- loc.racial %>%
+  select(
+    LGA = Local.Government.Area,
+    `Total drug searches` = Total.searches,
+    `Finds all (%)`,
+    
+    `Searches: White`,
+    `Finds: White (%)` = `Hit rate_White`,
+    
+    `Searches: African`,
+    `Finds: African (%)` = `Hit rate_African`,
+    
+    `Searches: Asian`,
+    `Finds: Asian (%)` = `Hit rate_Asian`,
+    
+    `Searches: South Asian`,
+    `Finds: South Asian (%)` = `Hit rate_South Asian`,
+    
+    `Searches: Aboriginal`,
+    `Finds: Aboriginal (%)` = `Hit rate_Aboriginal`,
+    
+    `Searches: Middle Eastern`,
+    `Finds: Middle Eastern (%)` = `Hit rate_Middle Eastern`,
+    
+    `Searches: Pacific Islander`,
+    `Finds: Pacific Islander (%)` = `Hit rate_Pacific Islander`,
+    
+    `Searches: Missing`,
+    `Finds: Missing (%)` = `Hit rate_Missing`,
+    
+    `Relative likelihood: African`,
+    Interpretation
+  ) %>%
+  arrange(desc(`Searches: African`))
+
+
+
+loc.racial.data %>%
+  select(-Interpretation, -`Relative likelihood: African`) %>%
+  datatable(
+  rownames = FALSE,
+  class = 'cell-border stripe',
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'excel', 'print'),
+    pageLength = 20,
+    autoWidth = TRUE
+  )
+)
+```
+## LGA-Level Focus on Racial Profiling of African Communities
+
+Building on the previous table, this section provides a targeted analysis of **racial profiling at the Local Government Area (LGA) level**, specifically focusing on individuals perceived to be of **African appearance**. 
+
+The table below compares **hit rates** for people of **White appearance** and **African appearance** across metropolitan LGAs. A **relative likelihood ratio** has been calculated to determine whether individuals of African appearance were more or less likely to be found with drugs than their White-appearing counterparts. An **interpretation column** provides a plain-language summary of the disparity observed in each area.
+
+This community-level lens helps identify whether African communities across different parts of Melbourne are experiencing disproportionate and potentially unjustified police attention, based on drug search outcomes.
+
+```{r lga-interpretation-table,  echo=FALSE, warning=FALSE, message = FALSE}
+datatable(
+  loc.racial.data %>%
+    select(
+      LGA,
+      Interpretation,
+      `Search success likelihood: African compared with white` = `Relative likelihood: African`,
+      `Searches: White`,
+      `Finds: White (%)`,
+      `Searches: African`,
+      `Finds: African (%)`
+    ) %>%
+    arrange(`Search success likelihood: African compared with white`),
+  rownames = FALSE,
+  class = 'cell-border stripe',
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Blfrtip',
+    buttons = c('copy', 'excel', 'print'),
+    pageLength = 20,
+    autoWidth = FALSE,
+    columnDefs = list(list(width = '100px', targets = "_all"))
+  )
+) %>%
+  formatStyle(
+    'Interpretation',
+    valueColumns = 'Search success likelihood: African compared with white',
+    backgroundColor = styleInterval(
+      c(-50, -20, 50),
+      c(
+        "#fb6a4a",  # Red: 50%+ less likely
+        "#fec44f",  # Orange: 20–49% less likely
+        "#ffeb3b",  # Yellow: within ±20%
+        "#3b2c87"   # Purple: 50%+ more likely
+      )
+    ),
+    fontWeight = 'bold'
+  )
+```
+
+The following table indicates that for all stations where a likelihood ratio is calculated the difference between hit rates for people of white and African appearance were different at a level that was statistically significant.
+
+```{r prop-test-lga, warning=FALSE, message=FALSE}
+
+
+# Prepare the data for LGA-level testing
+lga_test_data <- dat %>%
+  filter(Racial.appearance.transformed %in% c("African", "White"),
+         Contact.Type == "P",
+         Area.type == "Metro",
+         !is.na(`Search.type - Drugs`),
+         !is.na(Found),
+         !is.na(Local.Government.Area)) %>%  # Changed to Local.Government.Area
+  mutate(found_flag = ifelse(Found == "Yes", 1, 0))
+
+# Summarise by LGA and Racial Appearance
+lga_summary <- lga_test_data %>%
+  group_by(Local.Government.Area, Racial.appearance.transformed) %>%  # Changed grouping variable
+  summarise(
+    Total_Searches = n(),
+    Total_Hits = sum(found_flag),
+    .groups = "drop"
+  ) %>%
+  pivot_wider(
+    names_from = Racial.appearance.transformed,
+    values_from = c(Total_Searches, Total_Hits)
+  ) %>%
+  filter(Total_Searches_African >= 20, Total_Searches_White >= 20)
+
+# Run proportion test and store explicitly
+# Run proportion test and store explicitly
+lga_test_results <- lga_summary %>%
+  rowwise() %>%
+  mutate(
+    test_result = list(prop.test(
+      x = c(Total_Hits_African, Total_Hits_White),
+      n = c(Total_Searches_African, Total_Searches_White),
+      correct = FALSE
+    ))
+  ) %>%
+  mutate(
+    p_value = test_result$p.value,
+    ci_low = test_result$conf.int[1] * 100,
+    ci_high = test_result$conf.int[2] * 100,
+    hit_rate_african = round((Total_Hits_African / Total_Searches_African) * 100, 1),
+    hit_rate_white = round((Total_Hits_White / Total_Searches_White) * 100, 1),
+    CI_text = paste0(round(ci_low, 1), "% to ", round(ci_high, 1), "%")
+  ) %>%
+  ungroup() %>%
+  select(
+    LGA = Local.Government.Area,
+    `Searches (African)` = Total_Searches_African,
+    `Finds (African)` = Total_Hits_African,
+    `Hit rate (African) %` = hit_rate_african,
+    `Searches (White)` = Total_Searches_White,
+    `Finds (White)` = Total_Hits_White,
+    `Hit rate (White) %` = hit_rate_white,
+    `p-value` = p_value,
+    `95% CI for Difference` = CI_text
+  ) %>%
+  arrange(`p-value`)
+
+# Display table
+kable(
+  lga_test_results,
+  caption = "Statistical Comparison of Drug Search Hit Rates by LGA (African vs White Appearance, LGAs with ≥ 20 African Searches)",
+  align = "lccccccc"
+)
+```
+
+```{r melb image, echo=FALSE, warning=FALSE, message = FALSE}
+
+
+
+melbs <- read_absmap("lga2022")
+
+melbs <- melbs %>%
+  filter(state_name_2021 == "Victoria")  %>%
+  mutate(LGA = lga_name_2022)
+
+melbs2 <- melbs %>%
+  select(LGA, geometry, cent_long, cent_lat)%>%
+  mutate(LGA = case_when(
+    LGA %in% c("Moreland") ~ "Merri-bek",
+    LGA == "Kingston (Vic.)" ~ "Kingston",
+    LGA == "Bayside (Vic.)"~ "Bayside",
+    TRUE ~ LGA
+  ))
+```
+
+```{r choropleth, echo=FALSE, warning=FALSE, message = FALSE}
+
+
+
+melbs <- read_absmap("lga2022")
+
+melbs <- melbs %>%
+  filter(state_name_2021 == "Victoria")  %>%
+  mutate(LGA = lga_name_2022)
+
+melbs2 <- melbs %>%
+  select(LGA, geometry, cent_long, cent_lat)%>%
+  mutate(LGA = case_when(
+    LGA %in% c("Moreland") ~ "Merri-bek",
+    LGA == "Kingston (Vic.)" ~ "Kingston",
+    LGA == "Bayside (Vic.)"~ "Bayside",
+    TRUE ~ LGA
+  ))
+
+melbs2 <- melbs2 %>%
+  filter(LGA %in% c(unique(loc.racial.data$LGA)))
+```
+
+```{r join sets, echo=FALSE, warning=FALSE, message = FALSE}
+datm <- melbs2 %>%
+  left_join(loc.racial.data, by = "LGA") %>%
+  mutate(
+    Relative.likelihood = case_when(
+      is.na(`Relative likelihood: African`) ~ "Insufficient data",
+      `Relative likelihood: African` <= -50 ~ "Over 50% less likely",
+      `Relative likelihood: African` <= -20 ~ "Over 20% less likely",
+      `Relative likelihood: African` <  20  ~ "Within ±20%",
+      TRUE ~ "Over 20% more likely"
+    ),
+    Colour = case_when(
+      Relative.likelihood == "Insufficient data"       ~ "#D3D3D3",  # Light grey
+      Relative.likelihood == "Over 50% less likely"    ~ "#d73027",  # Red
+      Relative.likelihood == "Over 20% less likely"    ~ "#fb8c00",  # Orange
+      Relative.likelihood == "Within ±20%"             ~ "#fff9c4",  # Pale yellow
+      Relative.likelihood == "Over 20% more likely"    ~ "#673ab7"   # Purple
+    )
+  )
+
+
+    
+```
+
+```{r final heat map, echo=FALSE, warning=FALSE, message = FALSE}
+# 1. Set your geo layout
+g <- list(
+  showframe = FALSE,
+  showcoastlines = FALSE,
+  projection = list(type = 'mercator')
+)
+
+# 2. Generate the base plot (choropleth)
+p <- plot_ly() %>%
+  add_sf(
+    data = datm,
+    split = ~LGA,
+    color = ~I(Colour),
+    text = ~paste0(
+      "LGA: ", LGA, "<br>",
+      "Relative likelihood: ", `Relative likelihood: African`, "<br>",
+      "Searches: ", `Total drug searches`
+    ),
+    hoveron = "fills",
+    hoverinfo = "text",
+    showlegend = FALSE
+  )
+
+# 3. Custom legend entries – new categories
+legend_levels <- c(
+  "Over 50% less likely",
+  "Over 20% less likely",
+  "Within ±20%",
+  "Over 20% more likely",
+  "Insufficient data"
+)
+
+legend_items <- datm %>%
+  distinct(Relative.likelihood, Colour) %>%
+  filter(Relative.likelihood %in% legend_levels) %>%
+  mutate(Relative.likelihood = factor(Relative.likelihood, levels = legend_levels)) %>%
+  arrange(Relative.likelihood)
+
+# 4. Add manual legend items as off-map scatter traces
+for (i in seq_len(nrow(legend_items))) {
+  p <- p %>%
+    add_trace(
+      type = "scatter",
+      mode = "markers",
+      x = list(NA),
+      y = list(NA),
+      marker = list(color = legend_items$Colour[i], size = 10),
+      name = as.character(legend_items$Relative.likelihood[i]),
+      hoverinfo = "none",
+      showlegend = TRUE,
+      inherit = FALSE
+    )
+}
+
+# 5. Final layout with geo and legend
+p <- p %>%
+  layout(
+    geo = g,
+    legend = list(
+      title = list(text = "Relative likelihood"),
+      x = 1.02,
+      y = 0.95
+    )
+  )
+
+p
+
+```
+
+
+# Appendix – Ethnic Appearance Mapping
+
+```{r mapping-categories-2022-2023, echo = FALSE}
+dat %>%
+  filter(Year %in% c(2022, 2023)) %>%
+  count(Racial.Appearance.original, Racial.appearance.transformed) %>%
+  kable()
+```
+
+```{r mapping-categories-2018-2019, echo = FALSE}
+dat %>%
+  filter(Year %in% c(2018, 2019)) %>%
+  count(Racial.Appearance.original, Racial.appearance.transformed) %>%
+  kable()
+```
