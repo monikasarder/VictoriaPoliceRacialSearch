@@ -352,114 +352,132 @@ display: none;
 </div>
 
 
+<div id="vicpol-stop-and-search-dataset" class="section level1">
+<h1>VicPol Stop and Search Dataset</h1>
 <div id="about-the-dataset" class="section level2">
 <h2>About the Dataset</h2>
-<p>This dataset summarises over 50,000 searches conducted by Victoria
-Police in 2018, 2019, 2022, and 2023, by racial appearance category, in
-a format that is accessible to public and community stakeholders. The
-aim of this repository is to provide public and community stakeholders
-with the means to understand whether racial profiling may be present in
-communities in Victoria.</p>
-<p>The original raw data was obtained from Victoria Police under the FOI
+<p>This repository contains a cleaned dataset of over 50,000
+<strong>warrantless searches</strong> conducted by Victoria Police in
+2018, 2019, 2022, and 2023. The data covers all police units and is
+disaggregated by <strong>perceived racial appearance</strong>. It is
+designed to support public, academic, and community stakeholders in
+assessing patterns of policing and the potential presence of racial
+profiling in Victoria.</p>
+<p>The original raw data was obtained under the Freedom of Information
 Act by the <a href="https://www.centreagainstracialprofiling.au/">Centre
-Against Racial Profiling</a>, and is available on their website.</p>
+Against Racial Profiling</a> and is available on their website.</p>
 </div>
 <div id="purpose-of-this-repository" class="section level2">
-<h2>Purpose of This Repository</h2>
-<p>This repository was developed to support stakeholders working on
-police accountability by providing:</p>
+<h2>Purpose of this Repository</h2>
+<p>This repository was developed to support public interest analysis and
+community-led accountability by providing:</p>
 <ul>
-<li>Access to cleaned and raw police search data</li>
-<li>Access to analysis of stop and search data<br />
+<li>A cleaned and structured dataset of all warrantless police
+searches<br />
 </li>
-<li>R code to transform and analyse the data and to verify robustness of
-analysis</li>
-<li>Additional contextual information such as police station locations
-and Victoria Police’s organisational hierarchy</li>
+<li>An overview of the data structure, coverage, and key
+limitations<br />
+</li>
+<li>A focused analysis of <strong>drug searches conducted on foot by
+uniform police</strong>, assessing racial disparities using established
+‘hit rate’ methodology</li>
 </ul>
 </div>
-<div id="contents-of-the-repository" class="section level2">
-<h2>Contents of the Repository</h2>
+<div id="repository-contents" class="section level2">
+<h2>Repository Contents</h2>
 <ul>
-<li><strong>VicPol Racial Profiling Data.xlsx</strong> – the cleaned
-dataset<br />
+<li><strong>VicPol Racial Profiling Data.xlsx</strong> – Cleaned dataset
+of all warrantless searches across all police units<br />
 </li>
-<li><strong>R Code</strong> – scripts for data cleaning and
-transformation<br />
+<li><strong>Data Overview</strong> – Summary of variables, search types,
+and coverage limitations<br />
 </li>
-<li><strong>Primary Datasets</strong> – raw search data from Victoria
-Police<br />
-</li>
-<li><strong>Secondary Datasets</strong> – supplementary data, including
-station location information and intermediate outputs from the cleaning
-process<br />
-</li>
-<li><strong>Data overview</strong> – an overview of the dataset to
-support further work</li>
-<li><strong>Data analysis</strong> - an evaluation of evidence of racial
-profiling in Melbourne’s LGAs and police stations based on established
-‘hit rate’ methodology</li>
+<li><strong>Data Analysis</strong> – Subset analysis of drug searches by
+uniform police, including hit rates by race and location</li>
 </ul>
 <hr />
 </div>
-<div id="notes-on-the-data" class="section level2">
-<h2>Notes on the Data</h2>
+<div id="data-notes" class="section level2">
+<h2>Data Notes</h2>
 <div id="search-types-included" class="section level3">
 <h3>Search Types Included</h3>
-<p>The dataset covers five types of <strong>warrantless
-searches</strong>, where police must have <em>reasonable grounds</em> to
-suspect the person is carrying a prohibited item. Nearly <strong>90% of
-these searches are drug-related</strong>.</p>
-<p>The search categories include:</p>
+<p>This dataset covers <strong>warrantless searches</strong>, where
+police are required by law to form a <strong>reasonable
+suspicion</strong> that the person is carrying a <strong>prohibited
+item</strong> before conducting the search. The dataset includes the
+following categories:</p>
 <ul>
-<li><strong>Drugs</strong> – under section 82 of the <em>Drugs, Poisons
-and Controlled Substances Act 1981</em><br />
+<li><strong>Drugs</strong> – Section 82 of the <em>Drugs, Poisons and
+Controlled Substances Act 1981</em><br />
 </li>
-<li><strong>Volatile substances (inhalants)</strong> – for persons under
-18, under sections 60E and 60F of the same Act<br />
+<li><strong>Volatile Substances</strong> – For people under 18, under
+Sections 60E and 60F of the same Act<br />
 </li>
-<li><strong>Weapons or dangerous articles</strong> – under section 10 of
-the <em>Control of Weapons Act 1990</em><br />
+<li><strong>Weapons/Dangerous Articles</strong> – Section 10 of the
+<em>Control of Weapons Act 1990</em><br />
 </li>
-<li><strong>Firearms</strong> – under section 149 of the <em>Firearms
-Act 1996</em><br />
+<li><strong>Firearms</strong> – Section 149 of the <em>Firearms Act
+1996</em><br />
 </li>
-<li><strong>Graffiti implements</strong> – in designated places, under
-section 13 of the <em>Graffiti Prevention Act</em></li>
+<li><strong>Graffiti Implements</strong> – Section 13 of the
+<em>Graffiti Prevention Act</em></li>
 </ul>
+<p>Approximately 90% of the records relate to <strong>drug-related
+searches</strong>.</p>
 </div>
 <div id="racial-appearance-categories" class="section level3">
 <h3>Racial Appearance Categories</h3>
-<p>Victoria Police record the <strong>perceived racial
-appearance</strong> of individuals being searched, based on a predefined
-set of categories. These classifications reflect the officer’s
-perception rather than the individual’s self-identified ethnicity or
-ancestry.</p>
+<p>Racial appearance is recorded based on the officer’s
+<strong>perception</strong> at the time of the search, using a fixed set
+of predefined categories. These do not reflect the individual’s
+self-identified race or ethnicity.</p>
 </div>
 <div id="missing-data" class="section level3">
 <h3>Missing Data</h3>
-<p>Despite being a mandatory field since 2019, <strong>42% of search
-records (22,117 records)</strong> have no racial appearance data. When
-officers were unsure of a person’s appearance, the entry was marked as
-“Other”.</p>
+<p>Although racial appearance has been a required field since 2019,
+<strong>42% of all search records (22,117 entries)</strong> are missing
+this information. In some cases, officers selected “Other” when
+uncertain.</p>
 </div>
-<div id="limitations-in-data-on-middle-eastern-appearance" class="section level3">
-<h3>Limitations in Data on Middle Eastern Appearance</h3>
+<div id="limitations-in-middle-eastern-categorisation" class="section level3">
+<h3>Limitations in Middle Eastern Categorisation</h3>
 <p>Since 2020, Victoria Police have combined “Mediterranean” and “Middle
-Eastern” into a single category labeled <strong>“Mediterranean/Middle
-Eastern”</strong>. This change obscures the experiences of people
-specifically of Middle Eastern appearance and limits the ability to
-analyse targeted policing of this group.</p>
+Eastern” categories into <strong>“Mediterranean/Middle
+Eastern”</strong>, making it difficult to separately examine outcomes
+for people perceived to be of Middle Eastern appearance.</p>
 </div>
 </div>
 <div id="interpreting-search-locations" class="section level2">
 <h2>Interpreting Search Locations</h2>
-<p>The dataset includes Police station location information for searches
-conducted by <em>uniform police</em>. It does not contain location
-information for <strong>specialist units</strong> (e.g., Highway Patrol,
-Divisional Response Unit, CIU, SOCIT) often operate across multiple LGAs
-within a broader Police Division, so searches may have taken place in
-surrounding areas.</p>
+<p>The dataset includes police station-level location data for searches
+conducted by <strong>uniform police</strong>. For specialist units
+(e.g., Highway Patrol, CIU, SOCIT), location data may be incomplete or
+inaccurate, as these units often operate across multiple suburbs or LGAs
+within a broader Police Division.</p>
+<p>The included analysis focuses specifically on <strong>foot-based drug
+searches conducted by uniform officers</strong>, where station-level
+location data is most reliable.</p>
+<hr />
+</div>
+<div id="license" class="section level2">
+<h2>License</h2>
+<p>[Add your license here — e.g., Creative Commons
+Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)]</p>
+</div>
+<div id="citation" class="section level2">
+<h2>Citation</h2>
+<p>If you use this dataset, please cite it as:</p>
+<blockquote>
+<p>Sarder, M. (2025). <em>VicPol Racial Profiling Dataset: Warrantless
+Searches by Victoria Police, 2018–2023</em> [Data set]. GitHub. <a href="https://github.com/monikasarder/VictoriaPoliceRacialSearch" class="uri">https://github.com/monikasarder/VictoriaPoliceRacialSearch</a></p>
+</blockquote>
+<hr />
+</div>
+<div id="contact" class="section level2">
+<h2>Contact</h2>
+<p>For questions or suggestions, please contact:<br />
+Monika Sarder <a href="mailto:monikasarder@gmail.com" class="email">monikasarder@gmail.com</a></p>
+</div>
 </div>
 
 

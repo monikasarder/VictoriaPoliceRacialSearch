@@ -1,56 +1,95 @@
+# VicPol Stop and Search Dataset
+
 ## About the Dataset
 
-This dataset summarises over 50,000 searches conducted by Victoria Police in 2018, 2019, 2022, and 2023, by racial appearance category, in a format that is accessible to public and community stakeholders. The aim of this repository is to provide public and community stakeholders with the means to understand whether racial profiling may be present in communities in Victoria.
+This repository contains a cleaned dataset of over 50,000 **warrantless searches** conducted by Victoria Police in 2018, 2019, 2022, and 2023. The data covers all police units and is disaggregated by **perceived racial appearance**. It is designed to support public, academic, and community stakeholders in assessing patterns of policing and the potential presence of racial profiling in Victoria.
 
-The original raw data was obtained from Victoria Police under the FOI Act by the [Centre Against Racial Profiling](https://www.centreagainstracialprofiling.au/), and is available on their website. 
+The original raw data was obtained under the Freedom of Information Act by the [Centre Against Racial Profiling](https://www.centreagainstracialprofiling.au/) and is available on their website.
 
-## Purpose of This Repository
+## Purpose of this Repository
 
-This repository was developed to support stakeholders working on police accountability by providing:
+This repository was developed to support public interest analysis and community-led accountability by providing:
 
-- Access to cleaned and raw police search data
-- Access to analysis of stop and search data  
-- R code to transform and analyse the data and to verify robustness of analysis 
-- Additional contextual information such as police station locations and Victoria Police’s organisational hierarchy  
+- A cleaned and structured dataset of all warrantless police searches  
+- An overview of the data structure, coverage, and key limitations  
+- A focused analysis of **drug searches conducted on foot by uniform police**, assessing racial disparities using established 'hit rate' methodology  
 
-## Contents of the Repository
+## Repository Contents
 
-- **VicPol Racial Profiling Data.xlsx** – the cleaned dataset  
-- **R Code** – scripts for data cleaning and transformation  
-- **Primary Datasets** – raw search data from Victoria Police  
-- **Secondary Datasets** – supplementary data, including station location information and intermediate outputs from the cleaning process  
-- **Data overview** – an overview of the dataset to support further work
-- **Data analysis** - an evaluation of evidence of racial profiling in Melbourne's LGAs and police stations based on established 'hit rate' methodology
+- **VicPol Racial Profiling Data.xlsx** – Cleaned dataset of all warrantless searches across all police units  
+- **Data Overview** – Summary of variables, search types, and coverage limitations  
+- **Data Analysis** – Subset analysis of drug searches by uniform police, including hit rates by race and location  
 
 ---
 
-## Notes on the Data
+## Data Notes
 
 ### Search Types Included
 
-The dataset covers five types of **warrantless searches**, where police must have *reasonable grounds* to suspect the person is carrying a prohibited item. Nearly **90% of these searches are drug-related**.
+This dataset covers **warrantless searches**, where police are required by law to form a **reasonable suspicion** that the person is carrying a **prohibited item** before conducting the search. The dataset includes the following categories:
 
-The search categories include:
+- **Drugs** – Section 82 of the *Drugs, Poisons and Controlled Substances Act 1981*  
+- **Volatile Substances** – For people under 18, under Sections 60E and 60F of the same Act  
+- **Weapons/Dangerous Articles** – Section 10 of the *Control of Weapons Act 1990*  
+- **Firearms** – Section 149 of the *Firearms Act 1996*  
+- **Graffiti Implements** – Section 13 of the *Graffiti Prevention Act*  
 
-- **Drugs** – under section 82 of the *Drugs, Poisons and Controlled Substances Act 1981*  
-- **Volatile substances (inhalants)** – for persons under 18, under sections 60E and 60F of the same Act  
-- **Weapons or dangerous articles** – under section 10 of the *Control of Weapons Act 1990*  
-- **Firearms** – under section 149 of the *Firearms Act 1996*  
-- **Graffiti implements** – in designated places, under section 13 of the *Graffiti Prevention Act*  
+Approximately 90% of the records relate to **drug-related searches**.
 
 ### Racial Appearance Categories
 
-Victoria Police record the **perceived racial appearance** of individuals being searched, based on a predefined set of categories. These classifications reflect the officer’s perception rather than the individual’s self-identified ethnicity or ancestry.
+Racial appearance is recorded based on the officer’s **perception** at the time of the search, using a fixed set of predefined categories. These do not reflect the individual’s self-identified race or ethnicity.
 
 ### Missing Data
 
-Despite being a mandatory field since 2019, **42% of search records (22,117 records)** have no racial appearance data. When officers were unsure of a person’s appearance, the entry was marked as "Other".
+Although racial appearance has been a required field since 2019, **42% of all search records (22,117 entries)** are missing this information. In some cases, officers selected “Other” when uncertain.
 
-### Limitations in Data on Middle Eastern Appearance
+### Limitations in Middle Eastern Categorisation
 
-Since 2020, Victoria Police have combined "Mediterranean" and "Middle Eastern" into a single category labeled **"Mediterranean/Middle Eastern"**. This change obscures the experiences of people specifically of Middle Eastern appearance and limits the ability to analyse targeted policing of this group.
-
+Since 2020, Victoria Police have combined "Mediterranean" and "Middle Eastern" categories into **"Mediterranean/Middle Eastern"**, making it difficult to separately examine outcomes for people perceived to be of Middle Eastern appearance.
 
 ## Interpreting Search Locations
 
-The dataset includes Police station location information for searches conducted by *uniform police*. It does not contain location information for **specialist units** (e.g., Highway Patrol, Divisional Response Unit, CIU, SOCIT) often operate across multiple LGAs within a broader Police Division, so searches may have taken place in surrounding areas.
+The dataset includes police station-level location data for searches conducted by **uniform police**. For specialist units (e.g., Highway Patrol, CIU, SOCIT), location data may be incomplete or inaccurate, as these units often operate across multiple suburbs or LGAs within a broader Police Division.  
+
+The included analysis focuses specifically on **foot-based drug searches conducted by uniform officers**, where station-level location data is most reliable.
+
+---
+
+## License
+
+This repository contains both **code** and **data**, licensed under separate terms:
+
+### 🔹 Code
+
+All code in this repository is licensed under the [MIT License](https://opensource.org/licenses/MIT).  
+You are free to use, modify, and distribute the code with proper attribution.
+
+### 🔹 Data
+
+All datasets and documentation are licensed under the  
+[Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/).
+
+You are free to:
+- **Share** — copy and redistribute the material in any medium or format  
+- **Adapt** — remix, transform, and build upon the material  
+**for non-commercial purposes only**, with appropriate attribution.
+
+**Commercial use is prohibited without written permission.**  
+To request commercial licensing, please contact: [your.email@example.com]
+
+---
+
+## Citation
+
+If you use this dataset, please cite it as:
+
+> Sarder, M. (2025). *VicPol Racial Profiling Dataset: Warrantless Searches by Victoria Police, 2018–2023* [Data set]. GitHub. https://github.com/your-username/your-repo
+
+---
+
+## Contact
+
+For questions, suggestions, or licensing inquiries, please contact:  
+**Monika Sarder**  
+monikasarder@gmail.com
