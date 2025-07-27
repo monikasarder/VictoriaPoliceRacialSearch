@@ -13,7 +13,7 @@
 
 <meta name="date" content="2025-07-27" />
 
-<title>Analysis of Racial Profiling in Victoria Police Drug Searches</title>
+<title>Victoria Police Drug Stop and Search Data</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -2560,6 +2560,230 @@ window.onload = function() {
   PagedTableDoc.initAll();
 };
 </script>
+<script>$(document).ready(function(){
+    if (typeof $('[data-toggle="tooltip"]').tooltip === 'function') {
+        $('[data-toggle="tooltip"]').tooltip();
+    }
+    if ($('[data-toggle="popover"]').popover === 'function') {
+        $('[data-toggle="popover"]').popover();
+    }
+});
+</script>
+<style type="text/css">
+.lightable-minimal {
+border-collapse: separate;
+border-spacing: 16px 1px;
+width: 100%;
+margin-bottom: 10px;
+}
+.lightable-minimal td {
+margin-left: 5px;
+margin-right: 5px;
+}
+.lightable-minimal th {
+margin-left: 5px;
+margin-right: 5px;
+}
+.lightable-minimal thead tr:last-child th {
+border-bottom: 2px solid #00000050;
+empty-cells: hide;
+}
+.lightable-minimal tbody tr:first-child td {
+padding-top: 0.5em;
+}
+.lightable-minimal.lightable-hover tbody tr:hover {
+background-color: #f5f5f5;
+}
+.lightable-minimal.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-classic {
+border-top: 0.16em solid #111111;
+border-bottom: 0.16em solid #111111;
+width: 100%;
+margin-bottom: 10px;
+margin: 10px 5px;
+}
+.lightable-classic tfoot tr td {
+border: 0;
+}
+.lightable-classic tfoot tr:first-child td {
+border-top: 0.14em solid #111111;
+}
+.lightable-classic caption {
+color: #222222;
+}
+.lightable-classic td {
+padding-left: 5px;
+padding-right: 5px;
+color: #222222;
+}
+.lightable-classic th {
+padding-left: 5px;
+padding-right: 5px;
+font-weight: normal;
+color: #222222;
+}
+.lightable-classic thead tr:last-child th {
+border-bottom: 0.10em solid #111111;
+}
+.lightable-classic.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-classic.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-classic-2 {
+border-top: 3px double #111111;
+border-bottom: 3px double #111111;
+width: 100%;
+margin-bottom: 10px;
+}
+.lightable-classic-2 tfoot tr td {
+border: 0;
+}
+.lightable-classic-2 tfoot tr:first-child td {
+border-top: 3px double #111111;
+}
+.lightable-classic-2 caption {
+color: #222222;
+}
+.lightable-classic-2 td {
+padding-left: 5px;
+padding-right: 5px;
+color: #222222;
+}
+.lightable-classic-2 th {
+padding-left: 5px;
+padding-right: 5px;
+font-weight: normal;
+color: #222222;
+}
+.lightable-classic-2 tbody tr:last-child td {
+border-bottom: 3px double #111111;
+}
+.lightable-classic-2 thead tr:last-child th {
+border-bottom: 1px solid #111111;
+}
+.lightable-classic-2.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-classic-2.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-material {
+min-width: 100%;
+white-space: nowrap;
+table-layout: fixed;
+font-family: Roboto, sans-serif;
+border: 1px solid #EEE;
+border-collapse: collapse;
+margin-bottom: 10px;
+}
+.lightable-material tfoot tr td {
+border: 0;
+}
+.lightable-material tfoot tr:first-child td {
+border-top: 1px solid #EEE;
+}
+.lightable-material th {
+height: 56px;
+padding-left: 16px;
+padding-right: 16px;
+}
+.lightable-material td {
+height: 52px;
+padding-left: 16px;
+padding-right: 16px;
+border-top: 1px solid #eeeeee;
+}
+.lightable-material.lightable-hover tbody tr:hover {
+background-color: #f5f5f5;
+}
+.lightable-material.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-material.lightable-striped tbody td {
+border: 0;
+}
+.lightable-material.lightable-striped thead tr:last-child th {
+border-bottom: 1px solid #ddd;
+}
+.lightable-material-dark {
+min-width: 100%;
+white-space: nowrap;
+table-layout: fixed;
+font-family: Roboto, sans-serif;
+border: 1px solid #FFFFFF12;
+border-collapse: collapse;
+margin-bottom: 10px;
+background-color: #363640;
+}
+.lightable-material-dark tfoot tr td {
+border: 0;
+}
+.lightable-material-dark tfoot tr:first-child td {
+border-top: 1px solid #FFFFFF12;
+}
+.lightable-material-dark th {
+height: 56px;
+padding-left: 16px;
+padding-right: 16px;
+color: #FFFFFF60;
+}
+.lightable-material-dark td {
+height: 52px;
+padding-left: 16px;
+padding-right: 16px;
+color: #FFFFFF;
+border-top: 1px solid #FFFFFF12;
+}
+.lightable-material-dark.lightable-hover tbody tr:hover {
+background-color: #FFFFFF12;
+}
+.lightable-material-dark.lightable-striped tbody tr:nth-child(even) {
+background-color: #FFFFFF12;
+}
+.lightable-material-dark.lightable-striped tbody td {
+border: 0;
+}
+.lightable-material-dark.lightable-striped thead tr:last-child th {
+border-bottom: 1px solid #FFFFFF12;
+}
+.lightable-paper {
+width: 100%;
+margin-bottom: 10px;
+color: #444;
+}
+.lightable-paper tfoot tr td {
+border: 0;
+}
+.lightable-paper tfoot tr:first-child td {
+border-top: 1px solid #00000020;
+}
+.lightable-paper thead tr:last-child th {
+color: #666;
+vertical-align: bottom;
+border-bottom: 1px solid #00000020;
+line-height: 1.15em;
+padding: 10px 5px;
+}
+.lightable-paper td {
+vertical-align: middle;
+border-bottom: 1px solid #00000010;
+line-height: 1.15em;
+padding: 7px 5px;
+}
+.lightable-paper.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-paper.lightable-striped tbody tr:nth-child(even) {
+background-color: #00000008;
+}
+.lightable-paper.lightable-striped tbody td {
+border: 0;
+}
+</style>
 <style type="text/css">@layer htmltools {
 .html-fill-container {
 display: flex;
@@ -5271,8 +5495,8 @@ border-radius: 0px;
 
 
 
-<h1 class="title toc-ignore">Analysis of Racial Profiling in Victoria
-Police Drug Searches</h1>
+<h1 class="title toc-ignore">Victoria Police Drug Stop and Search
+Data</h1>
 <h4 class="author">Monika Sarder</h4>
 <h4 class="date">2025-07-27</h4>
 
@@ -5281,89 +5505,70 @@ Police Drug Searches</h1>
 
 <div id="introduction" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Introduction</h1>
-<p>This report examines evidence of racial profiling in drug-related
-stop and search practices conducted by Victoria Police in Melbourne. It
-draws on over <strong>13,000 records of warrantless drug
-searches</strong> conducted by <strong>uniformed officers on foot patrol
-in public places</strong> during the years <strong>2018, 2019, 2022, and
-2023</strong>. By comparing <em>hit rates</em>—the proportion of
-searches that result in a drug find—for people perceived by police as of
-<strong>African appearance</strong> versus those perceived as
-<strong>White</strong>, the analysis seeks to identify disparities that
-may indicate racially biased policing practices.</p>
+<p>This report presents <strong>descriptive tallies</strong> of
+discretionary drug-related stop and search activities conducted by
+Victoria Police. The dataset includes over <strong>13,000
+records</strong> of <strong>warrantless searches</strong> carried out by
+<strong>uniformed officers on foot patrol in public places</strong>
+across <strong>metropolitan Melbourne</strong> in the years
+<strong>2018, 2019, 2022, and 2023</strong>.</p>
+<p>The tables below summarise the number of searches conducted by
+<strong>perceived racial appearance</strong>, as well as across key
+policing geographies—<strong>Police Regions</strong>,
+<strong>Divisions</strong>, <strong>Service Areas (PSAs)</strong>, and
+<strong>Stations</strong>.</p>
+<blockquote>
+<p><strong>Important note:</strong> These counts are provided for
+<strong>exploratory purposes only</strong>. No statistical testing has
+been conducted, and no conclusions should be drawn about disparities or
+discrimination based on this data alone. Further analysis, including
+appropriate statistical controls, is required to assess whether any
+observed differences are meaningful or attributable to bias.</p>
+</blockquote>
 </div>
 <div id="about-the-data" class="section level1" number="2">
 <h1><span class="header-section-number">2</span> About the Data</h1>
-<p>The data used in this report comes from <em>The Racial Profiling Data
-Monitoring Project</em>, which compiled records of discretionary drug
-searches carried out by Victoria Police across <strong>metropolitan
-Melbourne</strong>. Searches from <strong>2020 and 2021</strong> were
-excluded due to the exceptional conditions of the COVID-19 pandemic,
-which significantly altered policing patterns and public mobility.</p>
+<p>This dataset is sourced from the <em>Racial Profiling Data Monitoring
+Project</em>, which compiled records of discretionary drug searches
+conducted by Victoria Police. Records from <strong>2020 and
+2021</strong> are excluded due to the extraordinary conditions of the
+COVID-19 pandemic, which significantly altered patterns of police
+activity and public mobility.</p>
 <p>Under <strong>section 82 of the Drugs, Poisons and Controlled
-Substances Act 1981 (Vic)</strong>, police may stop and search
-individuals in public places if they have <em>reasonable grounds</em> to
-suspect drug possession. Drug searches are the most frequently used form
-of warrantless search conducted by Victoria Police.</p>
+Substances Act 1981 (Vic)</strong>, police officers may search
+individuals in public places if they form a <strong>reasonable
+suspicion</strong> that the person is in possession of illegal drugs.
+Drug searches are the most commonly used form of <strong>warrantless
+search</strong> by Victoria Police.</p>
 </div>
 <div id="racial-appearance-categories" class="section level1" number="3">
 <h1><span class="header-section-number">3</span> Racial Appearance
 Categories</h1>
-<p>Victoria Police officers are required to record the <strong>perceived
-racial appearance</strong> of individuals during stop and search
-encounters. These categories are based on the officer’s visual
-assessment, not the individual’s self-identification or background.</p>
-<p>Of the <strong>13,896 records</strong> initially available,
-<strong>2,860 (approximately 21%)</strong> were excluded from the
-analysis due to missing racial appearance data—despite this being a
-mandatory field since 2019. In <strong>2022 and 2023</strong>, Victoria
-Police also amalgamated the <em>Middle Eastern</em> and
-<em>Mediterranean</em> categories, rendering them analytically unusable;
-these records were also filtered out.</p>
-<p>To ensure statistical validity, racial appearance groups with
-<strong>fewer than 100 observations</strong>, or where police were
-<strong>unable to determine a racial category</strong>, were relabelled
-as <strong>“Other”</strong> and excluded from the primary analysis.</p>
-<p>As a result, only <strong>4,312 of the original 13,896
-records</strong> were retained, meaning <strong>over 31% of records were
-excluded</strong>. This significant data loss reflects a broader issue:
-<strong>Victoria Police must urgently improve the quality, consistency,
-and completeness of its racial data collection
-practices</strong>—especially in the exercise of discretionary powers.
-Without reliable and usable data, efforts to identify and address racial
-disparities in policing remain compromised.</p>
+<p>Victoria Police policy requires officers to record the
+<strong>perceived racial appearance</strong> of each individual subject
+to a stop and search. These categories are based on the officer’s
+observation and do not reflect the individual’s self-identification or
+cultural background.</p>
+<p>Of the original <strong>13,896 records</strong>, <strong>2,860
+(21%)</strong> were missing racial appearance data, despite this being a
+mandatory field since 2019. In 2022 and 2023, Victoria Police also
+merged <em>Middle Eastern</em> and <em>Mediterranean</em> appearance
+categories into a single label that could not be reliably analysed.
+These, along with low-frequency or indeterminate race classifications,
+have been excluded from the counts.</p>
+<p>The resulting dataset includes <strong>9,584 records</strong> with
+usable racial appearance data. The high rate of missing or unusable
+entries highlights a significant data quality concern and underlines the
+need for <strong>improved recording practices</strong>.</p>
 </div>
-<div id="methodology" class="section level1" number="4">
-<h1><span class="header-section-number">4</span> Methodology</h1>
-<p>This analysis focuses on detecting <strong>racial profiling against
-people recorded as being of African appearance</strong>, using the
-<strong>hit rate method</strong>—a widely recognised tool in policing
-research for assessing the fairness and effectiveness of search
-practices. A <em>hit rate</em> is the percentage of searches that result
-in the discovery of contraband.</p>
-<p>Disproportionately low hit rates for a particular group suggest that
-the legal standard of <em>reasonable suspicion</em> is being applied
-more leniently, raising concerns of discrimination and misuse of police
-discretion.</p>
-<p>This report specifically compares <strong>hit rates for people
-perceived as African</strong> with those perceived as
-<strong>White</strong>, across five levels of geography:</p>
-<ul>
-<li>Whole of Melbourne (metropolitan aggregate)<br />
-</li>
-<li>Police Region<br />
-</li>
-<li>Police Division<br />
-</li>
-<li>Police Service Area (PSA)<br />
-</li>
-<li>Individual Police Stations</li>
-</ul>
-<p>This approach aligns with established frameworks in racial profiling
-research, including <strong>Gelman, Fagan &amp; Kiss (2007)</strong> and
-the <strong>Open Justice Project (2023)</strong>, which emphasise
-geographic disaggregation and benchmarking as essential tools for
-accountability.</p>
+<div id="purpose-of-this-page" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Purpose of This
+Page</h1>
+<p>The tables that follow present basic <strong>counts of searches by
+race and geography</strong>, without further interpretation or
+modelling. These tallies are intended to support transparency,
+facilitate further investigation, and assist stakeholders in identifying
+patterns that may warrant deeper statistical analysis.</p>
 <div id="data-summary---melbourne" class="section level3" number="4.0.1">
 <h3><span class="header-section-number">4.0.1</span> Data summary -
 Melbourne</h3>
@@ -5430,16 +5635,215 @@ Victoria, Uniform Police at Stations)</caption>
 </tbody>
 </table>
 </div>
-<div id="hit-rate-analysis---melbourne" class="section level3" number="4.0.2">
-<h3><span class="header-section-number">4.0.2</span> Hit rate analysis -
-Melbourne</h3>
+<div id="adjusted-comparison-of-hit-rates-by-racial-appearance" class="section level2" number="4.1">
+<h2><span class="header-section-number">4.1</span> Adjusted Comparison
+of Hit Rates by Racial Appearance</h2>
+<p>We use a binomial logistic regression to model the probability of a
+“hit” (drugs found), controlling for <strong>year of search</strong>.
+The reference group for race is <strong>White</strong>, and all
+coefficients are interpreted relative to this group.</p>
+<table class="table" style="color: black; width: auto !important; ">
+<caption>
+Adjusted Odds Ratios for Drug Search Hits by Racial Appearance
+(Reference: White)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Race
+</th>
+<th style="text-align:center;">
+OR
+</th>
+<th style="text-align:center;">
+CI
+</th>
+<th style="text-align:right;">
+p.value
+</th>
+<th style="text-align:center;">
+Sig
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+White (ref)
+</td>
+<td style="text-align:center;">
+1.00
+</td>
+<td style="text-align:center;">
+(ref)
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+African
+</td>
+<td style="text-align:center;">
+0.78
+</td>
+<td style="text-align:center;">
+(0.61, 0.98)
+</td>
+<td style="text-align:right;">
+0.0381
+</td>
+<td style="text-align:center;">
+<ul>
+<li></td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Asian
+</td>
+<td style="text-align:center;">
+0.91
+</td>
+<td style="text-align:center;">
+(0.74, 1.1)
+</td>
+<td style="text-align:right;">
+0.3425
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Aboriginal
+</td>
+<td style="text-align:center;">
+0.85
+</td>
+<td style="text-align:center;">
+(0.59, 1.19)
+</td>
+<td style="text-align:right;">
+0.3625
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+South Asian
+</td>
+<td style="text-align:center;">
+0.64
+</td>
+<td style="text-align:center;">
+(0.43, 0.94)
+</td>
+<td style="text-align:right;">
+0.0275
+</td>
+<td style="text-align:center;">
+<ul>
+<li></td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Middle Eastern
+</td>
+<td style="text-align:center;">
+0.74
+</td>
+<td style="text-align:center;">
+(0.44, 1.15)
+</td>
+<td style="text-align:right;">
+0.2032
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pacific Islander
+</td>
+<td style="text-align:center;">
+1.12
+</td>
+<td style="text-align:center;">
+(0.79, 1.54)
+</td>
+<td style="text-align:right;">
+0.5230
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+</tbody>
+</table></li>
+</ul></li>
+</ul>
+<div id="interpretation-of-results" class="section level3" number="4.1.1">
+<h3><span class="header-section-number">4.1.1</span> Interpretation of
+Results</h3>
+<p>The table above presents <strong>adjusted odds ratios</strong>
+comparing the likelihood that a drug search resulted in a
+<strong>“hit”</strong> (drugs found) for each racial appearance group,
+relative to individuals perceived by police as <strong>White</strong>.
+The model controls for <strong>year of search</strong>, helping to
+isolate the effect of racial appearance from broader shifts in policing
+practices or public behaviour across time.</p>
+<ul>
+<li>An <strong>odds ratio (OR) below 1</strong> means the group was
+<strong>less likely</strong> than White individuals to have drugs found
+during a search.</li>
+<li>An OR of <strong>1</strong> indicates <strong>no
+difference</strong>.</li>
+<li>An asterisk (<em>) marks results that are <strong>statistically
+significant</strong> (</em>p* &lt; 0.05).</li>
+</ul>
+<p><strong>Key findings:</strong></p>
+<ul>
+<li><strong>South Asian</strong> individuals were <strong>36% less
+likely</strong> to have a drug search result in a hit compared to White
+individuals (<em>OR = 0.64, p = 0.0275</em>). This statistically
+significant result suggests a <strong>lower threshold of
+suspicion</strong> may be applied when stopping and searching South
+Asian people.</li>
+<li><strong>African</strong> individuals were <strong>22% less
+likely</strong> to yield a drug find (<em>OR = 0.78, p = 0.0381</em>),
+also a statistically significant disparity.</li>
+<li>Other groups—<strong>Asian</strong>, <strong>Aboriginal</strong>,
+<strong>Middle Eastern</strong>, and <strong>Pacific
+Islander</strong>—also showed lower odds of a drug find compared to
+White individuals, but these differences were <strong>not statistically
+significant</strong> in this model.</li>
+</ul>
+<p>These findings indicate that <strong>South Asian and African</strong>
+individuals are more likely to be searched <strong>without sufficient
+grounds</strong>, reinforcing long-standing concerns about
+<strong>racial profiling</strong> in Victoria Police’s use of
+discretionary stop and search powers. The disparities persisted even
+after controlling for <strong>year of search</strong>, suggesting they
+are not explained by shifting policing patterns over time.</p>
 </div>
-<div id="police-region-level" class="section level2" number="4.1">
-<h2><span class="header-section-number">4.1</span> Police region
-level</h2>
-<div id="data-overview---region" class="section level3" number="4.1.1">
-<h3><span class="header-section-number">4.1.1</span> Data overview -
-Region</h3>
+</div>
+<div id="search-counts-by-race-and-police-region" class="section level2" number="4.2">
+<h2><span class="header-section-number">4.2</span> Search Counts by Race
+and Police Region</h2>
+<p>The following table presents a <strong>descriptive summary</strong>
+of drug searches by racial appearance and Victoria Police Region. This
+analysis is <strong>exploratory</strong> and aims to illustrate the
+geographic distribution of search activity across major operational
+areas.</p>
+<p>No statistical testing has been conducted in this section. Therefore,
+the figures should be interpreted with <strong>caution</strong>.
+Apparent differences between regions or racial groups may be due to a
+range of factors, and no conclusions should be drawn about disparities
+or bias without further statistical analysis to control for confounding
+variables.</p>
 <table>
 <caption>Drug Searches and Hit Rates by Racial Appearance (Metro
 Victoria, by Region)</caption>
@@ -5519,14 +5923,20 @@ Victoria, by Region)</caption>
 </tbody>
 </table>
 </div>
-</div>
-<div id="police-division-level" class="section level2" number="4.2">
-<h2><span class="header-section-number">4.2</span> Police Division
-level</h2>
-<div id="data-overview---division" class="section level3" number="4.2.1">
-<h3><span class="header-section-number">4.2.1</span> Data overview -
-Division</h3>
-<pre><code>## Warning: package &#39;knitr&#39; was built under R version 4.4.3</code></pre>
+<div id="search-counts-by-race-and-police-division" class="section level2" number="4.3">
+<h2><span class="header-section-number">4.3</span> Search Counts by Race
+and Police Division</h2>
+<p>The following table presents a <strong>descriptive summary</strong>
+of drug searches by racial appearance and Victoria Police Region. This
+analysis is <strong>exploratory</strong> and aims to illustrate the
+geographic distribution of search activity across major operational
+areas.</p>
+<p>No statistical testing has been conducted in this section. Therefore,
+the figures should be interpreted with <strong>caution</strong>.
+Apparent differences between regions or racial groups may be due to a
+range of factors, and no conclusions should be drawn about disparities
+or bias without further statistical analysis to control for confounding
+variables.</p>
 <table>
 <caption>Drug Searches and Hit Rates by Racial Appearance (Metro
 Victoria, by Division)</caption>
@@ -5731,179 +6141,39 @@ Victoria, by Division)</caption>
 </tbody>
 </table>
 </div>
+<div id="search-counts-by-race-and-police-service-area-psa" class="section level2" number="4.4">
+<h2><span class="header-section-number">4.4</span> Search Counts by Race
+and Police Service Area (PSA)</h2>
+<p>The following table presents a <strong>descriptive tally</strong> of
+drug searches by racial appearance and Police Service Area (PSA). This
+analysis is <strong>exploratory</strong> and designed to provide an
+overview of the distribution of search activity across different
+locations and groups.</p>
+<p>No statistical testing has been conducted in this section. As such,
+the figures should be interpreted with <strong>caution</strong>, and no
+firm conclusions should be drawn about disparities or significance.
+Further modelling and statistical analysis would be required to
+determine whether any observed differences reflect patterns of racial
+bias or are attributable to other factors.</p>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-e4179100c812d1750374" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-e4179100c812d1750374">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"caption":"<caption style=\"caption-side: top; text-align: left; font-weight: bold;\">Drug Searches and Hit Rates by Racial Appearance (Metro Victoria, by PSA)<\/caption>","data":[["Banyule","Boroondara","Brimbank","Cardinia","Casey","Darebin","Frankston","Glen Eira","Greater Dandenong","Hobsons Bay","Hume","Kingston","Knox","Manningham","Maribyrnong","Maroondah","Melbourne","Melton","Merri-bek","Monash","Moonee Valley","Mornington Peninsula","Nillumbik","Port Phillip","Stonnington","Whitehorse","Whittlesea","Wyndham","Yarra","Yarra Ranges"],["Banyule","Boroondara","Brimbank","Cardinia","Casey","Darebin","Frankston","Bayside, Glen Eira","Greater Dandenong","Hobsons Bay","Hume","Kingston","Knox","Manningham","Maribyrnong","Maroondah","Melbourne","Melton","Merri-bek","Monash","Moonee Valley","Mornington Peninsula","Nillumbik","Port Phillip","Stonnington","Whitehorse","Whittlesea","Wyndham","Yarra","Yarra Ranges"],["361 (9.4%)","117 (17.9%)","147 (12.2%)","141 (9.2%)","133 (16.5%)","379 (16.9%)","124 (25.8%)","123 (17.9%)","140 (17.9%)","191 (18.8%)","218 (8.3%)","162 (16.7%)","514 (12.8%)","84 (15.5%)","171 (14.6%)","136 (11.8%)","609 (14.8%)","65 (18.5%)","210 (15.7%)","229 (18.8%)","170 (18.2%)","336 (15.5%)","47 (12.8%)","285 (13.0%)","294 (11.2%)","77 (27.3%)","263 (12.2%)","141 (17.7%)","757 (7.8%)","155 (20.0%)"],["22 (9.1%)","3 (33.3%)","2 (0.0%)","1 (0.0%)","2 (50.0%)","27 (22.2%)","1 (0.0%)","2 (0.0%)","4 (50.0%)","1 (100.0%)","4 (25.0%)",null,"8 (12.5%)",null,"3 (33.3%)","2 (0.0%)","44 (13.6%)",null,"4 (0.0%)","1 (0.0%)","3 (33.3%)","4 (25.0%)","1 (0.0%)","17 (17.6%)","13 (7.7%)","2 (0.0%)","13 (15.4%)","1 (0.0%)","123 (5.7%)","1 (100.0%)"],["42 (4.8%)","7 (14.3%)","40 (2.5%)","29 (17.2%)","35 (14.3%)","67 (14.9%)","3 (66.7%)","5 (20.0%)","20 (10.0%)","30 (20.0%)","33 (9.1%)","1 (0.0%)","8 (37.5%)","5 (20.0%)","43 (11.6%)","4 (0.0%)","76 (13.2%)","30 (6.7%)","10 (10.0%)","14 (7.1%)","42 (11.9%)","3 (0.0%)",null,"25 (12.0%)","17 (11.8%)","3 (33.3%)","31 (12.9%)","66 (9.1%)","63 (6.3%)","3 (0.0%)"],["14 (21.4%)","10 (30.0%)","124 (10.5%)","5 (20.0%)","11 (0.0%)","28 (10.7%)","1 (100.0%)","7 (28.6%)","95 (7.4%)","19 (10.5%)","13 (0.0%)","12 (41.7%)","20 (10.0%)","12 (16.7%)","40 (5.0%)","7 (0.0%)","123 (19.5%)","11 (0.0%)","9 (22.2%)","30 (33.3%)","20 (30.0%)","3 (66.7%)","1 (100.0%)","8 (12.5%)","15 (13.3%)","10 (30.0%)","21 (28.6%)","42 (11.9%)","263 (6.8%)","3 (33.3%)"],["2 (50.0%)","2 (0.0%)","4 (25.0%)",null,"8 (25.0%)","8 (0.0%)",null,"1 (0.0%)","5 (0.0%)","5 (40.0%)","46 (2.2%)","1 (0.0%)","1 (0.0%)","1 (0.0%)","3 (0.0%)","1 (0.0%)","12 (16.7%)","3 (66.7%)","35 (5.7%)","6 (16.7%)","6 (16.7%)",null,null,"4 (50.0%)","5 (20.0%)","1 (0.0%)","14 (7.1%)","2 (0.0%)","15 (6.7%)","1 (0.0%)"],["11 (9.1%)","6 (50.0%)","7 (14.3%)","10 (20.0%)","12 (0.0%)","17 (11.8%)","1 (0.0%)","5 (20.0%)","12 (0.0%)","7 (14.3%)","18 (11.1%)","4 (0.0%)","5 (20.0%)","2 (50.0%)","6 (0.0%)","1 (0.0%)","21 (9.5%)","4 (0.0%)","17 (11.8%)","9 (0.0%)","19 (10.5%)","5 (40.0%)","5 (20.0%)","7 (0.0%)","3 (33.3%)","6 (16.7%)","12 (0.0%)","8 (0.0%)","10 (0.0%)","4 (25.0%)"],["11 (9.1%)","1 (0.0%)","27 (11.1%)","4 (25.0%)","12 (25.0%)","21 (9.5%)","8 (50.0%)",null,"13 (23.1%)","22 (18.2%)","10 (0.0%)","6 (16.7%)","10 (40.0%)",null,"15 (20.0%)",null,"26 (15.4%)","9 (11.1%)","2 (0.0%)","3 (66.7%)","2 (0.0%)","4 (50.0%)","2 (0.0%)","7 (14.3%)","2 (0.0%)",null,"4 (0.0%)","10 (10.0%)","40 (5.0%)","1 (0.0%)"],["1 (0.0%)",null,"1 (100.0%)",null,"3 (0.0%)","3 (33.3%)","1 (0.0%)",null,"2 (0.0%)",null,"1 (0.0%)","1 (0.0%)","3 (0.0%)",null,"2 (0.0%)",null,"6 (0.0%)",null,null,"3 (0.0%)",null,null,"1 (0.0%)","1 (0.0%)","6 (0.0%)",null,null,null,"5 (0.0%)",null],["5 (0.0%)","10 (10.0%)","43 (4.7%)","4 (0.0%)","6 (33.3%)","11 (9.1%)","2 (0.0%)","3 (33.3%)","31 (12.9%)","7 (0.0%)","7 (14.3%)","9 (33.3%)","17 (17.6%)","4 (0.0%)","8 (0.0%)","4 (25.0%)","14 (0.0%)","5 (40.0%)","12 (8.3%)","15 (20.0%)","9 (0.0%)","1 (0.0%)",null,"5 (20.0%)","14 (7.1%)","7 (14.3%)","8 (0.0%)","15 (0.0%)","19 (5.3%)","5 (0.0%)"],["82 (12.2%)","18 (0.0%)","26 (7.7%)","13 (0.0%)","28 (17.9%)","160 (15.6%)","5 (40.0%)","10 (0.0%)","46 (15.2%)","52 (15.4%)","80 (8.8%)","27 (11.1%)","34 (14.7%)","24 (8.3%)","29 (17.2%)","5 (0.0%)","74 (6.8%)","6 (0.0%)","78 (6.4%)","34 (20.6%)","45 (20.0%)","14 (0.0%)","11 (9.1%)","30 (13.3%)","35 (14.3%)","9 (33.3%)","87 (13.8%)","15 (13.3%)","72 (4.2%)","9 (11.1%)"],["124 (14.5%)","47 (12.8%)","89 (10.1%)","69 (14.5%)","97 (13.4%)","177 (11.9%)","39 (12.8%)","44 (18.2%)","106 (18.9%)","106 (13.2%)","207 (9.2%)","66 (25.8%)","163 (16.6%)","35 (22.9%)","65 (10.8%)","33 (6.1%)","196 (12.8%)","52 (17.3%)","148 (10.8%)","99 (13.1%)","105 (13.3%)","111 (13.5%)","16 (12.5%)","97 (11.3%)","80 (22.5%)","38 (15.8%)","153 (22.9%)","104 (20.2%)","145 (11.0%)","49 (18.4%)"]],"container":"<table class=\"compact stripe hover\">\n  <thead>\n    <tr>\n      <th>Police Service Area<\/th>\n      <th>LGAs<\/th>\n      <th>White<\/th>\n      <th>Aboriginal<\/th>\n      <th>African<\/th>\n      <th>Asian<\/th>\n      <th>Middle Eastern<\/th>\n      <th>Other<\/th>\n      <th>Pacific Islander<\/th>\n      <th>South American<\/th>\n      <th>South Asian<\/th>\n      <th>Mediterranean/Middle Eastern – Unusable<\/th>\n      <th>Missing<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Bfrtip","buttons":["copy","excel"],"scrollX":true,"pageLength":15,"autoWidth":true,"columnDefs":[{"width":"300px","targets":1},{"name":"Police Service Area","targets":0},{"name":"LGAs","targets":1},{"name":"White","targets":2},{"name":"Aboriginal","targets":3},{"name":"African","targets":4},{"name":"Asian","targets":5},{"name":"Middle Eastern","targets":6},{"name":"Other","targets":7},{"name":"Pacific Islander","targets":8},{"name":"South American","targets":9},{"name":"South Asian","targets":10},{"name":"Mediterranean/Middle Eastern – Unusable","targets":11},{"name":"Missing","targets":12}],"order":[],"orderClasses":false,"lengthMenu":[10,15,25,50,100]}},"evals":[],"jsHooks":[]}</script>
 </div>
-<div id="police-servic-area-level" class="section level2" number="4.3">
-<h2><span class="header-section-number">4.3</span> Police Servic Area
-level</h2>
-<div id="data-overview---psa" class="section level3" number="4.3.1">
-<h3><span class="header-section-number">4.3.1</span> Data overview -
-PSA</h3>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-64c6facfc35cae44ecbb" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-64c6facfc35cae44ecbb">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"caption":"<caption style=\"caption-side: top; text-align: left; font-weight: bold;\">Drug Searches and Hit Rates by Racial Appearance (Metro Victoria, by PSA)<\/caption>","data":[["Banyule","Boroondara","Brimbank","Cardinia","Casey","Darebin","Frankston","Glen Eira","Greater Dandenong","Hobsons Bay","Hume","Kingston","Knox","Manningham","Maribyrnong","Maroondah","Melbourne","Melton","Merri-bek","Monash","Moonee Valley","Mornington Peninsula","Nillumbik","Port Phillip","Stonnington","Whitehorse","Whittlesea","Wyndham","Yarra","Yarra Ranges"],["Banyule","Boroondara","Brimbank","Cardinia","Casey","Darebin","Frankston","Bayside, Glen Eira","Greater Dandenong","Hobsons Bay","Hume","Kingston","Knox","Manningham","Maribyrnong","Maroondah","Melbourne","Melton","Merri-bek","Monash","Moonee Valley","Mornington Peninsula","Nillumbik","Port Phillip","Stonnington","Whitehorse","Whittlesea","Wyndham","Yarra","Yarra Ranges"],["361 (9.4%)","117 (17.9%)","147 (12.2%)","141 (9.2%)","133 (16.5%)","379 (16.9%)","124 (25.8%)","123 (17.9%)","140 (17.9%)","191 (18.8%)","218 (8.3%)","162 (16.7%)","514 (12.8%)","84 (15.5%)","171 (14.6%)","136 (11.8%)","609 (14.8%)","65 (18.5%)","210 (15.7%)","229 (18.8%)","170 (18.2%)","336 (15.5%)","47 (12.8%)","285 (13.0%)","294 (11.2%)","77 (27.3%)","263 (12.2%)","141 (17.7%)","757 (7.8%)","155 (20.0%)"],["22 (9.1%)","3 (33.3%)","2 (0.0%)","1 (0.0%)","2 (50.0%)","27 (22.2%)","1 (0.0%)","2 (0.0%)","4 (50.0%)","1 (100.0%)","4 (25.0%)",null,"8 (12.5%)",null,"3 (33.3%)","2 (0.0%)","44 (13.6%)",null,"4 (0.0%)","1 (0.0%)","3 (33.3%)","4 (25.0%)","1 (0.0%)","17 (17.6%)","13 (7.7%)","2 (0.0%)","13 (15.4%)","1 (0.0%)","123 (5.7%)","1 (100.0%)"],["42 (4.8%)","7 (14.3%)","40 (2.5%)","29 (17.2%)","35 (14.3%)","67 (14.9%)","3 (66.7%)","5 (20.0%)","20 (10.0%)","30 (20.0%)","33 (9.1%)","1 (0.0%)","8 (37.5%)","5 (20.0%)","43 (11.6%)","4 (0.0%)","76 (13.2%)","30 (6.7%)","10 (10.0%)","14 (7.1%)","42 (11.9%)","3 (0.0%)",null,"25 (12.0%)","17 (11.8%)","3 (33.3%)","31 (12.9%)","66 (9.1%)","63 (6.3%)","3 (0.0%)"],["14 (21.4%)","10 (30.0%)","124 (10.5%)","5 (20.0%)","11 (0.0%)","28 (10.7%)","1 (100.0%)","7 (28.6%)","95 (7.4%)","19 (10.5%)","13 (0.0%)","12 (41.7%)","20 (10.0%)","12 (16.7%)","40 (5.0%)","7 (0.0%)","123 (19.5%)","11 (0.0%)","9 (22.2%)","30 (33.3%)","20 (30.0%)","3 (66.7%)","1 (100.0%)","8 (12.5%)","15 (13.3%)","10 (30.0%)","21 (28.6%)","42 (11.9%)","263 (6.8%)","3 (33.3%)"],["2 (50.0%)","2 (0.0%)","4 (25.0%)",null,"8 (25.0%)","8 (0.0%)",null,"1 (0.0%)","5 (0.0%)","5 (40.0%)","46 (2.2%)","1 (0.0%)","1 (0.0%)","1 (0.0%)","3 (0.0%)","1 (0.0%)","12 (16.7%)","3 (66.7%)","35 (5.7%)","6 (16.7%)","6 (16.7%)",null,null,"4 (50.0%)","5 (20.0%)","1 (0.0%)","14 (7.1%)","2 (0.0%)","15 (6.7%)","1 (0.0%)"],["11 (9.1%)","6 (50.0%)","7 (14.3%)","10 (20.0%)","12 (0.0%)","17 (11.8%)","1 (0.0%)","5 (20.0%)","12 (0.0%)","7 (14.3%)","18 (11.1%)","4 (0.0%)","5 (20.0%)","2 (50.0%)","6 (0.0%)","1 (0.0%)","21 (9.5%)","4 (0.0%)","17 (11.8%)","9 (0.0%)","19 (10.5%)","5 (40.0%)","5 (20.0%)","7 (0.0%)","3 (33.3%)","6 (16.7%)","12 (0.0%)","8 (0.0%)","10 (0.0%)","4 (25.0%)"],["11 (9.1%)","1 (0.0%)","27 (11.1%)","4 (25.0%)","12 (25.0%)","21 (9.5%)","8 (50.0%)",null,"13 (23.1%)","22 (18.2%)","10 (0.0%)","6 (16.7%)","10 (40.0%)",null,"15 (20.0%)",null,"26 (15.4%)","9 (11.1%)","2 (0.0%)","3 (66.7%)","2 (0.0%)","4 (50.0%)","2 (0.0%)","7 (14.3%)","2 (0.0%)",null,"4 (0.0%)","10 (10.0%)","40 (5.0%)","1 (0.0%)"],["1 (0.0%)",null,"1 (100.0%)",null,"3 (0.0%)","3 (33.3%)","1 (0.0%)",null,"2 (0.0%)",null,"1 (0.0%)","1 (0.0%)","3 (0.0%)",null,"2 (0.0%)",null,"6 (0.0%)",null,null,"3 (0.0%)",null,null,"1 (0.0%)","1 (0.0%)","6 (0.0%)",null,null,null,"5 (0.0%)",null],["5 (0.0%)","10 (10.0%)","43 (4.7%)","4 (0.0%)","6 (33.3%)","11 (9.1%)","2 (0.0%)","3 (33.3%)","31 (12.9%)","7 (0.0%)","7 (14.3%)","9 (33.3%)","17 (17.6%)","4 (0.0%)","8 (0.0%)","4 (25.0%)","14 (0.0%)","5 (40.0%)","12 (8.3%)","15 (20.0%)","9 (0.0%)","1 (0.0%)",null,"5 (20.0%)","14 (7.1%)","7 (14.3%)","8 (0.0%)","15 (0.0%)","19 (5.3%)","5 (0.0%)"],["82 (12.2%)","18 (0.0%)","26 (7.7%)","13 (0.0%)","28 (17.9%)","160 (15.6%)","5 (40.0%)","10 (0.0%)","46 (15.2%)","52 (15.4%)","80 (8.8%)","27 (11.1%)","34 (14.7%)","24 (8.3%)","29 (17.2%)","5 (0.0%)","74 (6.8%)","6 (0.0%)","78 (6.4%)","34 (20.6%)","45 (20.0%)","14 (0.0%)","11 (9.1%)","30 (13.3%)","35 (14.3%)","9 (33.3%)","87 (13.8%)","15 (13.3%)","72 (4.2%)","9 (11.1%)"],["124 (14.5%)","47 (12.8%)","89 (10.1%)","69 (14.5%)","97 (13.4%)","177 (11.9%)","39 (12.8%)","44 (18.2%)","106 (18.9%)","106 (13.2%)","207 (9.2%)","66 (25.8%)","163 (16.6%)","35 (22.9%)","65 (10.8%)","33 (6.1%)","196 (12.8%)","52 (17.3%)","148 (10.8%)","99 (13.1%)","105 (13.3%)","111 (13.5%)","16 (12.5%)","97 (11.3%)","80 (22.5%)","38 (15.8%)","153 (22.9%)","104 (20.2%)","145 (11.0%)","49 (18.4%)"]],"container":"<table class=\"compact stripe hover\">\n  <thead>\n    <tr>\n      <th>Police Service Area<\/th>\n      <th>LGAs<\/th>\n      <th>White<\/th>\n      <th>Aboriginal<\/th>\n      <th>African<\/th>\n      <th>Asian<\/th>\n      <th>Middle Eastern<\/th>\n      <th>Other<\/th>\n      <th>Pacific Islander<\/th>\n      <th>South American<\/th>\n      <th>South Asian<\/th>\n      <th>Mediterranean/Middle Eastern – Unusable<\/th>\n      <th>Missing<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Bfrtip","buttons":["copy","excel"],"scrollX":true,"pageLength":15,"autoWidth":true,"columnDefs":[{"width":"300px","targets":1},{"name":"Police Service Area","targets":0},{"name":"LGAs","targets":1},{"name":"White","targets":2},{"name":"Aboriginal","targets":3},{"name":"African","targets":4},{"name":"Asian","targets":5},{"name":"Middle Eastern","targets":6},{"name":"Other","targets":7},{"name":"Pacific Islander","targets":8},{"name":"South American","targets":9},{"name":"South Asian","targets":10},{"name":"Mediterranean/Middle Eastern – Unusable","targets":11},{"name":"Missing","targets":12}],"order":[],"orderClasses":false,"lengthMenu":[10,15,25,50,100]}},"evals":[],"jsHooks":[]}</script>
-</div>
-</div>
-<div id="station-level" class="section level2" number="4.4">
-<h2><span class="header-section-number">4.4</span> Station level</h2>
-<div id="data-overview---station" class="section level3" number="4.4.1">
-<h3><span class="header-section-number">4.4.1</span> Data overview -
-Station</h3>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-05fb52dc3da41100cd4f" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-05fb52dc3da41100cd4f">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"caption":"<caption style=\"caption-side: top; text-align: left; font-weight: bold;\">Drug Searches and Hit Rates by Racial Appearance (Metro Victoria, by Police Station)<\/caption>","data":[["ALTONA","AVONDALE HEIGHTS","BAYSIDE","BELGRAVE","BORONIA","BOROONDARA","BOX HILL","BROADMEADOWS","BRUNSWICK","BUNYIP","CAMBERWELL","CAROLINE SPRINGS","CARRUM DOWNS","CAULFIELD","CHELSEA","CHELTENHAM","CLAYTON","COLLINGWOOD","CRAIGIEBURN","CRANBOURNE","CROYDON","DANDENONG","DIAMOND CREEK","DONCASTER","DROMANA","ELTHAM","EMERALD","ENDEAVOUR HILLS","EPPING","FAWKNER","FITZROY","FLEMINGTON","FOOTSCRAY","FOREST HILL","FRANKSTON","GLEN WAVERLEY","GREENSBOROUGH","HASTINGS","HEALESVILLE","HEIDELBERG","KEILOR DOWNS","KNOX","KOO WEE RUP","LILYDALE","MALVERN","MELBOURNE AIRPORT","MELBOURNE EAST","MELBOURNE NORTH","MELBOURNE WEST","MELTON","MERNDA","MILL PARK","MOONEE PONDS","MOORABBIN","MOOROOLBARK","MORDIALLOC","MORNINGTON","MOUNT EVELYN","MOUNT WAVERLEY","NARRE WARREN","NORTHCOTE","OAKLEIGH","PAKENHAM","PRAHRAN","PRESTON","RESERVOIR","RICHMOND","RINGWOOD","ROSEBUD","ROWVILLE","RYE","SORRENTO","SOUTH MELBOURNE","SOUTHBANK","SPRINGVALE","ST. KILDA","SUNBURY","SUNSHINE","WARRANDYTE","WERRIBEE","WHITTLESEA","WILLIAMSTOWN","WYNDHAM NORTH","YARRA GLEN","YARRA JUNCTION"],["98 (18.4%)","27 (11.1%)","35 (25.7%)","25 (24.0%)","239 (10.0%)","35 (14.3%)","32 (15.6%)","114 (8.8%)","121 (21.5%)","3 (33.3%)","82 (19.5%)","21 (23.8%)","20 (15.0%)","88 (14.8%)","53 (15.1%)","22 (18.2%)","13 (15.4%)","171 (11.1%)","31 (3.2%)","66 (24.2%)","48 (6.2%)","73 (24.7%)","13 (15.4%)","81 (13.6%)","2 (0.0%)","34 (11.8%)","5 (0.0%)","29 (6.9%)","79 (10.1%)","89 (7.9%)","175 (8.6%)","68 (29.4%)","171 (14.6%)","45 (35.6%)","104 (27.9%)","69 (20.3%)","100 (5.0%)","105 (11.4%)","3 (100.0%)","261 (11.1%)","81 (14.8%)","232 (12.5%)","1 (100.0%)","84 (17.9%)","44 (22.7%)",null,"236 (13.6%)","101 (15.8%)","272 (15.4%)","44 (15.9%)","54 (13.0%)","105 (12.4%)","75 (10.7%)","59 (13.6%)","40 (17.5%)","28 (25.0%)","75 (14.7%)","1 (0.0%)","24 (16.7%)","38 (10.5%)","118 (17.8%)","123 (18.7%)","132 (8.3%)","250 (9.2%)","109 (11.0%)","152 (20.4%)","411 (6.1%)","88 (14.8%)","145 (20.0%)","43 (30.2%)","6 (0.0%)","3 (0.0%)","71 (16.9%)","57 (10.5%)","67 (10.4%)","157 (12.1%)","73 (9.6%)","66 (9.1%)","3 (66.7%)","103 (21.4%)","25 (16.0%)","93 (19.4%)","38 (7.9%)","1 (0.0%)","1 (0.0%)"],["1 (100.0%)",null,null,null,"6 (16.7%)",null,"1 (0.0%)","1 (100.0%)","2 (0.0%)",null,"3 (33.3%)",null,null,"2 (0.0%)",null,null,null,"14 (0.0%)",null,null,null,"4 (50.0%)","1 (0.0%)",null,null,null,null,"1 (0.0%)","7 (14.3%)","2 (0.0%)","22 (0.0%)","3 (33.3%)","3 (33.3%)","1 (0.0%)","1 (0.0%)",null,null,"1 (0.0%)","1 (100.0%)","22 (9.1%)",null,"2 (0.0%)",null,null,"3 (0.0%)",null,"18 (11.1%)","6 (16.7%)","20 (15.0%)",null,"4 (25.0%)","2 (0.0%)",null,null,null,null,"1 (0.0%)",null,null,"1 (100.0%)","9 (44.4%)","1 (0.0%)","1 (0.0%)","10 (10.0%)","8 (0.0%)","10 (20.0%)","87 (8.0%)","2 (0.0%)","2 (50.0%)",null,null,null,"5 (20.0%)","1 (0.0%)",null,"11 (18.2%)","3 (0.0%)","2 (0.0%)",null,"1 (0.0%)",null,null,null,null,null],["18 (22.2%)","1 (0.0%)","2 (50.0%)","3 (0.0%)","1 (100.0%)","4 (0.0%)","3 (33.3%)","26 (11.5%)","7 (14.3%)",null,"3 (33.3%)","23 (4.3%)",null,"3 (0.0%)",null,null,null,"29 (6.9%)","5 (0.0%)","26 (19.2%)","1 (0.0%)","14 (7.1%)",null,"5 (20.0%)",null,null,null,"1 (0.0%)","9 (22.2%)","3 (0.0%)","13 (7.7%)","23 (13.0%)","43 (11.6%)",null,"3 (66.7%)","6 (0.0%)","9 (0.0%)","1 (0.0%)",null,"33 (6.1%)","14 (7.1%)","5 (20.0%)",null,null,"1 (0.0%)",null,"28 (3.6%)","24 (25.0%)","24 (12.5%)","7 (14.3%)","9 (22.2%)","11 (0.0%)","18 (11.1%)","1 (0.0%)",null,null,null,null,"1 (0.0%)","8 (0.0%)","12 (16.7%)","7 (14.3%)","29 (17.2%)","16 (12.5%)","17 (11.8%)","38 (15.8%)","21 (4.8%)","3 (0.0%)","2 (0.0%)","2 (50.0%)",null,null,"10 (10.0%)","4 (0.0%)","6 (16.7%)","11 (18.2%)","2 (0.0%)","26 (0.0%)",null,"57 (8.8%)","2 (0.0%)","12 (16.7%)","9 (11.1%)",null,null],["16 (12.5%)","5 (20.0%)",null,"2 (50.0%)","5 (0.0%)","6 (0.0%)","8 (25.0%)","4 (0.0%)","4 (50.0%)",null,"4 (75.0%)","5 (0.0%)",null,"7 (28.6%)","4 (25.0%)","1 (100.0%)",null,"66 (4.5%)","1 (0.0%)","7 (0.0%)","2 (0.0%)","27 (7.4%)",null,"12 (16.7%)",null,"1 (100.0%)",null,"1 (0.0%)","11 (27.3%)","5 (0.0%)","41 (7.3%)","11 (27.3%)","40 (5.0%)","2 (50.0%)","1 (100.0%)","8 (25.0%)","4 (25.0%)",null,null,"10 (20.0%)","64 (14.1%)","14 (14.3%)",null,null,"7 (0.0%)",null,"32 (25.0%)","25 (20.0%)","66 (16.7%)","6 (0.0%)","2 (0.0%)","8 (37.5%)","4 (50.0%)","4 (25.0%)",null,"3 (66.7%)","2 (50.0%)","1 (0.0%)","3 (33.3%)","3 (0.0%)","8 (0.0%)","19 (36.8%)","5 (20.0%)","8 (25.0%)","7 (0.0%)","13 (23.1%)","156 (7.7%)","5 (0.0%)","1 (100.0%)","1 (0.0%)",null,null,"2 (0.0%)","3 (0.0%)","68 (7.4%)","3 (33.3%)","8 (0.0%)","60 (6.7%)",null,"38 (13.2%)",null,"3 (0.0%)","4 (0.0%)",null,null],["2 (50.0%)",null,null,"1 (0.0%)",null,"1 (0.0%)","1 (0.0%)","27 (0.0%)","27 (7.4%)",null,"1 (0.0%)","1 (0.0%)",null,"1 (0.0%)",null,"1 (0.0%)",null,"3 (0.0%)","19 (5.3%)","4 (25.0%)",null,"2 (0.0%)",null,"1 (0.0%)",null,null,null,"3 (0.0%)","7 (0.0%)","8 (0.0%)","5 (20.0%)","4 (25.0%)","3 (0.0%)",null,null,"2 (0.0%)",null,null,null,"2 (50.0%)","3 (33.3%)","1 (0.0%)",null,null,"1 (0.0%)",null,"1 (0.0%)","1 (0.0%)","10 (20.0%)","2 (100.0%)",null,"7 (14.3%)","2 (0.0%)",null,null,null,null,null,null,"1 (100.0%)",null,"4 (25.0%)",null,"4 (25.0%)","5 (0.0%)","3 (0.0%)","7 (0.0%)","1 (0.0%)",null,null,null,null,"2 (50.0%)","1 (100.0%)","3 (0.0%)","1 (0.0%)",null,"1 (0.0%)",null,"2 (0.0%)",null,"3 (33.3%)",null,null,null],["4 (0.0%)","1 (0.0%)","1 (0.0%)","2 (50.0%)","4 (25.0%)","3 (66.7%)","5 (20.0%)","12 (16.7%)","10 (10.0%)",null,"3 (33.3%)","1 (0.0%)",null,"4 (25.0%)",null,"1 (0.0%)",null,null,"3 (0.0%)","8 (0.0%)","1 (0.0%)","6 (0.0%)","1 (0.0%)","1 (0.0%)",null,"4 (25.0%)","1 (0.0%)","3 (0.0%)","2 (0.0%)","7 (14.3%)","4 (0.0%)","10 (20.0%)","6 (0.0%)","1 (0.0%)","1 (0.0%)","8 (0.0%)","1 (0.0%)","2 (50.0%)",null,"10 (10.0%)","2 (0.0%)",null,null,"1 (0.0%)",null,null,"6 (16.7%)","5 (20.0%)","10 (0.0%)","3 (0.0%)","2 (0.0%)","7 (0.0%)","8 (0.0%)","2 (0.0%)","1 (0.0%)","1 (0.0%)","1 (0.0%)",null,"1 (0.0%)","1 (0.0%)","7 (0.0%)",null,"9 (22.2%)","3 (33.3%)","3 (33.3%)","7 (14.3%)","6 (0.0%)",null,"2 (50.0%)","1 (0.0%)",null,null,"1 (0.0%)","4 (0.0%)","6 (0.0%)","2 (0.0%)","3 (0.0%)","5 (20.0%)","1 (100.0%)","8 (0.0%)","1 (0.0%)","3 (33.3%)",null,null,null],["15 (6.7%)",null,null,null,"3 (33.3%)","1 (0.0%)",null,"4 (0.0%)",null,null,null,"3 (33.3%)","2 (0.0%)",null,"1 (0.0%)",null,null,"2 (50.0%)","3 (0.0%)","6 (0.0%)",null,"6 (33.3%)","1 (0.0%)",null,null,"1 (0.0%)",null,"1 (100.0%)","1 (0.0%)","2 (0.0%)","10 (0.0%)","2 (0.0%)","15 (20.0%)",null,"6 (66.7%)","1 (0.0%)","2 (50.0%)","2 (50.0%)",null,"9 (0.0%)","14 (7.1%)","4 (50.0%)",null,null,"1 (0.0%)",null,"12 (8.3%)","3 (33.3%)","11 (18.2%)","6 (0.0%)","1 (0.0%)","2 (0.0%)",null,"2 (0.0%)",null,"3 (33.3%)","1 (0.0%)","1 (0.0%)",null,"5 (40.0%)","7 (0.0%)","2 (100.0%)","4 (25.0%)","1 (0.0%)","12 (16.7%)","2 (0.0%)","28 (3.6%)",null,"1 (100.0%)","3 (33.3%)",null,null,"3 (33.3%)",null,"7 (14.3%)","4 (0.0%)","3 (0.0%)","13 (15.4%)",null,"10 (10.0%)",null,"7 (42.9%)",null,null,null],[null,null,null,null,null,null,null,"1 (0.0%)",null,null,null,null,null,null,null,null,"1 (0.0%)","1 (0.0%)",null,null,null,"2 (0.0%)",null,null,null,"1 (0.0%)",null,"1 (0.0%)",null,null,"2 (0.0%)",null,"2 (0.0%)",null,"1 (0.0%)",null,null,null,null,"1 (0.0%)",null,"2 (0.0%)",null,null,"2 (0.0%)",null,"1 (0.0%)","2 (0.0%)","3 (0.0%)",null,null,null,null,"1 (0.0%)",null,null,null,null,null,"2 (0.0%)",null,"2 (0.0%)",null,"4 (0.0%)",null,"3 (33.3%)","2 (0.0%)",null,null,"1 (0.0%)",null,null,null,null,null,"1 (0.0%)",null,"1 (100.0%)",null,null,null,null,null,null,null],["6 (0.0%)",null,"2 (0.0%)","3 (0.0%)","5 (20.0%)","5 (0.0%)","3 (0.0%)","5 (0.0%)","4 (25.0%)",null,"5 (20.0%)","5 (40.0%)","1 (0.0%)","1 (100.0%)","2 (0.0%)","1 (0.0%)","1 (100.0%)","6 (0.0%)","2 (50.0%)","3 (33.3%)","1 (0.0%)","15 (20.0%)",null,"4 (0.0%)",null,null,null,null,"2 (0.0%)","8 (0.0%)","5 (20.0%)","4 (0.0%)","8 (0.0%)","4 (25.0%)","1 (0.0%)","5 (0.0%)",null,null,null,"5 (0.0%)","12 (0.0%)","10 (20.0%)",null,"1 (0.0%)","3 (0.0%)",null,"5 (0.0%)","2 (0.0%)","7 (0.0%)",null,"1 (0.0%)","2 (0.0%)","5 (0.0%)","1 (100.0%)","1 (0.0%)","5 (40.0%)",null,null,"1 (0.0%)","3 (33.3%)","3 (0.0%)","8 (25.0%)","4 (0.0%)","11 (9.1%)","4 (0.0%)","4 (25.0%)","8 (0.0%)","3 (33.3%)","1 (0.0%)","2 (0.0%)",null,null,"2 (0.0%)","1 (100.0%)","16 (6.2%)","2 (0.0%)",null,"31 (6.5%)",null,"7 (0.0%)","3 (0.0%)","1 (0.0%)","8 (0.0%)",null,null],["27 (3.7%)","8 (12.5%)","3 (0.0%)","4 (0.0%)","13 (23.1%)","9 (0.0%)","4 (25.0%)","64 (9.4%)","35 (2.9%)",null,"9 (0.0%)","2 (0.0%)","1 (100.0%)","7 (0.0%)","7 (0.0%)","5 (20.0%)","2 (0.0%)","27 (0.0%)","13 (7.7%)","15 (20.0%)","3 (0.0%)","20 (15.0%)","3 (0.0%)","23 (8.7%)",null,"8 (12.5%)","1 (0.0%)","5 (20.0%)","45 (8.9%)","43 (9.3%)","19 (10.5%)","12 (41.7%)","29 (17.2%)","5 (40.0%)","4 (25.0%)","12 (8.3%)","20 (5.0%)","1 (0.0%)",null,"62 (14.5%)","19 (5.3%)","17 (11.8%)",null,"4 (25.0%)","7 (28.6%)",null,"23 (8.7%)","24 (0.0%)","27 (11.1%)","4 (0.0%)","10 (30.0%)","27 (11.1%)","25 (12.0%)","10 (10.0%)","1 (0.0%)","5 (20.0%)","2 (0.0%)",null,"1 (0.0%)","8 (12.5%)","55 (10.9%)","19 (31.6%)","12 (0.0%)","28 (10.7%)","35 (14.3%)","70 (20.0%)","26 (3.8%)","2 (0.0%)","11 (0.0%)","4 (0.0%)",null,null,"3 (0.0%)","3 (0.0%)","26 (15.4%)","24 (16.7%)","3 (0.0%)","7 (14.3%)","1 (0.0%)","14 (14.3%)","5 (40.0%)","25 (28.0%)","1 (0.0%)",null,null],["66 (6.1%)","21 (14.3%)","14 (21.4%)","12 (8.3%)","77 (18.2%)","22 (13.6%)","22 (13.6%)","121 (9.1%)","78 (9.0%)","2 (0.0%)","25 (12.0%)","22 (18.2%)","10 (0.0%)","30 (16.7%)","23 (21.7%)","12 (33.3%)","3 (0.0%)","39 (2.6%)","41 (12.2%)","38 (7.9%)","5 (0.0%)","47 (21.3%)","6 (16.7%)","34 (23.5%)",null,"10 (10.0%)","8 (12.5%)","29 (17.2%)","59 (25.4%)","70 (12.9%)","35 (14.3%)","33 (24.2%)","65 (10.8%)","16 (18.8%)","29 (17.2%)","37 (13.5%)","29 (13.8%)","27 (11.1%)","1 (100.0%)","95 (14.7%)","42 (16.7%)","58 (6.9%)",null,"27 (14.8%)","18 (16.7%)","1 (0.0%)","62 (17.7%)","34 (14.7%)","100 (9.0%)","30 (16.7%)","38 (26.3%)","47 (14.9%)","51 (5.9%)","20 (25.0%)","7 (28.6%)","11 (27.3%)","39 (10.3%)",null,"11 (0.0%)","30 (16.7%)","43 (7.0%)","48 (16.7%)","59 (15.3%)","62 (24.2%)","49 (12.2%)","85 (14.1%)","71 (14.1%)","28 (7.1%)","42 (14.3%)","28 (32.1%)","3 (66.7%)",null,"22 (4.5%)","16 (18.8%)","59 (16.9%)","59 (11.9%)","44 (6.8%)","47 (4.3%)","1 (0.0%)","83 (22.9%)","9 (33.3%)","40 (25.0%)","21 (9.5%)","1 (100.0%)","1 (0.0%)"]],"container":"<table class=\"compact stripe hover\">\n  <thead>\n    <tr>\n      <th>Station<\/th>\n      <th>White<\/th>\n      <th>Aboriginal<\/th>\n      <th>African<\/th>\n      <th>Asian<\/th>\n      <th>Middle Eastern<\/th>\n      <th>Other<\/th>\n      <th>Pacific Islander<\/th>\n      <th>South American<\/th>\n      <th>South Asian<\/th>\n      <th>Mediterranean/Middle Eastern – Unusable<\/th>\n      <th>Missing<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Bfrtip","buttons":["copy","excel"],"scrollX":true,"pageLength":15,"autoWidth":true,"columnDefs":[{"name":"Station","targets":0},{"name":"White","targets":1},{"name":"Aboriginal","targets":2},{"name":"African","targets":3},{"name":"Asian","targets":4},{"name":"Middle Eastern","targets":5},{"name":"Other","targets":6},{"name":"Pacific Islander","targets":7},{"name":"South American","targets":8},{"name":"South Asian","targets":9},{"name":"Mediterranean/Middle Eastern – Unusable","targets":10},{"name":"Missing","targets":11}],"order":[],"orderClasses":false,"lengthMenu":[10,15,25,50,100]}},"evals":[],"jsHooks":[]}</script>
-<table>
-<caption>Drug Search Hit Rate Comparison – Whole of Melbourne (African
-vs White)</caption>
-<colgroup>
-<col width="7%" />
-<col width="7%" />
-<col width="6%" />
-<col width="5%" />
-<col width="7%" />
-<col width="7%" />
-<col width="9%" />
-<col width="5%" />
-<col width="5%" />
-<col width="3%" />
-<col width="12%" />
-<col width="22%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="right">Searches (African)</th>
-<th align="right">Searches (White)</th>
-<th align="right">Hits (African)</th>
-<th align="right">Hits (White)</th>
-<th align="right">Hit Rate (African)</th>
-<th align="right">Hit Rate (White)</th>
-<th align="right">Difference in Hit Rate</th>
-<th align="right">95% CI Lower</th>
-<th align="right">95% CI Upper</th>
-<th align="right">P-value</th>
-<th align="right">Odds Ratio (African vs White)</th>
-<th align="left">Interpretation</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">755</td>
-<td align="right">6779</td>
-<td align="right">86</td>
-<td align="right">957</td>
-<td align="right">0.114</td>
-<td align="right">0.141</td>
-<td align="right">0.027</td>
-<td align="right">-0.051</td>
-<td align="right">-0.003</td>
-<td align="right">0.04</td>
-<td align="right">0.782</td>
-<td align="left">African appearing people searched on weaker
-suspicion</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="hit-rate-analysis---region" class="section level3" number="4.4.2">
-<h3><span class="header-section-number">4.4.2</span> Hit rate analysis -
-Region</h3>
-<table style="width:100%;">
-<caption>Drug Search Hit Rate Comparison by Region (African vs
-White)</caption>
-<colgroup>
-<col width="9%" />
-<col width="7%" />
-<col width="6%" />
-<col width="5%" />
-<col width="5%" />
-<col width="7%" />
-<col width="6%" />
-<col width="9%" />
-<col width="5%" />
-<col width="5%" />
-<col width="3%" />
-<col width="11%" />
-<col width="15%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Region</th>
-<th align="right">Searches (African)</th>
-<th align="right">Searches (White)</th>
-<th align="right">Hits (African)</th>
-<th align="right">Hits (White)</th>
-<th align="right">Hit Rate (African)</th>
-<th align="right">Hit Rate (White)</th>
-<th align="right">Difference in Hit Rate</th>
-<th align="right">95% CI Lower</th>
-<th align="right">95% CI Upper</th>
-<th align="right">P-value</th>
-<th align="left">Odds Ratio (African vs White)</th>
-<th align="left">Interpretation</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">North West Metro Region</td>
-<td align="right">573</td>
-<td align="right">3729</td>
-<td align="right">59</td>
-<td align="right">483</td>
-<td align="right">0.103</td>
-<td align="right">0.130</td>
-<td align="right">0.027</td>
-<td align="right">-0.054</td>
-<td align="right">0.001</td>
-<td align="right">0.074</td>
-<td align="left">0.771</td>
-<td align="left">No statistically significant difference</td>
-</tr>
-<tr class="even">
-<td align="left">Southern Metro Region</td>
-<td align="right">138</td>
-<td align="right">1738</td>
-<td align="right">20</td>
-<td align="right">263</td>
-<td align="right">0.145</td>
-<td align="right">0.151</td>
-<td align="right">0.006</td>
-<td align="right">-0.067</td>
-<td align="right">0.055</td>
-<td align="right">0.840</td>
-<td align="left">0.951</td>
-<td align="left">No statistically significant difference</td>
-</tr>
-<tr class="odd">
-<td align="left">Eastern Region</td>
-<td align="right">44</td>
-<td align="right">1312</td>
-<td align="right">7</td>
-<td align="right">211</td>
-<td align="right">0.159</td>
-<td align="right">0.161</td>
-<td align="right">0.002</td>
-<td align="right">-0.112</td>
-<td align="right">0.108</td>
-<td align="right">0.975</td>
-<td align="left">0.987</td>
-<td align="left">No statistically significant difference</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="hit-rate-analysis---division" class="section level3" number="4.4.3">
-<h3><span class="header-section-number">4.4.3</span> Hit rate analysis -
-Division</h3>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-2fb00eaa573bdbae3c9d" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-2fb00eaa573bdbae3c9d">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"caption":"<caption style=\"caption-side: top; text-align: left; font-weight: bold;\">Drug Search Hit Rate Comparison by Division (African vs White)<\/caption>","data":[["NWMR Division 3","NWMR Division 2","NWMR Division 4","Eastern Region Division 1","SMR Division 4","NWMR Division 5","Eastern Region Division 2","NWMR Division 1","SMR Division 2","SMR Division 3","SMR Division 1"],["Brimbank, Melton","Hobsons Bay, Maribyrnong, Wyndham","Hume, Merri-bek, Moonee Valley","Boroondara, Manningham, Monash, Whitehorse","Frankston, Mornington Peninsula","Banyule, Darebin, Nillumbik, Whittlesea","Knox, Maroondah, Yarra Ranges","Melbourne, Yarra","Bayside, Glen Eira, Kingston","Cardinia, Casey, Greater Dandenong","Port Phillip, Stonnington"],[70,139,85,29,6,140,15,139,6,84,42],[212,503,598,507,460,1050,805,1366,285,414,579],[3,17,9,4,2,16,3,14,1,12,5],[30,86,82,98,84,136,113,149,49,60,70],[0.043,0.122,0.106,0.138,0.333,0.114,0.2,0.101,0.167,0.143,0.119],[0.142,0.171,0.137,0.193,0.183,0.13,0.14,0.109,0.172,0.145,0.121],[0.272,0.676,0.745,0.668,2.238,0.867,1.531,0.915,0.963,0.983,0.983],[-0.175,-0.117,-0.109,-0.204,-0.313,-0.076,-0.178,-0.065,-0.312,-0.08599999999999999,-0.105],[-0.022,0.02,0.046,0.093,0.614,0.045,0.297,0.048,0.301,0.082,0.101],[0.044,0.21,0.534,0.62,0.677,0.709,0.777,0.874,1,1,1],["African-appearing people searched on weaker suspicion","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference"]],"container":"<table class=\"compact stripe hover\">\n  <thead>\n    <tr>\n      <th>Division<\/th>\n      <th>LGAs<\/th>\n      <th>Searches (African)<\/th>\n      <th>Searches (White)<\/th>\n      <th>Hits (African)<\/th>\n      <th>Hits (White)<\/th>\n      <th>Hit Rate (African)<\/th>\n      <th>Hit Rate (White)<\/th>\n      <th>Odds Ratio (African/White)<\/th>\n      <th>95% CI Lower<\/th>\n      <th>95% CI Upper<\/th>\n      <th>P-value<\/th>\n      <th>Interpretation<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Bfrtip","buttons":["copy","excel"],"scrollX":true,"pageLength":10,"lengthMenu":[10,20,50],"autoWidth":true,"columnDefs":[{"width":"300px","targets":1},{"className":"dt-right","targets":[2,3,4,5,6,7,8,9,10,11]},{"name":"Division","targets":0},{"name":"LGAs","targets":1},{"name":"Searches (African)","targets":2},{"name":"Searches (White)","targets":3},{"name":"Hits (African)","targets":4},{"name":"Hits (White)","targets":5},{"name":"Hit Rate (African)","targets":6},{"name":"Hit Rate (White)","targets":7},{"name":"Odds Ratio (African/White)","targets":8},{"name":"95% CI Lower","targets":9},{"name":"95% CI Upper","targets":10},{"name":"P-value","targets":11},{"name":"Interpretation","targets":12}],"order":[],"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
-</div>
-<div id="hit-rate-analysis---psa" class="section level3" number="4.4.4">
-<h3><span class="header-section-number">4.4.4</span> Hit rate analysis -
-PSA</h3>
-<div class="datatables html-widget html-fill-item" id="htmlwidget-4f0f4ffe6ac7129bc0af" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-4f0f4ffe6ac7129bc0af">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"caption":"<caption style=\"caption-side: top; text-align: left; font-weight: bold;\">Drug Search Hit Rate Comparison by Police Service Area (African vs White)<\/caption>","data":[["Knox","Brimbank","Wyndham","Frankston","Melton","Cardinia","Monash","Banyule","Moonee Valley","Greater Dandenong","Yarra Ranges","Mornington Peninsula","Maroondah","Maribyrnong","Merri-bek","Kingston","Yarra","Darebin","Melbourne","Casey","Manningham","Boroondara","Whitehorse","Hume","Hobsons Bay","Port Phillip","Glen Eira","Whittlesea","Stonnington","Nillumbik"],[8,40,66,3,30,29,14,42,42,20,3,3,4,43,10,1,63,67,76,35,5,7,3,33,30,25,5,31,17,null],[514,147,141,124,65,141,229,361,170,140,155,336,136,171,210,162,757,379,609,133,84,117,77,218,191,285,123,263,294,47],[3,1,6,2,2,5,1,2,5,2,0,0,0,5,1,0,4,10,10,5,1,1,1,3,6,3,1,4,2,null],[66,18,25,32,12,13,43,34,31,25,31,52,16,25,33,27,59,64,90,22,13,21,21,18,36,37,22,32,33,6],[0.375,0.025,0.091,0.667,0.067,0.172,0.07099999999999999,0.048,0.119,0.1,0,0,0,0.116,0.1,0,0.063,0.149,0.132,0.143,0.2,0.143,0.333,0.091,0.2,0.12,0.2,0.129,0.118,null],[0.128,0.122,0.177,0.258,0.185,0.092,0.188,0.094,0.182,0.179,0.2,0.155,0.118,0.146,0.157,0.167,0.078,0.169,0.148,0.165,0.155,0.179,0.273,0.083,0.188,0.13,0.179,0.122,0.112,null],[-0.09,-0.169,-0.18,-0.13,-0.248,-0.065,-0.26,-0.118,-0.177,-0.225,-0.263,-0.193,-0.172,-0.139,-0.249,-0.224,-0.078,-0.113,-0.097,-0.155,-0.314,-0.305,-0.482,-0.096,-0.142,-0.143,-0.336,-0.117,-0.152,null],[0.583,-0.026,0.007,0.948,0.012,0.226,0.028,0.025,0.051,0.067,-0.137,-0.116,-0.063,0.08,0.135,-0.109,0.049,0.074,0.065,0.109,0.404,0.232,0.603,0.113,0.165,0.123,0.378,0.132,0.163,null],[0.041,0.07099999999999999,0.105,0.114,0.132,0.201,0.272,0.317,0.328,0.38,0.388,0.459,0.466,0.613,0.625,0.655,0.679,0.6909999999999999,0.706,0.746,0.787,0.805,0.8179999999999999,0.872,0.881,0.888,0.904,0.906,0.945,null],["African-appearing people searched on stronger suspicion","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","No statistically significant difference","Insufficient data"]],"container":"<table class=\"compact stripe hover\">\n  <thead>\n    <tr>\n      <th>Police.Service.Area<\/th>\n      <th>Searches (African)<\/th>\n      <th>Searches (White)<\/th>\n      <th>Hits (African)<\/th>\n      <th>Hits (White)<\/th>\n      <th>Hit Rate (African)<\/th>\n      <th>Hit Rate (White)<\/th>\n      <th>95% CI Lower<\/th>\n      <th>95% CI Upper<\/th>\n      <th>P-value<\/th>\n      <th>Interpretation<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Bfrtip","buttons":["copy","excel"],"scrollX":true,"pageLength":15,"autoWidth":true,"columnDefs":[{"width":"250px","targets":0},{"className":"dt-right","targets":[1,2,3,4,5,6,7,8,9]},{"name":"Police.Service.Area","targets":0},{"name":"Searches (African)","targets":1},{"name":"Searches (White)","targets":2},{"name":"Hits (African)","targets":3},{"name":"Hits (White)","targets":4},{"name":"Hit Rate (African)","targets":5},{"name":"Hit Rate (White)","targets":6},{"name":"95% CI Lower","targets":7},{"name":"95% CI Upper","targets":8},{"name":"P-value","targets":9},{"name":"Interpretation","targets":10}],"order":[],"orderClasses":false,"lengthMenu":[10,15,25,50,100]}},"evals":[],"jsHooks":[]}</script>
-</div>
-<div id="hit-rate-analysis---station" class="section level3" number="4.4.5">
-<h3><span class="header-section-number">4.4.5</span> Hit rate analysis -
-Station</h3>
-</div>
+<div id="search-counts-by-race-and-station" class="section level2" number="4.5">
+<h2><span class="header-section-number">4.5</span> Search Counts by Race
+and Station</h2>
+<p>The following table presents a <strong>descriptive summary</strong>
+of drug searches by racial appearance and Victoria Police Station. This
+analysis is <strong>exploratory</strong> and aims to illustrate the
+geographic distribution of search activity across major operational
+areas.</p>
+<p>No statistical testing has been conducted in this section. Therefore,
+the figures should be interpreted with <strong>caution</strong>.
+Apparent differences between regions or racial groups may be due to a
+range of factors, and no conclusions should be drawn about disparities
+or bias without further statistical analysis to control for confounding
+variables.</p>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-3789684b25b9e74d3b71" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-3789684b25b9e74d3b71">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"caption":"<caption style=\"caption-side: top; text-align: left; font-weight: bold;\">Drug Searches and Hit Rates by Racial Appearance (Metro Victoria, by Police Station)<\/caption>","data":[["ALTONA","AVONDALE HEIGHTS","BAYSIDE","BELGRAVE","BORONIA","BOROONDARA","BOX HILL","BROADMEADOWS","BRUNSWICK","BUNYIP","CAMBERWELL","CAROLINE SPRINGS","CARRUM DOWNS","CAULFIELD","CHELSEA","CHELTENHAM","CLAYTON","COLLINGWOOD","CRAIGIEBURN","CRANBOURNE","CROYDON","DANDENONG","DIAMOND CREEK","DONCASTER","DROMANA","ELTHAM","EMERALD","ENDEAVOUR HILLS","EPPING","FAWKNER","FITZROY","FLEMINGTON","FOOTSCRAY","FOREST HILL","FRANKSTON","GLEN WAVERLEY","GREENSBOROUGH","HASTINGS","HEALESVILLE","HEIDELBERG","KEILOR DOWNS","KNOX","KOO WEE RUP","LILYDALE","MALVERN","MELBOURNE AIRPORT","MELBOURNE EAST","MELBOURNE NORTH","MELBOURNE WEST","MELTON","MERNDA","MILL PARK","MOONEE PONDS","MOORABBIN","MOOROOLBARK","MORDIALLOC","MORNINGTON","MOUNT EVELYN","MOUNT WAVERLEY","NARRE WARREN","NORTHCOTE","OAKLEIGH","PAKENHAM","PRAHRAN","PRESTON","RESERVOIR","RICHMOND","RINGWOOD","ROSEBUD","ROWVILLE","RYE","SORRENTO","SOUTH MELBOURNE","SOUTHBANK","SPRINGVALE","ST. KILDA","SUNBURY","SUNSHINE","WARRANDYTE","WERRIBEE","WHITTLESEA","WILLIAMSTOWN","WYNDHAM NORTH","YARRA GLEN","YARRA JUNCTION"],["98 (18.4%)","27 (11.1%)","35 (25.7%)","25 (24.0%)","239 (10.0%)","35 (14.3%)","32 (15.6%)","114 (8.8%)","121 (21.5%)","3 (33.3%)","82 (19.5%)","21 (23.8%)","20 (15.0%)","88 (14.8%)","53 (15.1%)","22 (18.2%)","13 (15.4%)","171 (11.1%)","31 (3.2%)","66 (24.2%)","48 (6.2%)","73 (24.7%)","13 (15.4%)","81 (13.6%)","2 (0.0%)","34 (11.8%)","5 (0.0%)","29 (6.9%)","79 (10.1%)","89 (7.9%)","175 (8.6%)","68 (29.4%)","171 (14.6%)","45 (35.6%)","104 (27.9%)","69 (20.3%)","100 (5.0%)","105 (11.4%)","3 (100.0%)","261 (11.1%)","81 (14.8%)","232 (12.5%)","1 (100.0%)","84 (17.9%)","44 (22.7%)",null,"236 (13.6%)","101 (15.8%)","272 (15.4%)","44 (15.9%)","54 (13.0%)","105 (12.4%)","75 (10.7%)","59 (13.6%)","40 (17.5%)","28 (25.0%)","75 (14.7%)","1 (0.0%)","24 (16.7%)","38 (10.5%)","118 (17.8%)","123 (18.7%)","132 (8.3%)","250 (9.2%)","109 (11.0%)","152 (20.4%)","411 (6.1%)","88 (14.8%)","145 (20.0%)","43 (30.2%)","6 (0.0%)","3 (0.0%)","71 (16.9%)","57 (10.5%)","67 (10.4%)","157 (12.1%)","73 (9.6%)","66 (9.1%)","3 (66.7%)","103 (21.4%)","25 (16.0%)","93 (19.4%)","38 (7.9%)","1 (0.0%)","1 (0.0%)"],["1 (100.0%)",null,null,null,"6 (16.7%)",null,"1 (0.0%)","1 (100.0%)","2 (0.0%)",null,"3 (33.3%)",null,null,"2 (0.0%)",null,null,null,"14 (0.0%)",null,null,null,"4 (50.0%)","1 (0.0%)",null,null,null,null,"1 (0.0%)","7 (14.3%)","2 (0.0%)","22 (0.0%)","3 (33.3%)","3 (33.3%)","1 (0.0%)","1 (0.0%)",null,null,"1 (0.0%)","1 (100.0%)","22 (9.1%)",null,"2 (0.0%)",null,null,"3 (0.0%)",null,"18 (11.1%)","6 (16.7%)","20 (15.0%)",null,"4 (25.0%)","2 (0.0%)",null,null,null,null,"1 (0.0%)",null,null,"1 (100.0%)","9 (44.4%)","1 (0.0%)","1 (0.0%)","10 (10.0%)","8 (0.0%)","10 (20.0%)","87 (8.0%)","2 (0.0%)","2 (50.0%)",null,null,null,"5 (20.0%)","1 (0.0%)",null,"11 (18.2%)","3 (0.0%)","2 (0.0%)",null,"1 (0.0%)",null,null,null,null,null],["18 (22.2%)","1 (0.0%)","2 (50.0%)","3 (0.0%)","1 (100.0%)","4 (0.0%)","3 (33.3%)","26 (11.5%)","7 (14.3%)",null,"3 (33.3%)","23 (4.3%)",null,"3 (0.0%)",null,null,null,"29 (6.9%)","5 (0.0%)","26 (19.2%)","1 (0.0%)","14 (7.1%)",null,"5 (20.0%)",null,null,null,"1 (0.0%)","9 (22.2%)","3 (0.0%)","13 (7.7%)","23 (13.0%)","43 (11.6%)",null,"3 (66.7%)","6 (0.0%)","9 (0.0%)","1 (0.0%)",null,"33 (6.1%)","14 (7.1%)","5 (20.0%)",null,null,"1 (0.0%)",null,"28 (3.6%)","24 (25.0%)","24 (12.5%)","7 (14.3%)","9 (22.2%)","11 (0.0%)","18 (11.1%)","1 (0.0%)",null,null,null,null,"1 (0.0%)","8 (0.0%)","12 (16.7%)","7 (14.3%)","29 (17.2%)","16 (12.5%)","17 (11.8%)","38 (15.8%)","21 (4.8%)","3 (0.0%)","2 (0.0%)","2 (50.0%)",null,null,"10 (10.0%)","4 (0.0%)","6 (16.7%)","11 (18.2%)","2 (0.0%)","26 (0.0%)",null,"57 (8.8%)","2 (0.0%)","12 (16.7%)","9 (11.1%)",null,null],["16 (12.5%)","5 (20.0%)",null,"2 (50.0%)","5 (0.0%)","6 (0.0%)","8 (25.0%)","4 (0.0%)","4 (50.0%)",null,"4 (75.0%)","5 (0.0%)",null,"7 (28.6%)","4 (25.0%)","1 (100.0%)",null,"66 (4.5%)","1 (0.0%)","7 (0.0%)","2 (0.0%)","27 (7.4%)",null,"12 (16.7%)",null,"1 (100.0%)",null,"1 (0.0%)","11 (27.3%)","5 (0.0%)","41 (7.3%)","11 (27.3%)","40 (5.0%)","2 (50.0%)","1 (100.0%)","8 (25.0%)","4 (25.0%)",null,null,"10 (20.0%)","64 (14.1%)","14 (14.3%)",null,null,"7 (0.0%)",null,"32 (25.0%)","25 (20.0%)","66 (16.7%)","6 (0.0%)","2 (0.0%)","8 (37.5%)","4 (50.0%)","4 (25.0%)",null,"3 (66.7%)","2 (50.0%)","1 (0.0%)","3 (33.3%)","3 (0.0%)","8 (0.0%)","19 (36.8%)","5 (20.0%)","8 (25.0%)","7 (0.0%)","13 (23.1%)","156 (7.7%)","5 (0.0%)","1 (100.0%)","1 (0.0%)",null,null,"2 (0.0%)","3 (0.0%)","68 (7.4%)","3 (33.3%)","8 (0.0%)","60 (6.7%)",null,"38 (13.2%)",null,"3 (0.0%)","4 (0.0%)",null,null],["2 (50.0%)",null,null,"1 (0.0%)",null,"1 (0.0%)","1 (0.0%)","27 (0.0%)","27 (7.4%)",null,"1 (0.0%)","1 (0.0%)",null,"1 (0.0%)",null,"1 (0.0%)",null,"3 (0.0%)","19 (5.3%)","4 (25.0%)",null,"2 (0.0%)",null,"1 (0.0%)",null,null,null,"3 (0.0%)","7 (0.0%)","8 (0.0%)","5 (20.0%)","4 (25.0%)","3 (0.0%)",null,null,"2 (0.0%)",null,null,null,"2 (50.0%)","3 (33.3%)","1 (0.0%)",null,null,"1 (0.0%)",null,"1 (0.0%)","1 (0.0%)","10 (20.0%)","2 (100.0%)",null,"7 (14.3%)","2 (0.0%)",null,null,null,null,null,null,"1 (100.0%)",null,"4 (25.0%)",null,"4 (25.0%)","5 (0.0%)","3 (0.0%)","7 (0.0%)","1 (0.0%)",null,null,null,null,"2 (50.0%)","1 (100.0%)","3 (0.0%)","1 (0.0%)",null,"1 (0.0%)",null,"2 (0.0%)",null,"3 (33.3%)",null,null,null],["4 (0.0%)","1 (0.0%)","1 (0.0%)","2 (50.0%)","4 (25.0%)","3 (66.7%)","5 (20.0%)","12 (16.7%)","10 (10.0%)",null,"3 (33.3%)","1 (0.0%)",null,"4 (25.0%)",null,"1 (0.0%)",null,null,"3 (0.0%)","8 (0.0%)","1 (0.0%)","6 (0.0%)","1 (0.0%)","1 (0.0%)",null,"4 (25.0%)","1 (0.0%)","3 (0.0%)","2 (0.0%)","7 (14.3%)","4 (0.0%)","10 (20.0%)","6 (0.0%)","1 (0.0%)","1 (0.0%)","8 (0.0%)","1 (0.0%)","2 (50.0%)",null,"10 (10.0%)","2 (0.0%)",null,null,"1 (0.0%)",null,null,"6 (16.7%)","5 (20.0%)","10 (0.0%)","3 (0.0%)","2 (0.0%)","7 (0.0%)","8 (0.0%)","2 (0.0%)","1 (0.0%)","1 (0.0%)","1 (0.0%)",null,"1 (0.0%)","1 (0.0%)","7 (0.0%)",null,"9 (22.2%)","3 (33.3%)","3 (33.3%)","7 (14.3%)","6 (0.0%)",null,"2 (50.0%)","1 (0.0%)",null,null,"1 (0.0%)","4 (0.0%)","6 (0.0%)","2 (0.0%)","3 (0.0%)","5 (20.0%)","1 (100.0%)","8 (0.0%)","1 (0.0%)","3 (33.3%)",null,null,null],["15 (6.7%)",null,null,null,"3 (33.3%)","1 (0.0%)",null,"4 (0.0%)",null,null,null,"3 (33.3%)","2 (0.0%)",null,"1 (0.0%)",null,null,"2 (50.0%)","3 (0.0%)","6 (0.0%)",null,"6 (33.3%)","1 (0.0%)",null,null,"1 (0.0%)",null,"1 (100.0%)","1 (0.0%)","2 (0.0%)","10 (0.0%)","2 (0.0%)","15 (20.0%)",null,"6 (66.7%)","1 (0.0%)","2 (50.0%)","2 (50.0%)",null,"9 (0.0%)","14 (7.1%)","4 (50.0%)",null,null,"1 (0.0%)",null,"12 (8.3%)","3 (33.3%)","11 (18.2%)","6 (0.0%)","1 (0.0%)","2 (0.0%)",null,"2 (0.0%)",null,"3 (33.3%)","1 (0.0%)","1 (0.0%)",null,"5 (40.0%)","7 (0.0%)","2 (100.0%)","4 (25.0%)","1 (0.0%)","12 (16.7%)","2 (0.0%)","28 (3.6%)",null,"1 (100.0%)","3 (33.3%)",null,null,"3 (33.3%)",null,"7 (14.3%)","4 (0.0%)","3 (0.0%)","13 (15.4%)",null,"10 (10.0%)",null,"7 (42.9%)",null,null,null],[null,null,null,null,null,null,null,"1 (0.0%)",null,null,null,null,null,null,null,null,"1 (0.0%)","1 (0.0%)",null,null,null,"2 (0.0%)",null,null,null,"1 (0.0%)",null,"1 (0.0%)",null,null,"2 (0.0%)",null,"2 (0.0%)",null,"1 (0.0%)",null,null,null,null,"1 (0.0%)",null,"2 (0.0%)",null,null,"2 (0.0%)",null,"1 (0.0%)","2 (0.0%)","3 (0.0%)",null,null,null,null,"1 (0.0%)",null,null,null,null,null,"2 (0.0%)",null,"2 (0.0%)",null,"4 (0.0%)",null,"3 (33.3%)","2 (0.0%)",null,null,"1 (0.0%)",null,null,null,null,null,"1 (0.0%)",null,"1 (100.0%)",null,null,null,null,null,null,null],["6 (0.0%)",null,"2 (0.0%)","3 (0.0%)","5 (20.0%)","5 (0.0%)","3 (0.0%)","5 (0.0%)","4 (25.0%)",null,"5 (20.0%)","5 (40.0%)","1 (0.0%)","1 (100.0%)","2 (0.0%)","1 (0.0%)","1 (100.0%)","6 (0.0%)","2 (50.0%)","3 (33.3%)","1 (0.0%)","15 (20.0%)",null,"4 (0.0%)",null,null,null,null,"2 (0.0%)","8 (0.0%)","5 (20.0%)","4 (0.0%)","8 (0.0%)","4 (25.0%)","1 (0.0%)","5 (0.0%)",null,null,null,"5 (0.0%)","12 (0.0%)","10 (20.0%)",null,"1 (0.0%)","3 (0.0%)",null,"5 (0.0%)","2 (0.0%)","7 (0.0%)",null,"1 (0.0%)","2 (0.0%)","5 (0.0%)","1 (100.0%)","1 (0.0%)","5 (40.0%)",null,null,"1 (0.0%)","3 (33.3%)","3 (0.0%)","8 (25.0%)","4 (0.0%)","11 (9.1%)","4 (0.0%)","4 (25.0%)","8 (0.0%)","3 (33.3%)","1 (0.0%)","2 (0.0%)",null,null,"2 (0.0%)","1 (100.0%)","16 (6.2%)","2 (0.0%)",null,"31 (6.5%)",null,"7 (0.0%)","3 (0.0%)","1 (0.0%)","8 (0.0%)",null,null],["27 (3.7%)","8 (12.5%)","3 (0.0%)","4 (0.0%)","13 (23.1%)","9 (0.0%)","4 (25.0%)","64 (9.4%)","35 (2.9%)",null,"9 (0.0%)","2 (0.0%)","1 (100.0%)","7 (0.0%)","7 (0.0%)","5 (20.0%)","2 (0.0%)","27 (0.0%)","13 (7.7%)","15 (20.0%)","3 (0.0%)","20 (15.0%)","3 (0.0%)","23 (8.7%)",null,"8 (12.5%)","1 (0.0%)","5 (20.0%)","45 (8.9%)","43 (9.3%)","19 (10.5%)","12 (41.7%)","29 (17.2%)","5 (40.0%)","4 (25.0%)","12 (8.3%)","20 (5.0%)","1 (0.0%)",null,"62 (14.5%)","19 (5.3%)","17 (11.8%)",null,"4 (25.0%)","7 (28.6%)",null,"23 (8.7%)","24 (0.0%)","27 (11.1%)","4 (0.0%)","10 (30.0%)","27 (11.1%)","25 (12.0%)","10 (10.0%)","1 (0.0%)","5 (20.0%)","2 (0.0%)",null,"1 (0.0%)","8 (12.5%)","55 (10.9%)","19 (31.6%)","12 (0.0%)","28 (10.7%)","35 (14.3%)","70 (20.0%)","26 (3.8%)","2 (0.0%)","11 (0.0%)","4 (0.0%)",null,null,"3 (0.0%)","3 (0.0%)","26 (15.4%)","24 (16.7%)","3 (0.0%)","7 (14.3%)","1 (0.0%)","14 (14.3%)","5 (40.0%)","25 (28.0%)","1 (0.0%)",null,null],["66 (6.1%)","21 (14.3%)","14 (21.4%)","12 (8.3%)","77 (18.2%)","22 (13.6%)","22 (13.6%)","121 (9.1%)","78 (9.0%)","2 (0.0%)","25 (12.0%)","22 (18.2%)","10 (0.0%)","30 (16.7%)","23 (21.7%)","12 (33.3%)","3 (0.0%)","39 (2.6%)","41 (12.2%)","38 (7.9%)","5 (0.0%)","47 (21.3%)","6 (16.7%)","34 (23.5%)",null,"10 (10.0%)","8 (12.5%)","29 (17.2%)","59 (25.4%)","70 (12.9%)","35 (14.3%)","33 (24.2%)","65 (10.8%)","16 (18.8%)","29 (17.2%)","37 (13.5%)","29 (13.8%)","27 (11.1%)","1 (100.0%)","95 (14.7%)","42 (16.7%)","58 (6.9%)",null,"27 (14.8%)","18 (16.7%)","1 (0.0%)","62 (17.7%)","34 (14.7%)","100 (9.0%)","30 (16.7%)","38 (26.3%)","47 (14.9%)","51 (5.9%)","20 (25.0%)","7 (28.6%)","11 (27.3%)","39 (10.3%)",null,"11 (0.0%)","30 (16.7%)","43 (7.0%)","48 (16.7%)","59 (15.3%)","62 (24.2%)","49 (12.2%)","85 (14.1%)","71 (14.1%)","28 (7.1%)","42 (14.3%)","28 (32.1%)","3 (66.7%)",null,"22 (4.5%)","16 (18.8%)","59 (16.9%)","59 (11.9%)","44 (6.8%)","47 (4.3%)","1 (0.0%)","83 (22.9%)","9 (33.3%)","40 (25.0%)","21 (9.5%)","1 (100.0%)","1 (0.0%)"]],"container":"<table class=\"compact stripe hover\">\n  <thead>\n    <tr>\n      <th>Station<\/th>\n      <th>White<\/th>\n      <th>Aboriginal<\/th>\n      <th>African<\/th>\n      <th>Asian<\/th>\n      <th>Middle Eastern<\/th>\n      <th>Other<\/th>\n      <th>Pacific Islander<\/th>\n      <th>South American<\/th>\n      <th>South Asian<\/th>\n      <th>Mediterranean/Middle Eastern – Unusable<\/th>\n      <th>Missing<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"Bfrtip","buttons":["copy","excel"],"scrollX":true,"pageLength":15,"autoWidth":true,"columnDefs":[{"name":"Station","targets":0},{"name":"White","targets":1},{"name":"Aboriginal","targets":2},{"name":"African","targets":3},{"name":"Asian","targets":4},{"name":"Middle Eastern","targets":5},{"name":"Other","targets":6},{"name":"Pacific Islander","targets":7},{"name":"South American","targets":8},{"name":"South Asian","targets":9},{"name":"Mediterranean/Middle Eastern – Unusable","targets":10},{"name":"Missing","targets":11}],"order":[],"orderClasses":false,"lengthMenu":[10,15,25,50,100]}},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 <div id="appendix-ethnic-appearance-mapping" class="section level1" number="5">

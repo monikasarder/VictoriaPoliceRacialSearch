@@ -86,17 +86,22 @@ The table below summarises key variables in the dataset, including demographic f
 
 
 **Table 1 Characteristics of searches**
-```{r summary 2, echo = FALSE, warning = FALSE}
+```{r summary, echo = FALSE, warning = FALSE}
 
 of.interest <- c("Year", "Racial.appearance.transformed","Gender", "Area.type", "Unit.type", "Contact.Type" ,"Rank.of.Member", "Found",
                  "Search.type - Drugs","Search.type - Weapons","Search.type - Firearms",          
                   "Search.type - Graffiti","Search.type - Volatile.sub.U18","Search.type - Volatile.sub.adult")
 
-`VicPol station data` <- dat %>%
+datsum <- dat
+
+datsum$Racial.appearance.transformed[datsum$Racial.appearance.transformed == "Missing"] <- NA  
+
+datsum <- datsum %>%
   select(all_of(of.interest))%>%
   mutate(across(everything(), ~ fct_infreq(.)))
-  
-print(dfSummary(`VicPol station data`, 
+
+
+print(dfSummary(datsum, 
           max.distinct.values = 10, 
            varnumbers   = FALSE, 
                 valid.col    = FALSE, 

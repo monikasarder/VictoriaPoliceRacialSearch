@@ -4,9 +4,56 @@ author: "Monika Sarder"
 date: "`r Sys.Date()`"
 output: 
   html_document:
-    toc: yes
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+    theme: readable
+    highlight: zenburn
+    fig_caption: true
+    df_print: paged
+    css: styles.css  # Optional: include this file if you want to customise styles
 ---
 
+# Introduction
+
+This report analyses whether individuals perceived by police to belong to different racial appearance groups were subjected to drug-related stop and search practices under different thresholds of suspicion. It draws on over **13,000 records of warrantless drug searches** conducted by **uniformed Victoria Police officers on foot patrol in public places across metropolitan Melbourne** during the years **2018, 2019, 2022, and 2023**.
+
+The analysis uses the **hit rate method**—the proportion of searches that result in the discovery of drugs—to assess whether stop and search powers are being applied equitably across racial groups. A consistently lower hit rate for a particular group suggests that police may be applying the legal threshold of *reasonable suspicion* less stringently for that group, raising concerns about racial profiling.
+
+This report compares the hit rates for **six racial appearance groups**—**African, Asian, Aboriginal, South Asian, Middle Eastern**, and **Pacific Islander**—against those perceived to be **White**. These comparisons aim to detect **disparities in the likelihood of contraband being found**, which may indicate racially biased decision-making in discretionary policing.
+
+Because **policing practices and public movement patterns can vary by year**, especially in light of COVID-19 disruptions in 2020 and 2021, the analysis controls for **year of search** to ensure that observed differences are not confounded by broader temporal shifts. By statistically adjusting for year, this analysis isolates the effect of racial appearance on search outcomes, providing a clearer picture of potential bias in police decision-making.
+
+# About the Data
+
+The data comes from *The Racial Profiling Data Monitoring Project*, which collated records of discretionary drug searches conducted by Victoria Police across **metropolitan Melbourne**. Searches from **2020 and 2021** were excluded due to the abnormal conditions of the COVID-19 pandemic, which significantly altered police activity and public mobility.
+
+Under **section 82 of the Drugs, Poisons and Controlled Substances Act 1981 (Vic)**, officers may stop and search people in public places if they have *reasonable grounds* to suspect drug possession. Drug searches are the most common form of warrantless search in Victoria Police operations.
+
+# Racial Appearance Categories
+
+Victoria Police policy requires officers to record the **perceived racial appearance** of individuals subject to stop and search. These categories reflect the officer’s visual perception and not the person’s actual ethnicity or self-identified background.
+
+Of the **13,896 available records**, **2,860 (21%)** were excluded due to missing racial appearance data, despite the field being mandatory since 2019. In **2022 and 2023**, Victoria Police also merged *Middle Eastern* and *Mediterranean* categories into a single unusable grouping. These, along with all records from low-frequency race categories (under 100 observations) or indeterminate classifications, were excluded from this analysis.
+
+The final sample includes **9,584 records**. This means over **31% of records were excluded**, highlighting a major concern: Victoria Police must urgently improve the **quality and consistency of racial appearance data collection**, particularly when exercising discretionary powers such as stop and search. Without reliable data, transparency and accountability are severely undermined.
+
+# Methodology
+
+This analysis uses **hit rate benchmarking**, a method widely adopted in racial profiling research (see Gelman, Fagan & Kiss, 2007; Open Justice Project, 2023), to evaluate whether **reasonable suspicion** is applied equitably.
+
+If individuals of African appearance are consistently found with drugs at lower rates than White individuals, this may indicate a lower evidentiary threshold for conducting searches—suggesting racially biased policing.
+
+To assess where such disparities are most pronounced, the report compares hit rates between these two groups at five geographic levels:
+
+- **Whole of Melbourne (metro aggregate)**  
+- **Police Region**  
+- **Police Division**  
+- **Police Service Area (PSA)**  
+- **Individual Police Stations**  
+
+This multi-level approach allows us to identify whether disparities are widespread or driven by specific police units or local cultures, providing a more granular picture of racial bias in discretionary policing practices.
 ```{r load-packages-and-data, include=FALSE, warning=FALSE, message=FALSE}
 knitr::opts_chunk$set(results = "asis")
 
@@ -27,7 +74,7 @@ library(DT)
 library(writexl)
 library(viridis)
 
-dat <- readRDS("../Output.data/Clean.search.data.RDS")
+dat <- readRDS("../VicPol Search Data Clean/Clean.search.data.RDS")
 
 division_lga_lookup <- dat %>%
   filter(
@@ -43,37 +90,11 @@ division_lga_lookup <- dat %>%
   )
 ```
 
-# About the data  
+## Adjusted Comparison of Hit Rates by Racial Appearance
 
-This report summarises over 13,000 warrantless drug searches conducted by uniformed Victoria Police officers while patrolling on foot in public places in Melbourne. The data covers the years 2018, 2019, 2022, and 2023, and is sourced from [**The Racial Profiling Data Monitoring Project**](https://khaki-pepper-b3rf.squarespace.com/). Data from 2020 and 2021 is excluded due to the extraordinary circumstances of the COVID-19 pandemic.
+We use a binomial logistic regression to model the probability of a "hit" (drugs found), controlling for **year of search**. The reference group for race is **White**, and all coefficients are interpreted relative to this group.
 
-Under section 82 of the [*Drugs, Poisons and Controlled Substances Act 1981*](http://classic.austlii.edu.au/au/legis/vic/consol_act/dpacsa1981422/s82.html), a police officer may stop and search a person in a public place if they reasonably suspect the person is in possession of illegal drugs. Drug searches are the most common type of warrantless search carried out by police in Victoria.
-
-## Racial appearance categories
-
-Victoria Police records the perceived racial appearance of individuals subjected to stop and search. These categories are based on the officer’s perception, not the individual's self-reported ancestry or identity.
-
-**Missing data:**  
-Racial appearance was not recorded in 2,860 search records — approximately 21% of all records — despite being a mandatory field for stop and search data collection since 2019.
-
-# Methodology  
-
-The following sections present **hit rate analyses**—the proportion of stop and searches that resulted in the discovery of illegal drugs—for different racial appearance groups across metropolitan Melbourne. A **hit rate** is widely used in policing research to evaluate whether stop and search practices are effectively identifying contraband, and to assess whether they are applied equitably across racial groups.
-
-This analysis specifically compares hit rates for people recorded by police as being of **African appearance** and those of **White appearance**. Comparing these two groups helps assess whether individuals of African appearance are being subjected to searches based on weaker suspicion. If hit rates are consistently lower for African appearing individuals, it may indicate that racial profiling is influencing police decision-making.
-
-Hit rate comparisons are presented at five geographic levels:
-- **Whole of Melbourne** (Metro area aggregate),
-- **Police Region**,
-- **Police Division**,
-- **Police Service Area (PSA)**, and
-- **Individual Police Stations**.
-
-## Whole of Melbourne
-
-### Data summary - Melbourne 
-
-```{r hit-rate-all-races-final,  echo=FALSE}
+```{r logistic-regression-hitrate, message=FALSE, warning=FALSE, echo = FALSE}
 # Filter and prepare data
 cleaned_data <- dat %>%
   filter(
@@ -81,7 +102,7 @@ cleaned_data <- dat %>%
     Area.type == "Metro",
     !is.na(`Search.type - Drugs`),
     !is.na(Found),
-    !is.na(Racial.appearance.transformed),
+    !Racial.appearance.transformed %in% c("Missing", "Other", "South American", "Mediterranean/Middle Eastern – Unusable"),
     !is.na(Station.uniform)
   ) %>%
   mutate(
@@ -89,8 +110,128 @@ cleaned_data <- dat %>%
     Race = Racial.appearance.transformed
   )
 
-# List categories to appear last
-special_groups <- c("Mediterranean/Middle Eastern – Unusable", "Missing")
+# Filter dataset
+model_data <- cleaned_data %>%
+  filter(
+    Race %in% c("White", "African", "Asian", "Aboriginal", "South Asian", "Middle Eastern", "Pacific Islander"),
+    !is.na(Year)
+  ) %>%
+  mutate(
+    Race = factor(Race, levels = c("White", "African", "Asian", "Aboriginal", "South Asian", "Middle Eastern", "Pacific Islander")),
+    Year = as.factor(Year)
+  )
+
+# Logistic regression model
+model <- glm(Found.Flag ~ Race + Year, data = model_data, family = binomial)
+
+# Tidy model with odds ratios and CIs
+results <- tidy(model, conf.int = TRUE, exponentiate = TRUE) %>%
+  filter(grepl("^Race", term)) %>%
+  mutate(
+    Race = gsub("Race", "", term),
+    p.value = round(p.value, 4),
+    OR = round(estimate, 2),
+    CI = paste0("(", round(conf.low, 2), ", ", round(conf.high, 2), ")"),
+    Sig = ifelse(p.value < 0.05, "*", "")
+  ) %>%
+  select(Race, OR, CI, p.value, Sig)
+
+# Add reference group
+white_row <- data.frame(
+  Race = "White (ref)",
+  OR = 1.00,
+  CI = "(ref)",
+  p.value = NA,
+  Sig = ""
+)
+
+final_table <- bind_rows(white_row, results)
+
+# Display as nice markdown table
+kable(final_table,
+      caption = "Adjusted Odds Ratios for Drug Search Hits by Racial Appearance (Reference: White)",
+      align = "lccrc") %>%
+  kable_styling(full_width = FALSE, position = "left")
+```
+
+### Interpretation of Results
+
+The table above presents **adjusted odds ratios** comparing the likelihood that a drug search resulted in a **"hit"** (drugs found) for each racial appearance group, relative to individuals perceived by police as **White**. The model controls for **year of search**, helping to isolate the effect of racial appearance from broader shifts in policing practices or public behaviour across time.
+
+- An **odds ratio (OR) below 1** means the group was **less likely** than White individuals to have drugs found during a search.
+- An OR of **1** indicates **no difference**.
+- An asterisk (*) marks results that are **statistically significant** (*p* < 0.05).
+
+**Key findings:**
+
+- **South Asian** individuals were **36% less likely** to have a drug search result in a hit compared to White individuals (*OR = 0.64, p = 0.0275*). This statistically significant result suggests a **lower threshold of suspicion** may be applied when stopping and searching South Asian people.
+- **African** individuals were **22% less likely** to yield a drug find (*OR = 0.78, p = 0.0381*), also a statistically significant disparity.
+- Other groups—**Asian**, **Aboriginal**, **Middle Eastern**, and **Pacific Islander**—also showed lower odds of a drug find compared to White individuals, but these differences were **not statistically significant** in this model.
+
+These findings indicate that **South Asian and African** individuals are more likely to be searched **without sufficient grounds**, reinforcing long-standing concerns about **racial profiling** in Victoria Police’s use of discretionary stop and search powers. The disparities persisted even after controlling for **year of search**, suggesting they are not explained by shifting policing patterns over time.
+
+
+## Search Counts by Race and Police Region
+
+The following table presents a **descriptive summary** of drug searches by racial appearance and Victoria Police Region. This analysis is **exploratory** and aims to illustrate the geographic distribution of search activity across major operational areas.
+
+No statistical testing has been conducted in this section. Therefore, the figures should be interpreted with **caution**. Apparent differences between regions or racial groups may be due to a range of factors, and no conclusions should be drawn about disparities or bias without further statistical analysis to control for confounding variables.
+
+# Introduction
+
+This report examines evidence of racial profiling in drug-related stop and search practices conducted by Victoria Police in Melbourne. It draws on over **13,000 records of warrantless drug searches** conducted by **uniformed officers on foot patrol in public places** during the years **2018, 2019, 2022, and 2023**. By comparing *hit rates*—the proportion of searches that result in a drug find—for people perceived by police as of **African appearance** versus those perceived as **White**, the analysis seeks to identify disparities that may indicate racially biased policing practices.
+
+# About the Data
+
+The data used in this report comes from *The Racial Profiling Data Monitoring Project*, which compiled records of discretionary drug searches carried out by Victoria Police across **metropolitan Melbourne**. Searches from **2020 and 2021** were excluded due to the exceptional conditions of the COVID-19 pandemic, which significantly altered policing patterns and public mobility.
+
+Under **section 82 of the Drugs, Poisons and Controlled Substances Act 1981 (Vic)**, police may stop and search individuals in public places if they have *reasonable grounds* to suspect drug possession. Drug searches are the most frequently used form of warrantless search conducted by Victoria Police.
+
+# Racial Appearance Categories
+
+Victoria Police officers are required to record the **perceived racial appearance** of individuals during stop and search encounters. These categories are based on the officer’s visual assessment, not the individual's self-identification or background.
+
+Of the **13,896 records** initially available, **2,860 (approximately 21%)** were excluded from the analysis due to missing racial appearance data—despite this being a mandatory field since 2019. In **2022 and 2023**, Victoria Police also amalgamated the *Middle Eastern* and *Mediterranean* categories, rendering them analytically unusable; these records were also filtered out.
+
+To ensure statistical validity, racial appearance groups with **fewer than 100 observations**, or where police were **unable to determine a racial category**, were relabelled as **"Other"** and excluded from the primary analysis.
+
+As a result, only **4,312 of the original 13,896 records** were retained, meaning **over 31% of records were excluded**. This significant data loss reflects a broader issue: **Victoria Police must urgently improve the quality, consistency, and completeness of its racial data collection practices**—especially in the exercise of discretionary powers. Without reliable and usable data, efforts to identify and address racial disparities in policing remain compromised.
+
+# Methodology
+
+This analysis focuses on detecting **racial profiling against people recorded as being of African appearance**, using the **hit rate method**—a widely recognised tool in policing research for assessing the fairness and effectiveness of search practices. A *hit rate* is the percentage of searches that result in the discovery of contraband.
+
+Disproportionately low hit rates for a particular group suggest that the legal standard of *reasonable suspicion* is being applied more leniently, raising concerns of discrimination and misuse of police discretion.
+
+This report specifically compares **hit rates for people perceived as African** with those perceived as **White**, across five levels of geography:
+
+- Whole of Melbourne (metropolitan aggregate)  
+- Police Region  
+- Police Division  
+- Police Service Area (PSA)  
+- Individual Police Stations  
+
+This approach aligns with established frameworks in racial profiling research, including **Gelman, Fagan & Kiss (2007)** and the **Open Justice Project (2023)**, which emphasise geographic disaggregation and benchmarking as essential tools for accountability.
+
+
+### Data summary - Melbourne 
+
+```{r hit-rate-all-races-final, echo=FALSE}
+
+# Filter and prepare data
+cleaned_data <- dat %>%
+  filter(
+    Contact.Type == "P",
+    Area.type == "Metro",
+    !is.na(`Search.type - Drugs`),
+    !is.na(Found),
+    !Racial.appearance.transformed %in% c("Missing", "Other", "South American", "Mediterranean/Middle Eastern – Unusable"),
+    !is.na(Station.uniform)
+  ) %>%
+  mutate(
+    Found.Flag = ifelse(Found == "Yes", 1, 0),
+    Race = Racial.appearance.transformed
+  )
 
 # Summarise by race
 race_hit_rates <- cleaned_data %>%
@@ -102,29 +243,41 @@ race_hit_rates <- cleaned_data %>%
     .groups = "drop"
   )
 
-# Reorder by descending Searches, with special groups last
-ordered_non_special <- race_hit_rates %>%
-  filter(!Race %in% special_groups) %>%
-  arrange(desc(Searches)) %>%
-  pull(Race)
+# Create total row
+total_row <- cleaned_data %>%
+  summarise(
+    Race = "Total",
+    Searches = n(),
+    Hits = sum(Found.Flag),
+    `Hit Rate` = round(mean(Found.Flag), 3)
+  )
 
-final_order <- c(ordered_non_special, special_groups)
-
-# Apply ordering
-race_hit_rates <- race_hit_rates %>%
-  mutate(Race = factor(Race, levels = final_order)) %>%
+# Bind and order: descending by Searches, Total last
+race_hit_rates <- bind_rows(race_hit_rates, total_row) %>%
+  mutate(Race = factor(Race, levels = c(
+    race_hit_rates %>% arrange(desc(Searches)) %>% pull(Race),
+    "Total"
+  ))) %>%
   arrange(Race)
 
 # Display table
 kable(
   race_hit_rates,
-  caption = "Drug Searches, Hits, and Hit Rates by Racial Appearance (Metro Victoria, Uniform police at Stations)",
+  caption = "Drug Searches, Hits, and Hit Rates by Racial Appearance (Metro Victoria, Uniform Police at Stations)",
   align = "lrrr"
 )
+
+
 
 ```
 
 ### Hit rate analysis - Melbourne 
+
+
+
+
+
+
 
 
 ```{r prop-test-all,  echo = FALSE}
@@ -209,70 +362,6 @@ kable(
 )
 ```
 
-
-## Police region level 
-
-### Data overview - Region
-
-```{r race-tally-by-region-wide,  echo=FALSE}
-
-
-# Step 1: Define ordered race levels
-special_races <- c("Mediterranean/Middle Eastern – Unusable", "Missing")
-first_race <- "White"
-
-ordered_races <- dat %>%
-  filter(!is.na(Racial.appearance.transformed)) %>%
-  distinct(Racial.appearance.transformed) %>%
-  pull() %>%
-  unique() %>%
-  {c(first_race, sort(setdiff(., c(first_race, special_races))), special_races)}
-
-# Step 2: Prepare data
-region_data <- dat %>%
-  filter(
-    Contact.Type == "P",
-    Area.type == "Metro",
-    !is.na(`Search.type - Drugs`),
-    !is.na(Found),
-    !is.na(Racial.appearance.transformed),
-    !is.na(Region)
-  ) %>%
-  mutate(
-    Found.Flag = ifelse(Found == "Yes", 1, 0),
-    Race = Racial.appearance.transformed
-  )
-
-# Step 3: Summarise
-region_summary_long <- region_data %>%
-  group_by(Region, Race) %>%
-  summarise(
-    Searches = n(),
-    Hits = sum(Found.Flag),
-    HitRate = round(mean(Found.Flag), 3),
-    .groups = "drop"
-  ) %>%
-  mutate(
-    label = paste0(Searches, " (", sprintf("%.1f", HitRate * 100), "%)"),
-    Race = factor(Race, levels = ordered_races)
-  ) %>%
-  select(Region, Race, label)
-
-# Step 4: Pivot and reorder columns explicitly
-region_table <- region_summary_long %>%
-  pivot_wider(names_from = Race, values_from = label) %>%
-  select(Region, all_of(ordered_races))  # Force column order
-
-write_xlsx(region_table, "region_race_table_summary.xlsx")
-
-# Step 5: Display
-kable(
-  region_table,
-  caption = "Drug Searches and Hit Rates by Racial Appearance (Metro Victoria, by Region)",
-  align = "l"
-)
-
-```
 
 ### Hit rate analysis - Region  
 
@@ -369,84 +458,6 @@ kable(
 ```
 
 
-
-## Police Division level  
-
-### Data overview - Division 
-
-
-```{r division-hit-rate-summary, echo=FALSE}
-library(tidyverse)
-library(knitr)
-library(kableExtra)
-
-# Step 1: Define ordered race levels
-special_races <- c("Mediterranean/Middle Eastern – Unusable", "Missing")
-first_race <- "White"
-
-ordered_races <- dat %>%
-  filter(!is.na(Racial.appearance.transformed)) %>%
-  distinct(Racial.appearance.transformed) %>%
-  pull() %>%
-  unique() %>%
-  {c(first_race, sort(setdiff(., c(first_race, special_races))), special_races)}
-
-# Step 2: Create Division → LGA lookup
-division_lga_lookup <- dat %>%
-  filter(Area.type == "Metro", !is.na(Division), !is.na(Local.Government.Area)) %>%
-  distinct(Division, Local.Government.Area) %>%
-  group_by(Division) %>%
-  summarise(
-    LGAs = paste(sort(unique(Local.Government.Area)), collapse = ", "),
-    .groups = "drop"
-  )
-
-# Step 3: Prepare Division-level data
-division_data <- dat %>%
-  filter(
-    Contact.Type == "P",
-    Area.type == "Metro",
-    !is.na(`Search.type - Drugs`),
-    !is.na(Found),
-    !is.na(Racial.appearance.transformed),
-    !is.na(Division)
-  ) %>%
-  mutate(
-    Found.Flag = ifelse(Found == "Yes", 1, 0),
-    Race = Racial.appearance.transformed
-  )
-
-# Step 4: Summarise by Division and Race
-division_summary_long <- division_data %>%
-  group_by(Division, Race) %>%
-  summarise(
-    Searches = n(),
-    Hits = sum(Found.Flag),
-    HitRate = round(mean(Found.Flag), 3),
-    .groups = "drop"
-  ) %>%
-  mutate(
-    label = paste0(Searches, " (", sprintf("%.1f", HitRate * 100), "%)"),
-    Race = factor(Race, levels = ordered_races)
-  ) %>%
-  select(Division, Race, label)
-
-# Step 5: Pivot wide and join LGAs
-division_table <- division_summary_long %>%
-  pivot_wider(names_from = Race, values_from = label) %>%
-  left_join(division_lga_lookup, by = "Division") %>%
-  relocate(LGAs, .after = Division) %>%
-  select(Division, LGAs, all_of(ordered_races))
-
-write_xlsx(division_table, "division_race_search_summary.xlsx")
-
-# Step 6: Display table (plain)
-kable(
-  division_table,
-  caption = "Drug Searches and Hit Rates by Racial Appearance (Metro Victoria, by Division)",
-  align = "ll"
-)
-```
 
 ### Hit rate analysis - Division  
 
@@ -578,8 +589,8 @@ datatable(
     dom = 'Bfrtip',
     buttons = list('copy', 'excel'),
     scrollX = TRUE,
-    pageLength = 10,
-    lengthMenu = c(10, 20, 50),
+    pageLength = 5,  # Set default rows per page to 5
+    lengthMenu = c(5, 10, 20, 50),  # Include 5 in the page size options
     autoWidth = TRUE,
     columnDefs = list(
       list(width = '300px', targets = 1)
@@ -594,105 +605,12 @@ datatable(
 )
 
 
-```
-
-## Police Servic Area level  
-
-### Data overview - PSA
-
-```{r summary PSA, echo= FALSE, warning = FALSE, message = FALSE}
-
-
-# Step 1: Define racial appearance ordering
-special_races <- c("Mediterranean/Middle Eastern – Unusable", "Missing")
-first_race <- "White"
-
-ordered_races <- dat %>%
-  filter(!is.na(Racial.appearance.transformed)) %>%
-  distinct(Racial.appearance.transformed) %>%
-  pull() %>%
-  unique() %>%
-  {c(first_race, sort(setdiff(., c(first_race, special_races))), special_races)}
-
-# Step 2: Create PSA → LGA lookup table
-psa_lga_lookup <- dat %>%
-  filter(Area.type == "Metro", !is.na(Station.uniform), !is.na(Local.Government.Area)) %>%
-  distinct(Police.Service.Area, Local.Government.Area) %>%
-  group_by(Police.Service.Area) %>%
-  summarise(
-    LGAs = paste(sort(unique(Local.Government.Area)), collapse = ", "),
-    .groups = "drop"
-  )
-
-# Step 3: Prepare PSA-level summary
-psa_summary_long <- dat %>%
-  filter(
-    Contact.Type == "P",
-    Area.type == "Metro",
-    !is.na(Found),
-    !is.na(`Search.type - Drugs`),
-    !is.na(Racial.appearance.transformed),
-    !is.na(Station.uniform)
-  ) %>%
-  mutate(
-    Found.Flag = ifelse(Found == "Yes", 1, 0),
-    Race = Racial.appearance.transformed
-  ) %>%
-  group_by(Police.Service.Area, Race) %>%
-  summarise(
-    Searches = n(),
-    Hits = sum(Found.Flag),
-    HitRate = round(mean(Found.Flag), 3),
-    .groups = "drop"
-  ) %>%
-  mutate(
-    label = paste0(Searches, " (", sprintf("%.1f", HitRate * 100), "%)"),
-    Race = factor(Race, levels = ordered_races)
-  ) %>%
-  select(Police.Service.Area, Race, label)
-
-# Step 4: Pivot wide and join LGAs
-psa_table <- psa_summary_long %>%
-  pivot_wider(names_from = Race, values_from = label) %>%
-  left_join(psa_lga_lookup, by = "Police.Service.Area") %>%
-  relocate(LGAs, .after = Police.Service.Area) %>%
-  select(`Police Service Area` = Police.Service.Area, LGAs, all_of(ordered_races))
-
-# Step 5: Export to Excel
-write_xlsx(psa_table, "psa_racial_search_summary.xlsx")
-
-# Step 6: Display interactive table with download button
-datatable(
-  psa_table,
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Bfrtip',
-    buttons = list('copy', 'excel'),
-    scrollX = TRUE,
-    pageLength = 15,
-    autoWidth = TRUE,
-    columnDefs = list(
-      list(width = '300px', targets = 1)  # Widen LGA column
-    )
-  ),
-  rownames = FALSE,
-  class = 'compact stripe hover',
-  caption = htmltools::tags$caption(
-    style = 'caption-side: top; text-align: left; font-weight: bold;',
-    'Drug Searches and Hit Rates by Racial Appearance (Metro Victoria, by PSA)'
-  )
-)
 
 ```
-
 ### Hit rate analysis - PSA
 
 ```{r hit rate psa, echo = FALSE, message = FALSE, warning = FALSE}
 
-library(tidyverse)
-library(broom)
-library(DT)
-library(writexl)
 
 # Step 1: Summarise data by PSA and Race
 psa_summary <- dat %>%
@@ -787,7 +705,7 @@ datatable(
     dom = 'Bfrtip',
     buttons = list('copy', 'excel'),
     scrollX = TRUE,
-    pageLength = 15,
+    pageLength = 5,  # Set default rows per page
     autoWidth = TRUE,
     columnDefs = list(
       list(width = '250px', targets = 0)
@@ -801,84 +719,8 @@ datatable(
   )
 )
 
-```
-## Station level  
-
-### Data overview - Station 
-
-
-
-```{r summarise-station-level-hit-rates,  echo=FALSE, warning=FALSE, message = FALSE}
-
-
-
-# Step 1: Define racial ordering
-special_races <- c("Mediterranean/Middle Eastern – Unusable", "Missing")
-first_race <- "White"
-
-ordered_races <- dat %>%
-  filter(!is.na(Racial.appearance.transformed)) %>%
-  distinct(Racial.appearance.transformed) %>%
-  pull() %>%
-  unique() %>%
-  {c(first_race, sort(setdiff(., c(first_race, special_races))), special_races)}
-
-# Step 2: Summarise searches and hit rates by Station
-station_summary_long <- dat %>%
-  filter(
-    Contact.Type == "P",
-    Area.type == "Metro",
-    !is.na(Found),
-    !is.na(`Search.type - Drugs`),
-    !is.na(Racial.appearance.transformed),
-    !is.na(Station.uniform)
-  ) %>%
-  mutate(
-    Found.Flag = ifelse(Found == "Yes", 1, 0),
-    Race = Racial.appearance.transformed
-  ) %>%
-  group_by(Station.uniform, Race) %>%
-  summarise(
-    Searches = n(),
-    Hits = sum(Found.Flag),
-    HitRate = round(mean(Found.Flag), 3),
-    .groups = "drop"
-  ) %>%
-  mutate(
-    label = paste0(Searches, " (", sprintf("%.1f", HitRate * 100), "%)"),
-    Race = factor(Race, levels = ordered_races)
-  ) %>%
-  select(Station.uniform, Race, label)
-
-# Step 3: Pivot wide
-station_table <- station_summary_long %>%
-  pivot_wider(names_from = Race, values_from = label) %>%
-  select(Station = Station.uniform, any_of(ordered_races))
-
-# Step 4: Save Excel file
-write_xlsx(station_table, "station_racial_search_summary.xlsx")
-
-# Step 5: Display interactive datatable
-datatable(
-  station_table,
-  extensions = 'Buttons',
-  options = list(
-    dom = 'Bfrtip',
-    buttons = list('copy', 'excel'),
-    scrollX = TRUE,
-    pageLength = 15,
-    autoWidth = TRUE
-  ),
-  rownames = FALSE,
-  class = 'compact stripe hover',
-  caption = htmltools::tags$caption(
-    style = 'caption-side: top; text-align: left; font-weight: bold;',
-    'Drug Searches and Hit Rates by Racial Appearance (Metro Victoria, by Police Station)'
-  )
-)
 
 ```
-
 
 ### Hit rate analysis - Station
 
@@ -949,9 +791,7 @@ station_results <- station_summary %>%
       p.value < 0.05 & African_HitRate > White_HitRate ~ "African-appearing people searched on stronger suspicion",
       TRUE ~ "No statistically significant difference"
     )
-  ) %>%
-
-  select(
+  ) %>%  select(
     Station = Station.uniform,
     `Searches (African)` = Total_Searches.African,
     `Searches (White)` = Total_Searches.White,
@@ -967,7 +807,23 @@ station_results <- station_summary %>%
   ) %>%
   arrange(`P-value`)
 
-
+DT::datatable(
+  station_results,
+  extensions = 'Buttons',
+  options = list(
+    dom = 'Bfrtip',
+    buttons = list('copy', 'excel'),
+    scrollX = TRUE,
+    pageLength = 5,
+    autoWidth = TRUE
+  ),
+  rownames = FALSE,
+  class = 'compact stripe hover',
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: left; font-weight: bold;',
+    'Drug Search Hit Rate Comparison by Police Station (African vs White)'
+  )
+)
 
 ```
 
