@@ -84,7 +84,7 @@ To request commercial licensing, please contact: [your.email@example.com]
 
 If you use this dataset, please cite it as:
 
-> Sarder, M. (2025). *VicPol Racial Profiling Dataset: Warrantless Searches by Victoria Police, 2018–2023* [Data set]. GitHub. https://github.com/your-username/your-repo
+> Sarder, M. (2025). *VicPol Racial Profiling Dataset: Warrantless Searches by Victoria Police, 2018–2023* [Data set]. GitHub. https://github.com/monikasarder/VictoriaPoliceRacialSearch
 
 ---
 
