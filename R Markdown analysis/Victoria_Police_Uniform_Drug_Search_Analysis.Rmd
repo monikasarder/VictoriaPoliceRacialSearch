@@ -29,12 +29,6 @@ library(viridis)
 
 dat <- readRDS("../Output.data/Clean.search.data.RDS")
 
-dat <- dat %>%
-  mutate(Racial.appearance.transformed = case_when(
-      Racial.appearance.transformed == "Mediterranean AND Middle Eastern - DO NOT USE" ~ "Mediterranean/Middle Eastern – Unusable",
-      TRUE ~ Racial.appearance.transformed
-    ))
-
 division_lga_lookup <- dat %>%
   filter(
     Area.type == "Metro",

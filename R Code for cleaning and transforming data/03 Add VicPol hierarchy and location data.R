@@ -8,8 +8,8 @@ library(openxlsx)
 # ------------------------------------------------------------
 
 # Load 2018-19 and 2022-23 data
-dat1 <- readRDS("./Output.data/data.18.19.wrangled.RDS")
-dat2 <- readRDS("./Output.data/data.22.23.wrangled.RDS")
+dat1 <- readRDS( "R Code for cleaning and transforming data/Processed/data.18.19.wrangled.RDS")
+dat2 <- readRDS( "R Code for cleaning and transforming data/Processed/data.22.23.wrangled.RDS")
 
 # Combine datasets
 dat <- rbind(dat1, dat2) %>%
@@ -32,7 +32,7 @@ dat <- dat %>%
 # ------------------------------------------------------------
 # Read PSA and LGA data
 # ------------------------------------------------------------
-psadat <- read_xlsx("Secondary and intermediate datasets/geographicclassification.xlsx",
+psadat <- read_xlsx("./Primary datasets - VicPol Search/geographicclassification.xlsx",
                     skip = 12, .name_repair = "universal") %>%
   fill(names(.)) %>%
   filter(!is.na(Police.Service.Area), Police.Service.Area != "Police Service Area") %>%
@@ -41,7 +41,7 @@ psadat <- read_xlsx("Secondary and intermediate datasets/geographicclassificatio
 # ------------------------------------------------------------
 # Read VicPol hierarchy data
 # ------------------------------------------------------------
-hierdat1 <- read_xlsx("Secondary and intermediate datasets/Victoria-Police-employee-numbers-June-2024.xlsx",
+hierdat1 <- read_xlsx("./Primary datasets - VicPol Search/Victoria-Police-employee-numbers-June-2024.xlsx",
                       skip = 8, .name_repair = "universal") %>%
   select(1:2, 4, 6, 8, 9, 10)
 
@@ -77,7 +77,7 @@ hierdat <- hierdat1 %>%
 # ------------------------------------------------------------
 # Read and clean station-to-LGA data
 # ------------------------------------------------------------
-sta.lga <- read_excel("Secondary and intermediate datasets/Police.station.location.xlsx")
+sta.lga <- read_excel("./Primary datasets - VicPol Search/Police.station.location.xlsx")
 
 sta.lga1 <- sta.lga %>%
   mutate(LGA = gsub(" Shire Council.*$| City Council.*$| Rural.*$| Borough Council.*$", "", Municipality),
@@ -107,7 +107,7 @@ dat <- dat %>%
 dat.hier <- dat %>%
   left_join(sta.hier, by = "Unit")
 
-categories <- read_xlsx("Secondary and intermediate datasets/Council-category-data.xlsx")
+categories <- read_xlsx("./Primary datasets - VicPol Search/Council-category-data.xlsx")
 
 dat.hier <- dat.hier %>%
   left_join(categories, by = "Local.Government.Area") %>%
@@ -166,7 +166,7 @@ dat.sr2 <- dat.sr2 %>%
   mutate(Racial.appearance.transformed = case_when(
     Racial.appearance == "Other" ~ "Other",
     is.na(Racial.appearance) ~ "Missing",
-    Racial.appearance == "Mediterarranean/Mid" ~ "Mediterranean AND Middle Eastern - DO NOT USE",
+    Racial.appearance == "Mediterarranean/Mid" ~ "Mediterranean/Middle Eastern – Unusable",
     TRUE ~ Racial.appearance
   ))
 
@@ -198,11 +198,11 @@ dat.sr3 <- dat.sr2 %>%
 # ------------------------------------------------------------
 # Save outputs
 # ------------------------------------------------------------
-saveRDS(dat.sr3, "Output.data/Clean.search.data.RDS")
+saveRDS(dat.sr3, "VicPol Search Data Clean/Clean.search.data.RDS")
 
-wb <- loadWorkbook("VicPol Search data for analysis.xlsx")
+wb <- loadWorkbook("VicPol Search Data Clean/VicPol Search data for analysis.xlsx")
 writeData(wb, sheet = "Data", x = dat.sr3)
-saveWorkbook(wb, "VicPol Search data for analysis.xlsx", overwrite = TRUE)
+saveWorkbook(wb, "VicPol Search Data Clean/VicPol Search data for analysis.xlsx", overwrite = TRUE)
 
-table(dat.sr3$Racial.appearance.transformed)
+
 

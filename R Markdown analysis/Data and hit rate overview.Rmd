@@ -24,43 +24,50 @@ library(janitor)
 library(DT)
 library(writexl)
 
-dat <- readRDS("../Output.data/Clean.search.data.RDS")
+dat <- readRDS("../VicPol Search Data Clean/Clean.search.data.RDS")
 
 
 ```
 
-# Victoria Police Search Data 
+# Victoria Police Search Data
 
-This dataset, which contains the summary of over 50,000 searches carried out by Victoria Police in the years 2018, 2019, 2022 and 2023, was provided by the [**The Racial Profiling Data Monitoring Project**](https://khaki-pepper-b3rf.squarespace.com/), a project of the [Centre Against Racial Profiling](https://www.centreagainstracialprofiling.au/).  
+This dataset contains information on over 50,000 warrantless searches conducted by Victoria Police in the years **2018, 2019, 2022, and 2023**. It was obtained through the [**Racial Profiling Data Monitoring Project**](https://khaki-pepper-b3rf.squarespace.com/), an initiative of the [Centre Against Racial Profiling](https://www.centreagainstracialprofiling.au/).
 
-Note that 2020 and 2021 data is not included in this data due to the extraordinary circumstances of the COVID 19 pandemic, which are not a sound basis for inference regarding behaviour during non-pandemic periods.
+You can download the cleaned dataset used in this analysis as an Excel file from the GitHub repository:  
+[**Download VicPol Search Data Clean.xlsx**](https://github.com/monikasarder/VictoriaPoliceRacialSearch/raw/main/VicPol%20Search%20Data%20Clean/VicPol%20Search%20Data%20Clean.xlsx)
 
-## Search types in scope 
-There are five types of searches without a warrant included in this dataset. These represent searches that can be undertaken where an officer has 'reasonable grounds' to suspect that a person was in possession of a prohibited item specified as part of that search power. 
 
-* **Drugs**: under the section 82 of the *Drugs Poisons and Controlled Substances Act 1981* 
-* **Volatile substances for inhalation** for use by a person under 18: under sections 60E and 60F of the *Drugs Poisons and Controlled Substances Act 1981*  
-* **Weapons or dangerous articles**: under *Section 10 Control of Weapons Act 1990*  
-* **Firearms**: under section 149 of the *Firearms Act 1996*   
-* **Graffiti implements** at a designated place: under section 13 of the *Graffiti Prevention Act*  
+> **Note:**  
+> Data for 2020 and 2021 is not included due to the extraordinary and atypical policing context of the COVID-19 pandemic. These years are excluded to avoid drawing misleading inferences about standard police practices.
 
-Almost 90 percent of searches were for drugs.  Note that some individuals were searched under multiple powers (eg where the officer stated that they had reasonable grounds to suspect the person had both weapons *and* drugs).
+## Search Types in Scope
 
-## Ethnic appearance categories  
+The dataset includes records of five types of **warrantless searches**, each of which requires that a police officer has *reasonable grounds* to suspect the person is in possession of a prohibited item relevant to that search power:
 
-Victoria Police records the ethnic appearance of the people that they search without warrant based on existing categories. These categories are not based on ancestry information, but on *perceived ethnicity* as considered by the officer. 
+- **Drugs**: Section 82, *Drugs, Poisons and Controlled Substances Act 1981*  
+- **Volatile substances for inhalation** (under 18s): Sections 60E–60F, *Drugs, Poisons and Controlled Substances Act 1981*  
+- **Weapons or dangerous articles**: Section 10, *Control of Weapons Act 1990*  
+- **Firearms**: Section 149, *Firearms Act 1996*  
+- **Graffiti implements** (at designated places): Section 13, *Graffiti Prevention Act*  
 
-***Missing data***
+Nearly **90%** of searches were conducted under drug search powers. Some individuals were searched under multiple powers (e.g. both drug and weapon suspicions), and this is reflected in the dataset.
 
-A total of 22,117 search records, or 42% of all records, did not have any ethnic appearance data entered, despite this field being mandatory for 'stop and searches' since 2019. Records where the officer was unable to determine the ethnic appearance were marked as 'Other'.
+## Ethnic Appearance Categories
 
-***Middle Eastern appearance data limitations***  
+Victoria Police records the **perceived ethnic appearance** of individuals searched, based on officer observation. These categories reflect *perceived ethnicity*, not self-identification or ancestry data.
 
-There is a limitation on our ability to analyse police-targeting of people of Middle Eastern appearance, as in 2020 Victoria Police aggregated Mediterranean and Middle Eastern into a single category.  This presents a challenge to our analysis, as we would ordinarily expect persons of Mediterranean descent to be categorised as 'non-racialised' or 'White'.  Meanwhile we would ordinarily expect persons of the Middle Eastern appearance to be considered 'racialised'.  
+### Missing Data
 
-# Summary statistics  
+A significant portion of records — **22,117 searches or 42%** — lack ethnic appearance data, despite this field being mandatory for stop and search events since 2019. In cases where ethnicity could not be determined, officers used the category **‘Other’**.
 
-The variables of interest in the dataset are summarised in Table 1 below.  
+### Middle Eastern Category Limitation
+
+In 2020, Victoria Police merged the **‘Middle Eastern’** and **‘Mediterranean’** appearance categories into one. This limits the ability to meaningfully assess searches involving people of Middle Eastern appearance. Typically, people of Mediterranean descent might be categorised as *non-racialised* or *White*, while people of Middle Eastern appearance are more likely to be viewed as *racialised*. The aggregation obscures this distinction and hampers analysis of potential racial profiling.
+
+# Summary Statistics
+
+The table below summarises key variables in the dataset, including demographic fields, search types, and outcomes.
+
 
 **Table 1 Characteristics of searches**
 ```{r summary 2, echo = FALSE, warning = FALSE}
@@ -82,7 +89,8 @@ print(dfSummary(`VicPol station data`,
       method = 'render')
 ```
 
-The breakdown of searches by search type appears in Table 2 below. This has been summarised separately from the main data as some searches involved multiple search types - for example where an officer believed that they had reasonable grounds for suspecting a person was in possession with both drugs *and* weapons.  
+Table 2 below shows the breakdown of searches by search type. This summary is presented separately from the main dataset because some individual searches involved multiple search powers — for example, when an officer believed they had reasonable grounds to suspect a person was carrying both drugs and weapons.
+
 
 **Table 2 Legislative basis for searches**
 ```{r summary search type, echo = FALSE, warning = FALSE}
@@ -109,15 +117,41 @@ print(dfSummary(`Search type`,
           headings = FALSE),
       method = 'render')
 ```
-# Hit rate analysis  
 
-The 'hit rate' is the percentage of searches which resulted in the officer finding contraband as part of the search.  The average hit rate across all searches was 17.2%.
+# Hit Rate Analysis
 
-## Lower hit rates for racialised appearance categories
+The **hit rate** refers to the percentage of searches that resulted in the discovery of contraband. Across all warrantless searches in the dataset, the average hit rate was **17.2%**.
 
-A lower hit rate means that a lower percentage of searches of people in the group are resulting in the discovery of contraband. That is, the 'reasonable grounds' for suspicion is being met more easily on the part of police officers in relation to groups with lower hit rates. This may be due to racial bias, either conscious or unconscious.  For the over-policed group, this is experienced as racial targeting.
+A lower hit rate indicates that police are less likely to find contraband when searching individuals from that group. This suggests that the legal threshold of *reasonable suspicion* may be applied more loosely to some groups — particularly those perceived as racialised. In practice, this can reflect *conscious or unconscious racial bias* and is experienced by affected communities as racial targeting.
 
-Compared with hit rates for people who appeared White (18%), hit rates were much lower for people who appeared African (12.9%), Middle Eastern/Mediterranean (13.8%), Asian (13.7%), South Asian (13.9%) and Aboriginal and Torres Strait Islander (15.6%).  The exception to this is hit rates for people of Pacific Islander appearance (18.8%).
+Compared with people perceived to be **White** (hit rate: **18.0%**), significantly lower hit rates were observed for:
+
+- **African appearance**: 12.9%  
+- **Middle Eastern/Mediterranean**: 13.8%  
+- **Asian appearance**: 13.7%  
+- **South Asian appearance**: 13.9%  
+- **Aboriginal and Torres Strait Islander**: 15.6%  
+
+The only group with a higher hit rate than White-appearing individuals was:
+
+- **Pacific Islander appearance**: 18.8%
+
+These differences were found to be statistically significant using **Pearson’s chi-squared test**.
+
+## Summary of Hit Rates by Ethnic Appearance
+
+Table 3 below presents these hit rates in summary form. It shows the percentage of searches that resulted in the discovery of contraband for each ethnic appearance category as perceived and recorded by Victoria Police officers.
+
+> **Caution:**  
+> A substantial portion of records — over **40%** — are missing ethnic appearance data. While these records are excluded from the breakdown, their absence limits the completeness of this comparison and may affect the generalisability of the findings. The missing data may also reflect systemic issues in data collection and reporting practices.
+
+> **Interpretation note:**  
+> These findings should be interpreted with caution. This summary aggregates **all search types**, across **all Victoria Police units** and **all locations**. In reality, thresholds for applying *reasonable suspicion* may differ between units or operational contexts. Victoria is also **ethnically diverse and geographically varied**, with different crime patterns and population distributions across regions. Differences may also exist between **foot searches and vehicle searches**, which are not distinguished here.
+
+Because of these limitations, a more **focused and robust analysis** was also undertaken, examining only **drug searches conducted by police on foot in metropolitan Melbourne**. This provides a clearer view of potential disparities under more controlled conditions.
+
+A further area of exploration is the use of **statistical modelling** to control for the factors listed above — including search type, policing unit, location, mode of search (e.g. on foot vs in vehicle), and local demographic or crime context. Such models can help isolate the effect of perceived racial appearance on search outcomes while accounting for confounding variables, and would offer a more rigorous basis for identifying patterns of potential racial bias in police decision-making.
+
 
 **Table 3 Hit rates by variables of interest**
 ```{r Finds racial, echo=FALSE, warning=FALSE}
