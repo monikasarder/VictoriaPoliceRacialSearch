@@ -1,0 +1,8 @@
+/* Make blockquote font size consistent with body text */
+blockquote {
+  font-size: 1em;
+  color: #555;
+  background: #f9f9f9;
+  border-left: 4px solid #ccc;
+  padding: 0.5em 1em;
+}

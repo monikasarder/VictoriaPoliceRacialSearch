@@ -1,12 +1,19 @@
 ---
-title: "Victoria Police search data overview and hit rates"
+title: "Victoria Police Search Data Overview and Hit Rates"
 author: "Monika Sarder"
 date: "`r Sys.Date()`"
 output: 
   html_document:
-    toc: yes
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+    theme: readable
+    highlight: zenburn
+    fig_caption: true
+    df_print: paged
+    css: styles.css  # Optional: include this file if you want to customise styles
 ---
-
 
 ```{r setup, echo = FALSE, warning = FALSE, message=FALSE}
 knitr::opts_chunk$set(results = "asis")
@@ -26,19 +33,27 @@ library(writexl)
 
 dat <- readRDS("../VicPol Search Data Clean/Clean.search.data.RDS")
 
-
 ```
 
 # Victoria Police Search Data
 
-This dataset contains information on over 50,000 warrantless searches conducted by Victoria Police in the years **2018, 2019, 2022, and 2023**. It was obtained through the [**Racial Profiling Data Monitoring Project**](https://khaki-pepper-b3rf.squarespace.com/), an initiative of the [Centre Against Racial Profiling](https://www.centreagainstracialprofiling.au/).
+> **TL;DR:**  
+> This dataset includes over **50,000 warrantless searches** conducted by Victoria Police in **2018, 2019, 2022, and 2023**, obtained through the [Centre Against Racial Profiling](https://www.centreagainstracialprofiling.au/). It includes **search type**, **outcomes**, and **perceived racial appearance**.  
+> The analysis provides **summary statistics** and **exploratory hit rate comparisons** to identify patterns for further investigation. Interpret findings with caution — this is not a causal or statistical inference study.
+
+This dataset contains information on over 50,000 warrantless searches conducted by Victoria Police in the years **2018, 2019, 2022, and 2023**. It was obtained through the [**Racial Profiling Data Monitoring Project**](https://khaki-pepper-b3rf.squarespace.com/), an initiative of the [Centre Against Racial Profiling](https://www.centreagainstracialprofiling.au/).  Data for 2020 and 2021 is not included due to the extraordinary and atypical policing context of the COVID-19 pandemic. These years are excluded to avoid drawing misleading inferences about standard police practices.
 
 You can download the cleaned dataset used in this analysis as an Excel file from the GitHub repository:  
 [**Download VicPol Search Data Clean.xlsx**](https://github.com/monikasarder/VictoriaPoliceRacialSearch/raw/main/VicPol%20Search%20Data%20Clean/VicPol%20Search%20Data%20Clean.xlsx)
 
+This analysis is **exploratory** and designed to provide an overview of the data to assist researchers, advocates, and policymakers in identifying areas for further work. It includes:
 
-> **Note:**  
-> Data for 2020 and 2021 is not included due to the extraordinary and atypical policing context of the COVID-19 pandemic. These years are excluded to avoid drawing misleading inferences about standard police practices.
+- **Summary statistics** of search volumes, types, and outcomes;  
+- **Hit rate comparisons** by racial appearance, unit type, search context, area, and gender.
+
+The hit rate analysis uses basic proportions to assess the likelihood that a search resulted in a “find.” While this can reveal preliminary patterns, these comparisons should be interpreted with caution. Hit rates may be influenced by underlying contextual or operational differences — such as search type, officer discretion, or the policing environment — and do **not** control for confounding variables.
+
+To draw valid conclusions about potential racial profiling or systemic bias, further statistical testing is needed — such as **multivariate or panel data modelling**, or **focused subgroup analysis** (e.g. uniform police foot patrol drug searches in metropolitan Melbourne).
 
 ## Search Types in Scope
 
@@ -52,13 +67,13 @@ The dataset includes records of five types of **warrantless searches**, each of 
 
 Nearly **90%** of searches were conducted under drug search powers. Some individuals were searched under multiple powers (e.g. both drug and weapon suspicions), and this is reflected in the dataset.
 
-## Ethnic Appearance Categories
+## Racial Appearance Categories
 
-Victoria Police records the **perceived ethnic appearance** of individuals searched, based on officer observation. These categories reflect *perceived ethnicity*, not self-identification or ancestry data.
+Victoria Police records the **perceived racial appearance** of individuals searched, based on officer observation. These categories reflect *perceived raciality*, not self-identification or ancestry data.
 
 ### Missing Data
 
-A significant portion of records — **22,117 searches or 42%** — lack ethnic appearance data, despite this field being mandatory for stop and search events since 2019. In cases where ethnicity could not be determined, officers used the category **‘Other’**.
+A significant portion of records — **22,117 searches or 42%** — lack racial appearance data, despite this field being mandatory for stop and search events since 2019. In cases where raciality could not be determined, officers used the category **‘Other’**.
 
 ### Middle Eastern Category Limitation
 
@@ -67,6 +82,7 @@ In 2020, Victoria Police merged the **‘Middle Eastern’** and **‘Mediterran
 # Summary Statistics
 
 The table below summarises key variables in the dataset, including demographic fields, search types, and outcomes.
+
 
 
 **Table 1 Characteristics of searches**
@@ -120,9 +136,9 @@ print(dfSummary(`Search type`,
 
 # Hit Rate Analysis
 
-The **hit rate** refers to the percentage of searches that resulted in the discovery of contraband. Across all warrantless searches in the dataset, the average hit rate was **17.2%**.
+The **hit rate** — the proportion of searches that result in the discovery of contraband — is a key measure of how effectively the legal threshold of *reasonable suspicion* is applied. Across all warrantless searches in the dataset, the average hit rate was **17.2%**. When broken down by perceived racial appearance, the data suggests that some groups are searched under looser thresholds than others, pointing to the possibility of racial bias. Communities subjected to disproportionate or less effective searches often experience this as racial targeting.
 
-A lower hit rate indicates that police are less likely to find contraband when searching individuals from that group. This suggests that the legal threshold of *reasonable suspicion* may be applied more loosely to some groups — particularly those perceived as racialised. In practice, this can reflect *conscious or unconscious racial bias* and is experienced by affected communities as racial targeting.
+## Hit Rates by Racial Appearance
 
 Compared with people perceived to be **White** (hit rate: **18.0%**), significantly lower hit rates were observed for:
 
@@ -136,21 +152,13 @@ The only group with a higher hit rate than White-appearing individuals was:
 
 - **Pacific Islander appearance**: 18.8%
 
-These differences were found to be statistically significant using **Pearson’s chi-squared test**.
+These differences were found to be statistically significant using **Pearson’s chi-squared test**. Table 3 below summarises these racial appearance hit rates.
 
-## Summary of Hit Rates by Ethnic Appearance
+These findings aggregate **all search types**, **all police units**, and **all locations**. Search thresholds likely vary between units and contexts, and there are differences between **foot searches and vehicle searches** that are not separated here. 
 
-Table 3 below presents these hit rates in summary form. It shows the percentage of searches that resulted in the discovery of contraband for each ethnic appearance category as perceived and recorded by Victoria Police officers.
+To address these limitations, further analysis was conducted focusing solely on **drug searches by uniform police on foot in metropolitan Melbourne**, where conditions are more homogeneous. More rigorous statistical modelling — controlling for search type, location, operational unit, and search context — would be needed to isolate the effect of perceived racial appearance on search outcomes.  
 
-> **Caution:**  
-> A substantial portion of records — over **40%** — are missing ethnic appearance data. While these records are excluded from the breakdown, their absence limits the completeness of this comparison and may affect the generalisability of the findings. The missing data may also reflect systemic issues in data collection and reporting practices.
-
-> **Interpretation note:**  
-> These findings should be interpreted with caution. This summary aggregates **all search types**, across **all Victoria Police units** and **all locations**. In reality, thresholds for applying *reasonable suspicion* may differ between units or operational contexts. Victoria is also **ethnically diverse and geographically varied**, with different crime patterns and population distributions across regions. Differences may also exist between **foot searches and vehicle searches**, which are not distinguished here.
-
-Because of these limitations, a more **focused and robust analysis** was also undertaken, examining only **drug searches conducted by police on foot in metropolitan Melbourne**. This provides a clearer view of potential disparities under more controlled conditions.
-
-A further area of exploration is the use of **statistical modelling** to control for the factors listed above — including search type, policing unit, location, mode of search (e.g. on foot vs in vehicle), and local demographic or crime context. Such models can help isolate the effect of perceived racial appearance on search outcomes while accounting for confounding variables, and would offer a more rigorous basis for identifying patterns of potential racial bias in police decision-making.
+Also, over **40%** of records are missing racial appearance data. While these are excluded from the breakdown, their absence limits the completeness of the comparison and may affect the generalisability of the findings. The missing data may also reflect systemic issues in police data collection and reporting.
 
 
 **Table 3 Hit rates by variables of interest**
@@ -164,11 +172,20 @@ dat %>%
   as_flextable()
 ```
 
-Figure 1 below shows how the hit rate for different racial appearances changed over the four year period, with a reference line showing the average hit rate for all searches over four years in red.  The following observations are made:  
+### Change Over Time  
 
-* people who appear White experienced higher hit-rates compared with the overall population in most years, except for 2022. This may be due to the effect of pandemic-related measures.  
-* people of African, Middle Eastern and Asian appearance experienced persistently lower hit rates than the average.  
-* hit-rates for people appearing to be Aboriginal and Torres Strait Islander have increased over the four year period from 11% in 2018 to 18.6% in 2023 - suggesting fewer racially biased searches.
+Figure 1 below illustrates how hit rates varied by perceived racial appearance across the four-year period. A red reference line indicates the overall average hit rate across all searches during this time.
+
+Key observations include:
+
+- Individuals perceived to be **White** consistently experienced higher-than-average hit rates in most years, except in **2022**, which may reflect the lingering effects of pandemic-related disruptions.  
+- Individuals perceived to be **African**, **Middle Eastern**, and **Asian** consistently recorded **lower hit rates** than the overall average across all years.  
+- Hit rates for individuals perceived as **Aboriginal and Torres Strait Islander** increased significantly over time — from **11% in 2018** to **18.6% in 2023** — which may suggest a reduction in unjustified or racially biased searches affecting this group.
+
+> **Caution:**  
+> This is an **exploratory analysis**, and the findings should be interpreted with caution. This summary does not account for important covariates such as search type, policing unit, location, or search context (e.g. on foot vs in vehicle).  
+>  
+> A more rigorous approach would involve **panel data modelling**, which would enable us to test whether the observed disparities persist once differences in time, geography, unit culture, and operational context are taken into account.
 
 
 **Figure 1 Changes in hit rates by racial appearance over time and compared to the average**
@@ -188,17 +205,12 @@ ggplotly(trend)
 ```
 
 
-Figure 1 below shows how the hit rate for different racial appearances changed over the four year period, with a reference line showing the average hit rate for all searches over four years in red.  The following observations are made:  
+## Hit Rates by Other Characteristics
 
-* people who appear White experienced higher hit-rates compared with the overall population in most years, except for 2022. This may be due to the effect of pandemic-related measures.  
-* people of African, Middle Eastern/Mediterranean and Asian appearance experienced persistently lower hit rates than the average.  
-* hit-rates for people appearing to be Aboriginal and Torres Strait Islander have reduced over the four year period from 11% in 2018 to 18.6% in 2023.
+Hit rates by search type vary across a number of other characteristics that may influence the likelihood of a “find.” These include the type of police unit conducting the search, the gender of the person searched, and whether the search occurred in a regional or metropolitan area. Variations across these dimensions are summarised in the tables below, reinforcing the importance of controlling for contextual factors when analysing racial disparities in policing outcomes.
 
-## Hit rates by other search characteristics  
 
-Other characteristics which may have influenced hit rates are summarised in Table 4 below.  Different search types had widely different hit rates, with drug-related searches having the lowest hit-rate (15.2%) and graffiti-related searches at designated places, such as train stations, having the highest hit-rate (50.1%), followed by weapons-related searches (32.8%).
-
-**Table 4 Hit rates by legislative power**
+**Table 4 Hit rates by Search Type**
 
 ```{r Finds search, echo=FALSE, warning=FALSE}
 
@@ -210,122 +222,158 @@ Search.dat %>%
 
 ```
 
-**Table 4 Hit rates by other search characteristics**
+**Table 5 Hit rates by Other Search Characteristics**
 ```{r Finds all other, echo=FALSE, warning=FALSE}
 
 dat %>%
-  crosstable(c(Year, Unit.type, Gender, Area.type), by=Found, total=TRUE, 
+  crosstable(c(Year, Unit.type, Contact.Type, Gender, Area.type), by=Found, total=TRUE, 
            test=TRUE, showNA='ifany', percent_digits=1) %>% 
   as_flextable()
 ```
 
-# Racialised hit within police units and local areas  
+## Hit Rates Cross Tabs - Unit Type and LGA  
 
-Racialised hit rates across different unit types were compared.  Where there were less than five searches for a given group in a Local Government Areas hit rates are not shown, as statistical results may be misleading.
+### Hit Rates by Racial Appearance and Unit Type
 
-## Unit types
+Racialised hit rates across different unit types were compared. As described above, statistics should be interpreted with caution as further significance testing is necessary to ensure that any observed differences in hit rates are not due to random variation and can be meaningfully interpreted.
 
-**Table 6 Ethnic appearance hit rates by Unit type**
-```{r unit.type, echo=FALSE, warning=FALSE, message = FALSE}
-unit.racial <- dat %>%
-  group_by(Unit.type)%>%
-  mutate(`Overall %` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 1), Total.searches = n())%>%
-  mutate(Racial.appearance = fct_infreq(Racial.appearance.transformed))%>%
-  group_by(Unit.type, Total.searches, `Overall %`, Racial.appearance)%>%
-  summarise(Finds = sum(Found == "Yes", na.rm = T), Searches = n())%>%
-  ungroup()%>%
-  mutate(Searches = ifelse(Searches <= 5, NA, Searches))%>%
-  mutate(`Hit rate` = round(Finds/Searches*100, digits = 1))%>%
-  select(-Finds, -Searches)%>%
-  pivot_wider(names_from = Racial.appearance,
-    values_from = c(`Hit rate`)
-  )%>%
-  arrange(desc(Total.searches))%>%
-  select(Unit.type,
-         `Total searches` = Total.searches,
-         `Overall %`, `White %` = White, `Aboriginal %` = Aboriginal, `Middle Eastern %` = `Middle Eastern`, 
-         `African %`= African, `Asian %` = Asian,`South Asian %` = `South Asian`, `Pacific Islander %` = `Pacific Islander`)
+**Table 6 racial appearance hit rates by Unit type**
 
-unit.racial %>%
-  datatable(rownames = F, extensions = 'Buttons',
-            options = list(
-              dom = 'Blfrtip',
-              buttons = c('copy', 'excel','print'),
-  pageLength = 10, autoWidth = TRUE
-))
-```
+```{r unit.type, echo=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(forcats)
+library(DT)
 
-## Local Government Areas
+# Step 1: Summarise search and hit counts by unit and race
+unit_racial_long <- dat %>%
+  mutate(Racial.appearance = fct_infreq(Racial.appearance.transformed)) %>%
+  group_by(Unit.type, Racial.appearance) %>%
+  summarise(
+    Searches = n(),
+    Finds = sum(Found == "Yes", na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    `Hit rate` = round(Finds / Searches * 100, 1),
+    Searches = ifelse(Searches <= 5, NA, Searches),
+    `Hit rate` = ifelse(is.na(Searches), NA, `Hit rate`)
+  ) %>%
+  select(Unit.type, Racial.appearance, Searches, `Hit rate`) %>%
+  pivot_longer(cols = c(Searches, `Hit rate`), names_to = "Metric", values_to = "Value") %>%
+  mutate(Metric = paste(Racial.appearance, Metric, sep = " – ")) %>%
+  select(-Racial.appearance)
 
-Searches that were undertaken by a uniform officer based at a local Police station were able to be mapped to their Local Government Area.  
+# Step 2: Pivot wide to get one row per Unit.type
+unit_racial_wide <- unit_racial_long %>%
+  pivot_wider(names_from = Metric, values_from = Value)
 
-The hit rates for persons of different ethnic appearances for Local Government Areas appears below.   
+# Step 3: Calculate total searches and overall hit rate
+unit_summary <- dat %>%
+  group_by(Unit.type) %>%
+  summarise(
+    `Total searches` = n(),
+    `Overall %` = round(sum(Found == "Yes", na.rm = TRUE) / n() * 100, 1),
+    .groups = "drop"
+  )
 
-**Table 7 Ethnic appearance hit rates by LGA**
-```{r LGA, echo=FALSE, warning=FALSE, message = FALSE}
+# Step 4: Join and arrange
+unit_racial_final <- unit_summary %>%
+  left_join(unit_racial_wide, by = "Unit.type") %>%
+  arrange(desc(`Total searches`))
 
-lga.psa <- dat %>%
-  select(Police.Service.Area, Local.Government.Area)%>%
-  unique()
-
-lga.racial <- dat %>%
-  filter(!is.na(Police.Service.Area), Unit.type == "Uniform")%>%
-  group_by(Police.Service.Area)%>%
-  mutate(`Overall %` = round(sum(Found == "Yes", na.rm = T)/n()*100, digits = 1), Total.searches = n())%>%
-  mutate(Racial.appearance = fct_infreq(Racial.appearance.transformed))%>%
-  group_by(Area.type, Police.Service.Area, Total.searches, `Overall %`, Racial.appearance)%>%
-  summarise(Finds = sum(Found == "Yes", na.rm = T), Searches = n())%>%
-  ungroup()%>%
-  mutate(Searches = ifelse(Searches <= 5, NA, Searches))%>%
-  mutate(`Hit rate` = round(Finds/Searches*100, digits = 1))%>%
-  select(-Finds, -Searches)%>%
-  pivot_wider(names_from = Racial.appearance,
-    values_from = c(`Hit rate`)
-  )%>%
-  left_join(lga.psa, by = "Police.Service.Area")%>%
-  select(`Area` = Area.type, `Local Government Area` = Local.Government.Area, `Police Service Area` = Police.Service.Area,
-         `Total searches` = Total.searches,
-         `Overall %`, `White %` = White, `Aboriginal %` = Aboriginal, `Middle Eastern %` = `Middle Eastern`, 
-         `African %`= African, `Asian %` = Asian,`South Asian %` = `South Asian`, `Pacific Islander %` = `Pacific Islander`)
-
-lga.racial %>%
-  datatable(rownames = F, extensions = 'Buttons',
-            options = list(
-              dom = 'Blfrtip',
-              buttons = c('copy', 'excel','print'),
-  pageLength = 10, autoWidth = TRUE
-))
-
+# Step 5: Display table
+datatable(unit_racial_final,
+          rownames = FALSE,
+          extensions = 'Buttons',
+          options = list(
+            dom = 'Blfrtip',
+            buttons = c('copy', 'excel', 'print'),
+            pageLength = 10,
+            scrollX = TRUE,
+            autoWidth = TRUE
+          ))
 
 
 ```
 
+### Hit Rates by Racial Appearance and Local Government Area
 
-# Appendix - ethnic appearance mapping  
+Searches that were undertaken by a uniform officer based at a local Police station were able to be mapped to their Local Government Area.   As described above, statistics should be interpreted with caution as further significance testing is necessary to ensure that any observed differences in hit rates are not due to random variation and can be meaningfully interpreted.
 
-Ethnic appearance categories for different years were transformed to enable comparison across the four years. A table of transformations undertaken, along with the number of searches in each category, appears below,
+The hit rates for persons of different racial appearances for Local Government Areas appears below.   
 
-# 2022 and 2023 mapping  
+**Table 7 racial appearance hit rates by LGA**
+```{r final_lga_table, echo=FALSE, warning=FALSE, message=FALSE}
 
+
+# Step 1: Filter to uniform police and valid LGA
+filtered <- dat %>%
+  filter(Unit.type == "Uniform", !is.na(Local.Government.Area))
+
+# Step 2: Compute searches and hits by LGA and racial appearance
+lga_race_stats <- filtered %>%
+  mutate(Racial.appearance = fct_infreq(Racial.appearance.transformed)) %>%
+  group_by(Local.Government.Area, Racial.appearance) %>%
+  summarise(
+    Searches = n(),
+    Finds = sum(Found == "Yes", na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    `Hit Rate` = round(100 * Finds / Searches, 1),
+    Searches = ifelse(Searches <= 5, NA, Searches),
+    `Hit Rate` = ifelse(is.na(Searches), NA, `Hit Rate`)
+  )
+
+# Step 3: Pivot longer then wider for proper interleaving
+lga_long <- lga_race_stats %>%
+  pivot_longer(cols = c(Searches, `Hit Rate`), names_to = "Metric", values_to = "Value") %>%
+  mutate(Metric = paste(Racial.appearance, Metric, sep = " – ")) %>%
+  select(Local.Government.Area, Metric, Value)
+
+lga_wide <- lga_long %>%
+  pivot_wider(names_from = Metric, values_from = Value)
+
+# Step 4: Overall stats by LGA
+lga_overall <- filtered %>%
+  group_by(Local.Government.Area) %>%
+  summarise(
+    `Total Searches` = n(),
+    `Overall %` = round(100 * sum(Found == "Yes", na.rm = TRUE) / n(), 1),
+    .groups = "drop"
+  )
+
+# Step 5: Join and arrange final table
+lga_final <- lga_overall %>%
+  left_join(lga_wide, by = "Local.Government.Area") %>%
+  arrange(desc(`Total Searches`))
+
+# Step 6: Display
+datatable(lga_final,
+          rownames = FALSE,
+          extensions = 'Buttons',
+          options = list(
+            dom = 'Blfrtip',
+            buttons = c('copy', 'excel', 'print'),
+            pageLength = 10,
+            scrollX = TRUE,
+            autoWidth = TRUE
+          ))
+```
+
+
+## Appendix – racial Appearance Mapping
+
+To enable consistent comparison across the four years of data, racial appearance categories were standardised. This step was necessary because Victoria Police modified the racial appearance categories multiple times during the period under review. The table below outlines the transformations applied, along with the corresponding number of searches in each category.
+
+
+**Table 8: Mapping of original racial appearance categories to standardised categories**
 ```{r Map 1, echo=FALSE, warning=FALSE, message = FALSE}
 
-ethnic.mapping1 <-dat %>%
-  filter(Year %in% c(2022, 2023))%>%
+racial.mapping1 <-dat %>%
   count(Racial.Appearance.original, Racial.appearance.transformed)
 
-ethnic.mapping1 %>%
+racial.mapping1 %>%
   kable()
 ```
 
-# 2018 and 2019 mapping  
-
-```{r Map 2, echo=FALSE, warning=FALSE, message = FALSE}
-
-ethnic.mapping2 <- dat %>%
-  filter(Year %in% c(2018, 2019))%>%
-  count(Racial.Appearance.original, Racial.appearance.transformed) 
-
-
-ethnic.mapping2 %>%
-  kable()
-```
