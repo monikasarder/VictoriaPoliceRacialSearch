@@ -199,7 +199,7 @@ fin.dat.2 <- dat.s %>%
     Reporting.Station.Description, Unit.type, Rank.of.Member
   )
 
-# Save to RDS
-saveRDS(fin.dat.2, "Output.data/data.18.19.wrangled.RDS")
 
+# Save to RDS
+saveRDS(fin.dat.2, "R Code for cleaning and transforming data/Processed/data.18.19.wrangled.RDS")
 
