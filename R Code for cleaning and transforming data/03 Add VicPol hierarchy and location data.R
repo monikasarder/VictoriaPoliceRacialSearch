@@ -195,14 +195,41 @@ dat.sr3 <- dat.sr2 %>%
                 ~ ifelse(Found == "Yes" & .x == "Nothing found", "Non-search item found", .x))) %>%
   select(-Search.item.found)
 
+
+# ------------------------------------------------------------
+# Add more intuitive division labels
+# ------------------------------------------------------------
+division_lga_map <- c(
+  "NWMR Division 1" = "Melbourne, Yarra",
+  "NWMR Division 2" = "Hobsons Bay, Maribyrnong, Wyndham",
+  "NWMR Division 3" = "Brimbank, Melton",
+  "NWMR Division 4" = "Hume, Moonee Valley, Merri-bek",
+  "NWMR Division 5" = "Banyule, Darebin, Nillumbik, Whittlesea",
+  "Eastern Region Division 1" = "Boroondara, Manningham, Monash, Whitehorse",
+  "Eastern Region Division 2" = "Knox, Maroondah, Yarra Ranges",
+  "SMR Division 1" = "Port Phillip, Stonnington",
+  "SMR Division 2" = "Glen Eira, Kingston", 
+  "SMR Division 3" = "Cardinia, Casey, Dandenong",
+  "SMR Division 4" = "Frankston, Mornington"
+)
+
+# Append LGAs in brackets to each Division value
+dat.sr3 <- dat.sr3 %>%
+  mutate(
+    Division = ifelse(
+      Division %in% names(division_lga_map),
+      paste0(Division, " (", division_lga_map[Division], ")"),
+      as.character(Division)
+    )
+  )
 # ------------------------------------------------------------
 # Save outputs
 # ------------------------------------------------------------
-saveRDS(dat.sr3, "VicPol Search Data Clean/Clean.search.data.RDS")
+saveRDS(dat.sr3, "VicPol Search Data Clean/VicPol Search Data Clean.RDS")
 
-wb <- loadWorkbook("VicPol Search Data Clean/VicPol Search data for analysis.xlsx")
+wb <- loadWorkbook("VicPol Search Data Clean/VicPol Search Data Clean.xlsx")
 writeData(wb, sheet = "Data", x = dat.sr3)
-saveWorkbook(wb, "VicPol Search Data Clean/VicPol Search data for analysis.xlsx", overwrite = TRUE)
+saveWorkbook(wb, "VicPol Search Data Clean/VicPol Search Data Clean.xlsx", overwrite = TRUE)
 
 
 
