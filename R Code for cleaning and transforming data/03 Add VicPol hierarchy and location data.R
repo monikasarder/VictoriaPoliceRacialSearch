@@ -222,6 +222,21 @@ dat.sr3 <- dat.sr3 %>%
       as.character(Division)
     )
   )
+
+#Add age group
+
+dat.sr3 <- dat.sr3 %>%
+  mutate(`Age group` = case_when(
+    is.na(Age) ~ "Missing",
+    Age >= 2  & Age <= 11 ~ "Under 12",
+    Age >= 12  & Age <= 17 ~ "12 to 17",
+    Age >= 18 & Age <= 25 ~ "18 to 25",
+    Age >= 26 & Age <= 35 ~ "26 to 35",
+    Age >= 36 & Age <= 45 ~ "36 to 45",
+    Age >= 46 ~ "46 and over",
+    TRUE ~ "Missing"  # catch any unexpected cases
+  ))
+
 # ------------------------------------------------------------
 # Save outputs
 # ------------------------------------------------------------

@@ -74,7 +74,8 @@ The following key variables are are available in this dataset.
 - `Racial.appearance.original`: The original officer-perceived racial appearance category as recorded by Victoria Police  
 - `Racial.appearance.transformed`: A harmonised version of racial appearance, created to adjust for multiple changes in category definitions across the reference period  
 - `Gender`: Officer-perceived gender of the person searched  
-- `Age`: Age group of the person searched  
+- `Age`: Age of the person searched  
+- `Age group`: Age of the person searched 
 - `Search.type - Drugs`, `Search.type - Weapons`, `Search.type - Graffiti`: Indicates the type(s) of prohibited item being searched for  
 - `Found`: Whether **any** prohibited item was found — regardless of whether it was the item searched for under the power invoked (i.e. both drug power invoked, and drugs found, *and* drug power invoked, but weapons found instead count as a 'hit') 
 - `Contact.Type`: Whether the search was conducted on foot (`P`) or during a vehicle stop (`V`)  
@@ -136,23 +137,28 @@ The summary outlines the distribution of key variables such as year, racial appe
 
 **Table 1 Characteristics of searches**
 ```{r summary, echo = FALSE, warning = FALSE}
-of.interest <- c("Year","Racial.appearance.transformed","Gender","Rank.of.Member", "Division","Found",
+of.interest <- c("Year","Racial.appearance.transformed","Gender","Age group","Rank.of.Member", "Division","Found",
                  "Search.type - Drugs")
 
-datsum <- dat %>%
+dat.dru <- dat %>%
   filter(!is.na(`Search.type - Drugs`),
         Area.type == "Metro",
          Unit.type == "Uniform",
         Contact.Type == "P")
 
-datsum$Racial.appearance.transformed[datsum$Racial.appearance.transformed == "Missing"] <- NA  
 
-datsum <- datsum %>%
+dat.dru$`Age group`[dat.dru$`Age group` == "Missing"] <- NA  
+
+dat.dru$Racial.appearance.transformed[dat.dru$Racial.appearance.transformed == "Missing"] <- NA  
+
+dat.dru <- dat.dru %>%
   select(all_of(of.interest))%>%
   mutate(across(everything(), ~ fct_infreq(.)))%>%
-  mutate(Year = fct_relevel(as.character(Year), c("2018", "2019", "2022", "2023")))
+  mutate(Year = fct_relevel(as.character(Year), c("2018", "2019", "2022", "2023")),
+         `Age group` = fct_relevel(`Age group`, c("Under 12", "12 to 17", "18 to 25","26 to 35", "36 to 45", "46 and over")))
 
-print(dfSummary(datsum, 
+
+print(dfSummary(dat.dru, 
           max.distinct.values = 10, 
            varnumbers   = FALSE, 
                 valid.col    = FALSE, 
@@ -176,6 +182,10 @@ Hit rates varied significantly across racial appearance categories (*p = 0.0216*
 - **African**: 11.4%  
 - **Middle Eastern**: 10.4%  
 - **Other**: 10.6%
+
+### Age group  
+
+Hit rate variation across age groups was minimal and was not of practical or statistical significance. 
 
 ### Year of Search
 
@@ -218,22 +228,27 @@ Divisions with lower hit rates tended to cover areas with more culturally divers
 **Table 3 Hit rates by variables of interest - Metro**
 ```{r Finds racial, echo=FALSE, warning=FALSE, results='asis'}
 
-
 # Recode and reorder factors
-datsum <- datsum %>%
+dat.dru <- dat.dru %>%
   mutate(
     Found = factor(Found, levels = c("Yes", "No")),  # Yes before No
-    Racial.appearance.transformed = fct_explicit_na(Racial.appearance.transformed, na_level = "Missing"),
+    `Age group` = fct_explicit_na(`Age group`, na_level = "Missing"),
     Gender = fct_explicit_na(Gender, na_level = "Missing"),
     Year = fct_relevel(as.character(Year), "2018", "2019", "2022", "2023"),
-    across(c("Year", "Racial.appearance.transformed", "Gender", "Rank.of.Member"), ~ fct_infreq(.))
+    across(c("Year", "Racial.appearance.transformed", "Age group","Gender", "Rank.of.Member"), ~ fct_infreq(.))
   )
 
+dat.dru <- dat.dru %>%
+  mutate(`Age group` = fct_relevel(
+    forcats::fct_explicit_na(`Age group`, na_level = "Missing"),
+    "Under 12", "12 to 17", "18 to 25", "26 to 35", "36 to 45", "46 and over", "Missing"
+  ))
+
 # Select only variables of interest + Found
-vars_for_table <- c("Year", "Racial.appearance.transformed", "Gender", "Rank.of.Member", "Found", "Division")
+vars_for_table <- c("Year", "Racial.appearance.transformed","Age group", "Gender", "Rank.of.Member", "Found", "Division")
 
 # Run crosstable across multiple rows
-crosstable(datsum[, vars_for_table], 
+crosstable(dat.dru[, vars_for_table], 
            by = "Found", 
            total = TRUE, 
            test = TRUE, 
@@ -241,9 +256,8 @@ crosstable(datsum[, vars_for_table],
            percent_digits = 1) %>%
   as_flextable()
 
-```
 
-### Implications for Missing Data and Confounding Variables
+```
 
 ### Implications for Missing Data and Confounding Variables
 
@@ -316,7 +330,7 @@ Together with the **division-level findings in Brimbank and Melton**, the **stat
 
 
 # Step 1: Prepare and filter data
-dat_aw <- datsum %>%
+dat_aw <- dat.dru %>%
   filter(
     Racial.appearance.transformed %in% c("African", "White"),
     !is.na(Found),
