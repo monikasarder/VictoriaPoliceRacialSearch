@@ -354,18 +354,21 @@ display: none;
 
 <div id="vicpol-stop-and-search-dataset" class="section level1">
 <h1>VicPol Stop and Search Dataset</h1>
+<p><a href="VicPol%20Search%20Data%20Clean/VicPol%20Search%20Data%20Clean.xlsx?raw=true">📥
+<strong>Download Cleaned Dataset (XLSX)</strong></a></p>
 <div id="about-the-dataset" class="section level2">
 <h2>About the Dataset</h2>
-<p>This repository contains a cleaned dataset of over 50,000
-<strong>warrantless searches</strong> conducted by Victoria Police in
-2018, 2019, 2022, and 2023. The data covers all police units and is
-disaggregated by <strong>perceived racial appearance</strong>. It is
-designed to support public, academic, and community stakeholders in
-assessing patterns of policing and the potential presence of racial
-profiling in Victoria.</p>
-<p>The original raw data was obtained under the Freedom of Information
-Act by the <a href="https://www.centreagainstracialprofiling.au/">Centre
-Against Racial Profiling</a> and is available on their website.</p>
+<p>This repository contains my cleaned and enriched version of Victoria
+Police stop-and-search data — over 50,000 <strong>warrantless
+searches</strong> conducted in 2018, 2019, 2022, and 2023. The dataset
+has been processed in R to improve data quality, standardise formats,
+and add geographic location fields. It is designed to support public,
+academic, and community stakeholders in assessing patterns of policing
+and the potential presence of racial profiling in Victoria.</p>
+<p>The <strong>original raw data</strong> was obtained under the Freedom
+of Information Act by the <a href="https://www.racialprofilingresearch.org/">Racial Profiling Data
+Monitoring Project</a> (previously hosted by the Centre Against Racial
+Profiling) and is made available there “free for use by the public.”</p>
 </div>
 <div id="purpose-of-this-repository" class="section level2">
 <h2>Purpose of this Repository</h2>
@@ -443,17 +446,17 @@ uncertain.</p>
 <h3>Limitations in Middle Eastern Categorisation</h3>
 <p>Since 2020, Victoria Police have combined “Mediterranean” and “Middle
 Eastern” categories into <strong>“Mediterranean/Middle
-Eastern”</strong>, making it difficult to separately examine outcomes
-for people perceived to be of Middle Eastern appearance.</p>
+Eastern”</strong>, meaning outcomes for people perceived to be of Middle
+Eastern or ‘Arab’ appearance are not visible in the data.</p>
 </div>
 </div>
 <div id="interpreting-search-locations" class="section level2">
 <h2>Interpreting Search Locations</h2>
 <p>The dataset includes police station-level location data for searches
-conducted by <strong>uniform police</strong>. For specialist units
-(e.g., Highway Patrol, CIU, SOCIT), location data may be incomplete or
-inaccurate, as these units often operate across multiple suburbs or LGAs
-within a broader Police Division.</p>
+conducted by <strong>uniform police</strong> only. Location data is not
+available for specialist units (e.g., Highway Patrol, CIU, SOCIT), as
+these units often operate across multiple suburbs or LGAs within a
+broader Police Division.</p>
 <p>The included analysis focuses specifically on <strong>foot-based drug
 searches conducted by uniform officers</strong>, where station-level
 location data is most reliable.</p>
@@ -461,22 +464,37 @@ location data is most reliable.</p>
 </div>
 <div id="license" class="section level2">
 <h2>License</h2>
-<p>[Add your license here — e.g., Creative Commons
-Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)]</p>
+<p>This repository contains both <strong>code</strong> and
+<strong>data</strong>, licensed under separate terms:</p>
+<div id="code" class="section level3">
+<h3>🔹 Code</h3>
+<p>All code in this repository is © 2025 Monika Sarder and licensed
+under the <a href="https://opensource.org/licenses/MIT">MIT
+License</a>.<br />
+You are free to use, modify, and distribute the code with proper
+attribution.</p>
 </div>
-<div id="citation" class="section level2">
-<h2>Citation</h2>
-<p>If you use this dataset, please cite it as:</p>
-<blockquote>
-<p>Sarder, M. (2025). <em>VicPol Racial Profiling Dataset: Warrantless
-Searches by Victoria Police, 2018–2023</em> [Data set]. GitHub. <a href="https://github.com/monikasarder/VictoriaPoliceRacialSearch" class="uri">https://github.com/monikasarder/VictoriaPoliceRacialSearch</a></p>
-</blockquote>
-<hr />
+<div id="data" class="section level3">
+<h3>🔹 Data</h3>
+<p>The <strong>cleaned and enriched dataset</strong> is © 2025 Monika
+Sarder, created by processing, restructuring, and augmenting the FOI
+dataset originally obtained by the <a href="https://www.racialprofilingresearch.org/">Racial Profiling Data
+Monitoring Project</a> from Victoria Police.</p>
+<p>You are free to:</p>
+<ul>
+<li><strong>Share</strong> — copy and redistribute the material in any
+medium or format<br />
+</li>
+<li><strong>Adapt</strong> — remix, transform, and build upon the
+material <strong>for non-commercial purposes only</strong>, with
+attribution to both Monika Sarder (for the cleaned dataset) and the
+Racial Profiling Data Monitoring Project (for the original FOI
+data).</li>
+</ul>
+<p><strong>Commercial use is prohibited without written
+permission.</strong><br />
+For commercial licensing, please contact: <a href="mailto:monikasarder@gmail.com" class="email">monikasarder@gmail.com</a></p>
 </div>
-<div id="contact" class="section level2">
-<h2>Contact</h2>
-<p>For questions or suggestions, please contact:<br />
-Monika Sarder <a href="mailto:monikasarder@gmail.com" class="email">monikasarder@gmail.com</a></p>
 </div>
 </div>
 
