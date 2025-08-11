@@ -29,13 +29,32 @@ This repository was developed to support public interest analysis and community-
 
 ### Search Types Included
 
-This dataset covers **warrantless searches**, where police are required by law to form a **reasonable suspicion** that the person is carrying a **prohibited item** before conducting the search. The dataset includes the following categories:
+This dataset covers **warrantless searches** conducted under various Victorian laws, where police must form a **reasonable suspicion** that the person is carrying a **prohibited item** before searching.  
 
-- **Drugs** – Section 82 of the *Drugs, Poisons and Controlled Substances Act 1981*  
-- **Volatile Substances** – For people under 18, under Sections 60E and 60F of the same Act  
-- **Weapons/Dangerous Articles** – Section 10 of the *Control of Weapons Act 1990*  
-- **Firearms** – Section 149 of the *Firearms Act 1996*  
-- **Graffiti Implements** – Section 13 of the *Graffiti Prevention Act*  
+Some search powers apply **anywhere in public**, while others only apply in **specified locations or circumstances**.
+
+---
+
+#### **Anywhere in public (with reasonable suspicion)**
+
+- **Drugs** – [Section 82 of the *Drugs, Poisons and Controlled Substances Act 1981*](https://classic.austlii.edu.au/au/legis/vic/consol_act/dpacsa1981422/s82.html)  
+  *Allows searches in any public place if the officer reasonably suspects the person possesses a controlled drug.*
+
+- **Weapons/Dangerous Articles** – [Section 10 of the *Control of Weapons Act 1990*](https://classic.austlii.edu.au/au/legis/vic/consol_act/cowa1990217/s10.html)  
+  *Allows searches in any public place if the officer reasonably suspects the person possesses a controlled weapon, dangerous article, or prohibited weapon.*
+
+---
+
+#### **Specified circumstances only (with reasonable suspicion)**
+
+- **Volatile Substances** – [Sections 60E & 60F of the *Drugs, Poisons and Controlled Substances Act 1981*](https://classic.austlii.edu.au/au/legis/vic/consol_act/dpacsa1981422/)  
+  *Applies to people under 18 suspected of possessing or inhaling volatile substances (or possessing items used to inhale them), or to anyone suspected of supplying them to a child.*
+
+- **Firearms** – [Section 112Q of the *Firearms Act 1996*](https://classic.austlii.edu.au/au/legis/vic/consol_act/fa1996102/s112q.html)  
+  *Applies only to persons subject to a Firearm Prohibition Order (FPO) — allows searches of the person, their vehicle, or premises without a warrant.*
+
+- **Graffiti Implements** – [Section 13 of the *Graffiti Prevention Act 2007*](https://classic.austlii.edu.au/au/legis/vic/consol_act/gpa2007217/s13.html)  
+  *Applies where a person (aged 14+) is in a prescribed area such as public transport property or trespassing, and is suspected of possessing a prescribed graffiti implement.*
 
 Approximately 90% of the records relate to **drug-related searches**.
 
