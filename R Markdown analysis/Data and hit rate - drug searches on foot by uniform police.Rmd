@@ -1,0 +1,1335 @@
+---
+title: "Foot Patrol Drug Searches by Uniform Officers: Data Overview and Hit Rates"
+author: "Monika Sarder"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+    theme: readable
+    highlight: zenburn
+    fig_caption: true
+    df_print: paged
+    css: styles.css  # Optional: include this file if you want to customise styles
+---
+
+```{r setup, echo = FALSE, warning = FALSE, message=FALSE}
+knitr::opts_chunk$set(results = "asis")
+
+library(tidyverse)
+library(dplyr)
+library(plotly)
+library(summarytools)
+library(kableExtra)
+library(magrittr)
+library(rmarkdown)
+library(forcats)
+library(gmodels)
+library(crosstable)
+library(janitor)
+library(DT)
+library(writexl)
+library(readxl)
+library(broom)
+library(lme4)
+library(broom.mixed)
+library(scales)
+library(flextable)
+
+dat <- readRDS("../VicPol Search Data Clean/VicPol Search Data Clean.RDS")
+
+ddat <- dat %>%
+  filter(
+    Contact.Type == "P",
+    Area.type == "Metro",
+    !is.na(`Search.type - Drugs`),
+    !is.na(Found),
+  #  !Racial.appearance.transformed %in% c("Missing", "Other", "South American", "Mediterranean/Middle Eastern – Unusable"),
+    !is.na(Station.uniform)
+  ) %>%
+  mutate(
+    Found.Flag = ifelse(Found == "Yes", 1, 0),
+    Race = Racial.appearance.transformed
+  )
+
+```
+
+```{r hitrate-prop-helpers, echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(broom)
+library(kableExtra)
+library(scales)
+library(stringr)
+
+is_yes <- function(x) {
+  if (is.logical(x)) return(!is.na(x) & x)
+  tolower(as.character(x)) %in% c("yes","y","true","1")
+}
+
+# Build a tidy hit-rate + prop.test table for a grouping var
+make_hit_table <- function(
+  data,
+  group_var,                   # e.g., "Division" or "Station.uniform"
+  alpha = 0.05,
+  min_african_total = 1,       # set to 5 for stations
+  filter_sig_only = FALSE,     # TRUE to keep only p < alpha
+  add_fdr = TRUE               # add Benjamini–Hochberg adjusted p
+) {
+  grp <- rlang::sym(group_var)
+
+  tab <- data %>%
+    filter(!is.na(!!grp), !is.na(Found)) %>%
+    # guard (your 'ddat' is already Afr/White, but keep it robust)
+    filter(Racial.appearance.transformed %in% c("African","White")) %>%
+    mutate(FoundYes = is_yes(Found)) %>%
+    count(!!grp, Racial.appearance.transformed, FoundYes, name = "n") %>%
+    group_by(!!grp, Racial.appearance.transformed) %>%
+    summarise(successes = sum(n[FoundYes], na.rm = TRUE),
+              total     = sum(n,          na.rm = TRUE),
+              .groups   = "drop") %>%
+    pivot_wider(
+      names_from  = Racial.appearance.transformed,
+      values_from = c(successes, total),
+      values_fill = 0
+    ) %>%
+    # Inclusion thresholds
+    filter(total_African >= min_african_total, total_White >= 1)
+
+  if (nrow(tab) == 0L) return(tibble())
+
+  out <- tab %>%
+    mutate(
+      test = pmap(
+        list(successes_African, successes_White, total_African, total_White),
+        ~ prop.test(x = c(..1, ..2), n = c(..3, ..4), correct = FALSE)
+      ),
+      tidied = map(test, broom::tidy)
+    ) %>%
+    select(-test) %>%
+    unnest(tidied) %>%
+    mutate(
+      hit_rate_african = estimate1,
+      hit_rate_white   = estimate2,
+      diff_est         = hit_rate_african - hit_rate_white,
+      rr               = ifelse(hit_rate_white > 0, hit_rate_african / hit_rate_white, NA_real_),
+      p_bh             = if (add_fdr) p.adjust(p.value, method = "BH") else NA_real_,
+      stars            = case_when(
+        p.value < 0.001 ~ "***",
+        p.value < 0.010 ~ "**",
+        p.value < 0.050 ~ "*",
+        p.value < 0.100 ~ ".",
+        TRUE ~ ""
+      )
+    ) %>%
+    transmute(
+      !!group_var := !!grp,
+      `African (succ/total)` = sprintf("%d/%d", successes_African, total_African),
+      `White (succ/total)`   = sprintf("%d/%d", successes_White,   total_White),
+      `African hit rate`     = percent(hit_rate_african, accuracy = 0.1),
+      `White hit rate`       = percent(hit_rate_white,   accuracy = 0.1),
+      `Diff (Afr − Wh)`      = percent(diff_est,         accuracy = 0.1),
+      `Risk ratio (Afr/Wh)`  = ifelse(is.finite(rr), sprintf("%.2f", rr), "—"),
+      `p`                    = sprintf("%.3f", p.value),
+      `p (BH)`               = if (add_fdr) sprintf("%.3f", p_bh) else NA_character_,
+      `sig`                  = stars
+    )
+
+  if (filter_sig_only) {
+    out <- out %>% filter(as.numeric(str_replace(`p`, ",", ".")) < alpha)
+  }
+
+  out %>% arrange(as.numeric(str_replace(`p`, ",", ".")))
+}
+
+# Pretty printer with consistent styling
+print_hit_table <- function(df, caption, show_bh = TRUE) {
+  if (nrow(df) == 0L) {
+    cat("No groups meet the criteria or show significance.\n")
+    return(invisible(NULL))
+  }
+  display <- df
+  if (!show_bh) {
+    display <- display %>% select(-`p (BH)`)
+  }
+  display %>%
+    kbl(caption = caption, align = "lrrrrrrrr", escape = TRUE) %>%
+    kable_paper(full_width = FALSE) %>%
+    kable_styling(bootstrap_options = c("striped", "condensed", "hover"), position = "left") %>%
+    column_spec(1, width = "24em") %>%
+    add_footnote(
+      label = "Hit rate = proportion of searches with any contraband found (Found == \"Yes\"). Stars: *** <0.001; ** <0.01; * <0.05; . <0.10.",
+      notation = "symbol"
+    ) %>%
+    print()
+}
+```
+# 1 Short summary  
+
+This analysis examines **drug searches conducted by uniformed officers on foot patrols in Melbourne**. These encounters represent the most routine form of warrantless public-place searches, where outcomes are highly dependent on officer discretion.  
+
+The focus is on whether search outcomes suggest evidence of **racial profiling**. Specifically, we compare the **hit rates** — the proportion of searches that result in contraband being found — for two groups:  
+
+- **White-appearing individuals**, who form the majority baseline  
+- **African-appearing individuals**, a racialised minority consistently highlighted in community concerns about disproportionate policing  
+
+By restricting the dataset to this context and to these two appearance categories, we provide a clear test of whether African-appearing people are subjected to searches on a **lower evidentiary threshold**. Lower hit rates for one group, despite comparable or higher search intensity, would suggest that police suspicion is being applied unevenly — a hallmark of racial profiling.  
+  
+  
+# 2 About the dataset (subset definition)  
+
+This dataset contains records of **52,654 warrantless searches** conducted by Victoria Police in the years **2018, 2019, 2022, and 2023**.  
+
+Data from **2020 and 2021** is excluded due to the atypical policing environment during the COVID-19 pandemic.  
+
+The dataset was released through a Freedom of Information (FOI) request lodged by the [Centre Against Racial Profiling](https://www.centreagainstracialprofiling.au/) and covers public-place searches carried out under a range of legal powers.  
+
+For this analysis, we restrict to:  
+
+- **Geography:** Melbourne metropolitan area  
+- **Contact type:** Foot patrol only  
+- **Unit type:** Uniform police only  
+- **Search type:** Drug searches conducted under s82 of the *Drugs, Poisons and Controlled Substances Act 1981*  
+- **Station linkage:** Only searches associated with a uniform station  
+- **Racial appearance:** Excluding categories with very small counts or unusable merged groupings  
+
+This yields a final analysis dataset (`ddat`) of **7,534 searches**, limited to individuals perceived as **White** or **African**. These categories provide both a majority baseline and a racialised minority group of concern, enabling a focused and interpretable comparison.  
+
+### What s82 allows  
+
+Under section 82 of the *Drugs, Poisons and Controlled Substances Act 1981*, a police officer may search a person **without a warrant** if they have *reasonable grounds to suspect* possession of a drug of dependence.  
+This is the most frequently invoked search power in the dataset and represents a context where discretionary judgments by officers play a central role.  
+
+## 2.1 Variables in this subset  
+
+The following variables are central to the analysis:  
+
+- **Date** — date of the stop and search  
+- **Region / Division / PSA / Station** — police geographic hierarchy  
+- **Racial.appearance.transformed** — officer-perceived racial appearance (cleaned categories)  
+- **Gender** — officer-perceived gender of the person searched  
+- **Age / Age group** — age of the person searched  
+- **Found** — whether any contraband was located (hit outcome)  
+- **Contact.Type** — search conducted on foot (`P`)  
+- **Unit.type** — uniform officers only (subset restriction)  
+- **Station.uniform** — the station associated with the officer  
+- **Rank** — officer rank (e.g. Constable, Senior Constable)  
+- **Year** — 2018, 2019, 2022, or 2023  
+
+Derived variables include:  
+
+- **Found.Flag** — binary indicator (1 if contraband found, 0 otherwise)  
+- **Race** — restricted to White vs African  
+
+---
+
+## 2.2 Data limitations  
+
+### Racial appearance categories  
+- Racial appearance is **assigned by officers**, not self-identified, and should be interpreted as how race is perceived in the policing context.  
+- The merged **Mediterranean/Middle Eastern** category is excluded because it conflates populations racialised differently in practice.  
+- Small categories (e.g. South American, n = 40) and the residual “Other” category (n = 254) are excluded due to low counts or heterogeneity.  
+- As a result, disparity testing is restricted to **White vs African** searches, which are sufficiently large and analytically comparable.  
+
+### Missing data  
+- **Age**: Missing for **42.9%** of searches in the White vs African subset. Age is therefore excluded from modelling, which limits the ability to adjust for age differences across groups.  
+- **Gender**: Fully recorded in this subset, but subject to officer perception rather than self-identification.  
+- **Racial appearance**: In the broader dataset, 20.6% of searches had no recorded racial appearance (n = 2,860). These records are excluded from disparity testing.  
+
+### Scope of coverage  
+- The dataset covers only **warrantless stop and search events conducted in public places**. This focus is deliberate: such encounters are entirely reliant on officer discretion, since there is no warrant, prior intelligence, or judicial approval.  
+- The analysis does not include searches with warrants, searches in private settings, or informal/unrecorded encounters.  
+- Findings therefore apply only to **Melbourne metropolitan drug searches by uniform officers on foot patrol**. They do not generalise to specialist units, vehicle stops, or regional policing contexts.  
+- Because modelling is restricted to White vs African, results do not extend to other racialised groups with smaller or analytically unreliable sample sizes.  
+
+
+# Data Overview  
+
+## Persons searched  
+
+This section summarises the characteristics of people searched in warrantless public-place encounters by uniform officers on foot patrols (2018, 2019, 2022, 2023).  
+Records with missing or unusable racial appearance are excluded to allow meaningful comparison.  
+
+- **Racial appearance.** Most searches involved people perceived as White, with African-appearance individuals making up around one in ten of the analytic sample.  
+- **Gender.** Searches were concentrated on men, who accounted for about four-fifths of those stopped.  
+- **Age.** While children and adolescents appear in the dataset, most searches targeted young adults in their late teens and twenties, followed by those in their thirties.  
+
+These patterns highlight that discretionary stop-and-search practices fall unevenly across the community, with young men and racialised groups particularly over-represented.  
+
+
+**Table 2 Characteristics of persons searched**
+```{r summary persons, echo = FALSE, warning = FALSE}
+of.interest <- c("Racial.appearance.transformed","Gender","Age group")
+
+#ddat$`Age group`[ddat$`Age group` == "Missing"] <- NA  
+ddat <- ddat %>%
+  filter(Racial.appearance.transformed %in% c("White", "African"))
+
+ddat.per <- ddat%>%
+  select(all_of(of.interest))%>%
+  mutate(across(everything(), ~ fct_infreq(.)))
+
+ddat.per <- ddat.per %>% 
+         mutate(`Age group` = fct_relevel(`Age group`, c("Under 12", "12 to 17", "18 to 25","26 to 35", "36 to 45", "46 and over")))
+ 
+print(dfSummary(ddat.per, 
+          max.distinct.values = 10, 
+           varnumbers   = FALSE, 
+                valid.col    = FALSE, 
+                graph.magnif = 0.76,
+          headings = FALSE),
+      method = 'render')
+```
+
+## Police undertaking searches  
+
+Search numbers were relatively consistent across the four years examined, with a slight peak in 2022.  
+
+Most searches were conducted by **uniform police** (72%). **Transit police** carried out around 7%, while the **Public Order Response Team (PORT)** — a specialist unit trained for large-scale protest and crowd control — accounted for 6%.  
+
+By rank, **Constables** and **Senior Constables** were the most frequently involved, reflecting the predominance of frontline officers in this type of activity.  
+
+
+**Table 3 Police and units undertaking searches**
+```{r summary police, echo = FALSE, warning = FALSE}
+of.interest <- c("Year", "Rank.of.Member", "Region",  "Division")
+
+ddat <- ddat %>%
+  mutate(
+    Rank = case_when(
+      Rank.of.Member == "SSGT" ~ "SGT",
+      Rank.of.Member == "PSO"  ~ "CONST",
+      TRUE           ~ Rank.of.Member
+    )
+  )
+
+dat.pol <- ddat %>%
+  select(all_of(of.interest))%>%
+  mutate(across(everything(), ~ fct_infreq(.)))
+
+dat.pol <- dat.pol %>% 
+  mutate(Year = fct_relevel(as.character(Year), c("2018", "2019", "2022", "2023")))
+ 
+print(dfSummary(dat.pol, 
+          max.distinct.values = 10, 
+           varnumbers   = FALSE, 
+                valid.col    = FALSE, 
+                graph.magnif = 0.76,
+          headings = FALSE),
+      method = 'render')
+```
+
+## Context: recorded drug offences and search intensity  
+
+To interpret whether search activity simply reflects drug crime patterns, we compare:  
+
+- **Recorded drug offences** from the Crime Statistics Agency (CSA)  
+- **Population levels** from ABS 2021 Census  
+- **Socio-economic disadvantage** (SEIFA IRSD)  
+
+This allows us to assess whether police searches are concentrated in areas with higher offending or whether they occur disproportionately in some regions regardless of crime levels.  
+
+### Interpretation  
+
+CSA data show that drug offending is not evenly distributed across Melbourne. Some divisions (e.g. **NWMR Division 1 – Melbourne/Yarra**) recorded very high levels of drug crime, while others (e.g. **Brimbank/Melton**) showed much lower offence totals.  
+
+When we compare searches to offending:  
+
+- In some divisions, there is a **rough match** between high search counts and high recorded offences (e.g. Melbourne/Yarra).  
+- In others, **searches outpace drug offending**. For example, **Banyule/Darebin/Whittlesea/Nillumbik** and **Port Phillip/Stonnington** have high search intensity despite more modest drug offence totals.  
+- Conversely, **Knox/Maroondah/Yarra Ranges** has relatively high recorded drug offending but lower search activity.  
+
+This suggests that search intensity does not map neatly onto drug offending. Instead, policing decisions appear to reflect **operational priorities and local demographics** as much as crime levels. For racial disparity analysis, this is critical: if searches are not simply following drug crime, then factors such as **community composition, socio-economic conditions, and discretionary policing cultures** may help explain why some groups experience heavier policing. 
+
+
+```{r division_context_all, echo=FALSE, message=FALSE, warning=FALSE}
+### Search intensity by population, drug offences, and SEIFA (IRSD)
+
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(knitr)
+library(ggplot2)
+library(scales)
+
+# --------------------------------------------
+# Helper: harmonise LGA names to ABS/CSA 2021
+# --------------------------------------------
+fix_lga <- function(x) {
+  x <- str_trim(x)
+  x <- str_replace_all(x, fixed("Merri-bek"), "Moreland")
+  x <- str_replace_all(x, fixed("Mornington"), "Mornington Peninsula")
+  x <- str_replace_all(x, fixed("Dandenong"), "Greater Dandenong")
+  x
+}
+
+# --------------------------------------------
+# 1) ABS SEIFA 2021 (anchor population + IRSD; IRSD = Score...3/Decile...4)
+# --------------------------------------------
+seifa <- read_excel(
+  "../Primary datasets - VicPol Search/Local Government Area, Indexes, SEIFA 2021.xlsx",
+  sheet = "Table 1",
+  skip = 5
+) %>%
+  select(
+    `2021 Local Government Area (LGA) Name`,
+    IRSD_Score  = `Score...3`,
+    IRSD_Decile = `Decile...4`,
+    SEIFA_Pop   = `Usual Resident Population`
+  ) %>%
+  rename(LGA = `2021 Local Government Area (LGA) Name`) %>%
+  mutate(LGA = fix_lga(as.character(LGA)))
+
+# --------------------------------------------
+# 2) CSA offences — Table 02 (filter years & Drug offences only)
+# --------------------------------------------
+years_of_interest <- c(2018, 2019, 2022, 2023)
+
+offences <- read_excel(
+  "../Primary datasets - VicPol Search/Data_Tables_LGA_Recorded_Offences_Year_Ending_December_2023_0.xlsx",
+  sheet = "Table 02"
+) %>%
+  mutate(`Local Government Area` = fix_lga(`Local Government Area`))
+
+lga_drug_off <- offences %>%
+  filter(
+    Year %in% years_of_interest,
+    `Offence Division` == "C Drug offences"
+  ) %>%
+  group_by(`Local Government Area`) %>%
+  summarise(Drug_Offences = sum(`Offence Count`, na.rm = TRUE), .groups = "drop")
+
+# --------------------------------------------
+# 3) Division → LGA mapping (harmonise names)
+# --------------------------------------------
+division_lga <- tribble(
+  ~Division, ~LGAs,
+  "NWMR Division 1", "Melbourne, Yarra",
+  "NWMR Division 2", "Hobsons Bay, Maribyrnong, Wyndham",
+  "NWMR Division 3", "Brimbank, Melton",
+  "NWMR Division 4", "Hume, Moonee Valley, Merri-bek",
+  "NWMR Division 5", "Banyule, Darebin, Nillumbik, Whittlesea",
+  "SMR Division 1", "Port Phillip, Stonnington",
+  "SMR Division 2", "Glen Eira, Kingston",
+  "SMR Division 3", "Cardinia, Casey, Dandenong",
+  "SMR Division 4", "Frankston, Mornington",
+  "Eastern Region Division 1", "Boroondara, Manningham, Monash, Whitehorse",
+  "Eastern Region Division 2", "Knox, Maroondah, Yarra Ranges"
+) %>%
+  mutate(LGA = str_split(LGAs, ",\\s*")) %>%
+  unnest(LGA) %>%
+  mutate(LGA = fix_lga(LGA))
+
+# Labels: append first LGA in brackets to Division
+division_labels <- division_lga %>%
+  group_by(Division) %>%
+  summarise(FirstLGA = first(LGA), .groups = "drop") %>%
+  mutate(Division_label = paste0(Division, " (", FirstLGA, ")"))
+
+# --------------------------------------------
+# 4) Aggregate to Division (ABS pop anchor + IRSD weighted; CSA drug offences)
+# --------------------------------------------
+division_pop <- division_lga %>%
+  left_join(seifa, by = c("LGA" = "LGA")) %>%
+  group_by(Division) %>%
+  summarise(
+    Pop2021     = sum(SEIFA_Pop, na.rm = TRUE),
+    IRSD_Score  = round(weighted.mean(IRSD_Score,  w = SEIFA_Pop, na.rm = TRUE), 1),
+    IRSD_Decile = round(weighted.mean(IRSD_Decile, w = SEIFA_Pop, na.rm = TRUE), 1),
+    .groups = "drop"
+  )
+
+division_drug <- division_lga %>%
+  left_join(lga_drug_off, by = c("LGA" = "Local Government Area")) %>%
+  group_by(Division) %>%
+  summarise(Drug_Offences = sum(Drug_Offences, na.rm = TRUE), .groups = "drop")
+
+# --------------------------------------------
+# 5) Search counts per Division (White vs African final sample, n = 7,534)
+# --------------------------------------------
+division_searches <- tribble(
+  ~Division, ~Searches,
+  "NWMR Division 1", 1505,
+  "NWMR Division 5", 1190,
+  "Eastern Region Division 2", 820,
+  "NWMR Division 4", 683,
+  "NWMR Division 2", 642,
+  "SMR Division 1", 621,
+  "Eastern Region Division 1", 536,
+  "SMR Division 3", 498,
+  "SMR Division 4", 466,
+  "SMR Division 2", 291,
+  "NWMR Division 3", 282
+)
+
+# --------------------------------------------
+# 6) Final table (add labels; compute rates)
+# --------------------------------------------
+division_context <- division_searches %>%
+  left_join(division_pop,  by = "Division") %>%
+  left_join(division_drug, by = "Division") %>%
+  left_join(division_labels, by = "Division") %>%
+  mutate(
+    Searches_per_1k      = round(Searches / Pop2021 * 1000, 2),
+    Searches_per_Offence = round(ifelse(Drug_Offences > 0, Searches / Drug_Offences, NA_real_), 2)
+  ) %>%
+  arrange(desc(Searches_per_1k))
+
+# Table with Division label (first LGA in brackets)
+kable(
+  division_context %>%
+    select(Division_label, Searches, Pop2021, Drug_Offences,
+           IRSD_Score, IRSD_Decile, Searches_per_1k, Searches_per_Offence),
+  caption = "Search intensity by Division: ABS 2021 population (SEIFA URP), CSA drug offences (2018, 2019, 2022, 2023), and SEIFA IRSD (weighted)."
+)
+
+# --------------------------------------------
+# 7) Plots (use Division_label on axis)
+# --------------------------------------------
+plot_df <- division_context %>%
+  mutate(
+    Division_label = reorder(Division_label, Searches_per_1k),
+    IRSD_Decile = as.numeric(IRSD_Decile)
+  )
+
+p1 <- ggplot(plot_df, aes(x = Division_label, y = Searches_per_1k, fill = IRSD_Decile)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "Search intensity by Division (per 1,000 residents, ABS 2021 anchor)",
+    subtitle = "Fill = SEIFA IRSD decile (lower = more disadvantaged)",
+    x = NULL, y = "Searches per 1,000 residents", fill = "IRSD decile"
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+  scale_fill_viridis_c(option = "C", direction = -1, na.value = "grey80") +
+  geom_text(aes(label = round(Searches_per_1k, 2)),
+            hjust = -0.15, size = 3, color = "grey10") +
+  theme_minimal(base_size = 12)
+
+p2 <- ggplot(plot_df, aes(x = Division_label, y = Searches_per_Offence)) +
+  geom_col(fill = "#6aaed6") +
+  coord_flip() +
+  labs(
+    title = "Searches per recorded drug offence (CSA, selected years)",
+    subtitle = "Higher values indicate more searches per offence",
+    x = NULL, y = "Searches per drug offence"
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+  geom_text(aes(label = round(Searches_per_Offence, 2)),
+            hjust = -0.15, size = 3, color = "grey10") +
+  theme_minimal(base_size = 12)
+
+p1
+p2
+```
+# Hit Rate Patterns  
+
+An important way to assess stop-and-search practices is through **hit rates** — the proportion of searches that result in contraband being found.  
+If searches are consistently based on *reasonable suspicion*, hit rates should be similar across groups.  
+Where a group has consistently lower hit rates, this suggests that officers may be applying a **lower threshold of suspicion**, a core indicator of potential racial profiling.  
+
+This section examines hit rates in the restricted dataset of **7,534 Melbourne metropolitan drug searches by uniform police on foot patrol** (2018, 2019, 2022, 2023).  
+A “hit” is defined as the discovery of **any prohibited item**, not just the item specified under the search power.  
+
+---
+
+## Hit rates by person searched  
+
+Hit rates varied by race, gender, and age:  
+
+- **By racial appearance.**  
+  White-appearing people had a hit rate of **14.1%** (957 finds out of 6,779 searches).  
+  African-appearing people had a lower hit rate of **11.4%** (86/755).  
+  This indicates that African-appearance individuals were **less likely to be found with contraband**, despite being searched in substantial numbers.  
+
+- **By gender.**  
+  Men had a hit rate of **14.1%** (837/5,956), compared with **13.1%** for women (206/1,578).  
+  Searches were heavily concentrated on men, accounting for four in five cases.  
+
+- **By age.**  
+  Younger people, particularly those under 18, had lower hit rates compared with adults.  
+
+- **By year.**  
+  Hit rates were lowest in **2018 (12.1%)**, rose in **2019 (14.5%)**, and were fairly stable in **2022 (14.0%)** and **2023 (14.4%)**.  
+
+**Interpretation.**  
+Hit rates were consistently lower for African-appearing individuals compared with White individuals, suggesting a lower evidentiary threshold for initiating searches. Gender differences were small, and year-to-year variation modest, indicating that the racial disparity is not explained by shifts in overall effectiveness.  
+
+
+**Table 5 Hit rates by person characteristics**
+
+```{r Finds racial, echo=FALSE, warning=FALSE, results='asis'}
+
+# Recode and reorder factors (ddat assumed pre-filtered to your analysis cohort)
+dat2 <- ddat %>%
+  mutate(
+    Found = factor(Found, levels = c("Yes", "No")),                 # hits first
+    Year  = fct_relevel(as.character(Year), "2018","2019","2022","2023"),
+    Gender = fct_infreq(Gender) |> fct_drop(),
+    Racial.appearance.transformed =
+      fct_relevel(Racial.appearance.transformed, "White", "African") |> fct_drop()
+  )
+
+# Variables to tabulate against Found
+vars_for_table <- c("Racial.appearance.transformed", "Gender", "Year")
+
+# Crosstable (no internal tests; cleaner & avoids small-cell errors)
+ct <- crosstable(
+  dat2[, c(vars_for_table, "Found")],
+  by = "Found",
+  total = TRUE,
+  test = FALSE,
+  showNA = "ifany",
+  percent_digits = 1
+)
+
+ft <- as_flextable(ct)
+
+# Safe association test per variable: Fisher for 2x2 else Chi-square with simulated p
+safe_test <- function(x, y) {
+  tbl <- table(x, y, useNA = "no")
+  tbl <- tbl[rowSums(tbl) > 0, colSums(tbl) > 0, drop = FALSE]
+  if (all(dim(tbl) == c(2, 2))) {
+    res <- fisher.test(tbl, workspace = 2e8)
+    list(label = "Fisher's exact", p = res$p.value)
+  } else {
+    res <- chisq.test(tbl, simulate.p.value = TRUE, B = 100000)
+    list(label = "Chi-square (simulated p)", p = res$p.value)
+  }
+}
+
+tests <- map(vars_for_table, ~ safe_test(dat2[[.x]], dat2$Found)) |>
+  set_names(vars_for_table) |>
+  imap_dfr(~ tibble(variable = .y, test = .x$label, p = .x$p)) |>
+  mutate(p_str = sprintf("%s — %s, p = %s",
+                         variable, test, format.pval(p, digits = 4)))
+
+# Append p-values to the table footer
+ft <- add_footer_lines(ft, values = c("Overall association tests:", tests$p_str))
+
+ft
+
+```
+
+
+## Hit rates by police member and operating context  
+
+- **By rank.** Constables and Senior Constables dominated search activity, and their hit rates were broadly similar.  
+- **By unit.** Highway Patrol, PSO units, and Transit recorded higher hit rates (25–35%), consistent with their concentration around transport hubs and travel corridors where contraband possession may be more common. Uniform police, who conducted most searches, recorded lower hit rates (around 17%).  
+- **By geography.** Hit rates were lower in the **North West Metro Region**, which includes diverse and disadvantaged areas such as Brimbank and Melbourne, compared with other parts of the city.  
+- **By time.** Across 2018, 2019, 2022, and 2023, hit rates varied only modestly.  
+
+**Interpretation.**  
+These results show that **who conducts the search** and **where it occurs** both shape outcomes. However, the consistent gap between African- and White-appearing individuals cuts across these contexts, reinforcing concerns that discretion is exercised differently by race.  
+
+
+**Table 6 Hit rates by police member and operating context**
+```{r Finds pol, echo=FALSE, warning=FALSE, results='asis'}
+
+### Summary of restricted sample (hit rates by rank, region, division, and year)
+
+library(dplyr)
+library(knitr)
+
+# Clean up ranks (SSGT -> SGT, PSO -> CONST)
+ddat_clean <- ddat %>%
+  mutate(
+    Rank = dplyr::recode(Rank.of.Member,
+                         "SSGT" = "SGT",
+                         "PSO"  = "CONST",
+                         .default = Rank.of.Member)
+  )
+
+# Function to summarise hit rates by variable
+summarise_hitrate <- function(data, group_var, label) {
+  data %>%
+    group_by({{ group_var }}) %>%
+    summarise(
+      Searches = n(),
+      Hits = sum(Found == "Yes", na.rm = TRUE),
+      Hit_rate = round(Hits / Searches * 100, 1),
+      .groups = "drop"
+    ) %>%
+    rename(Category = {{ group_var }}) %>%
+    mutate(Dimension = label)
+}
+
+# Summaries
+rank_summary     <- summarise_hitrate(ddat_clean, Rank, "Rank")
+region_summary   <- summarise_hitrate(ddat_clean, Region, "Region")
+division_summary <- summarise_hitrate(ddat_clean, Division, "Division")
+year_summary     <- summarise_hitrate(ddat_clean, Year, "Year")
+
+# Combine into one table
+combined_summary <- bind_rows(rank_summary, region_summary, division_summary, year_summary) %>%
+  select(Dimension, Category, Searches, Hits, Hit_rate)
+
+# Print
+kable(combined_summary,
+      caption = "Hit rates by rank, region, division, and year (restricted sample).")
+
+
+```
+
+# Division- and Station-Level Proportion Tests  
+
+To move beyond descriptive comparisons, we tested whether differences in hit rates between **African** and **White** individuals were statistically significant within each Division and Station.  
+
+We used two-sample proportion tests (`prop.test`), where a significantly lower hit rate for African-appearing individuals suggests that police may be applying a **lower threshold of suspicion** — a key indicator of potential racial profiling.  
+
+---
+
+## Division-Level Findings  
+
+- **North West Metro Region (NWMR) Division 3 – Brimbank and Melton** showed a clear disparity:  
+  - African: **3/70 (4.3%)** vs White: **30/212 (14.2%)**  
+  - Risk difference = –9.9%, Risk ratio = 0.30, *p* = 0.026  
+- This division is marked by **high disadvantage, rapid population growth, and large African diaspora communities**, and has been the focus of **intense policing of youth crime**.  
+
+---
+
+## Station-Level Findings  
+
+- **Werribee Station** also displayed a significant disparity:  
+  - African: **5/57 (8.8%)** vs White: **22/103 (21.4%)**  
+  - Risk difference = –12.6%, Risk ratio = 0.41, *p* = 0.042  
+- Werribee is in the same outer-western growth corridor as Brimbank/Melton, with a **substantial African community** and a history of **public concern about over-policing**.  
+
+
+```{r prop_test_division_station_sig, message=FALSE, warning=FALSE, echo = FALSE}
+alpha <- 0.05
+
+div_tbl_all <- make_hit_table(
+  data = ddat,
+  group_var = "Division",
+  alpha = alpha,
+  min_african_total = 1,      # keep any division with ≥1 African search
+  filter_sig_only = FALSE,    # set TRUE if you want to show only p < 0.05
+  add_fdr = TRUE
+)
+
+print_hit_table(
+  div_tbl_all,
+  caption = sprintf("Divisions — Hit Rates (African vs White) with prop.test (α = %.2f)", alpha),
+  show_bh = TRUE
+)
+```
+
+```{r stations-hitrate-with-prop, echo=FALSE, message=FALSE, warning=FALSE}
+alpha <- 0.05
+
+sta_tbl <- make_hit_table(
+  data = ddat,
+  group_var = "Station.uniform",
+  alpha = alpha,
+  min_african_total = 5,      # inclusion rule you requested
+  filter_sig_only = TRUE,     # show only p < 0.05; set FALSE to see all included
+  add_fdr = TRUE
+)
+
+print_hit_table(
+  sta_tbl,
+  caption = sprintf("Stations (≥ 5 African searches) — Hit Rates (African vs White) with prop.test (α = %.2f)", alpha),
+  show_bh = TRUE
+)
+
+```
+
+## Interpretation  
+
+The proportion tests suggest that disparities are **geographically concentrated** in Melbourne’s **outer west**, where disadvantage and demographic change intersect with intensive policing.  
+Other Divisions and Stations did not show statistically significant differences, but many had small African sample sizes. **Absence of significance does not mean absence of disparity.**  
+
+These results highlight the need for **multivariate modelling** to control for confounders such as **gender, year, and local policing context**.  
+
+# Statistical Modelling  
+
+The descriptive summaries and proportion tests suggest that hit rate disparities between African- and White-appearing individuals may exist, particularly in certain geographic areas. To test these disparities more rigorously, we use **logistic regression models**.  
+
+Logistic regression estimates the odds that a search will result in contraband being found, while adjusting for other variables. This allows us to move beyond descriptive comparisons and ask whether observed differences reflect systematic disparities in how suspicion is applied.  
+
+We apply three complementary modelling strategies:  
+
+1. **Division-level models**  
+   - Separate logistic regressions are estimated for each police Division.  
+   - Predictors: race (African vs White), gender (female vs male), and an interaction between race and gender.  
+   - Purpose: to test whether disparities are **geographically concentrated**, identifying divisions where African-appearing individuals face a significantly lower chance of a successful search.  
+
+2. **Pooled model with Division fixed effects**  
+   - A single logistic regression pooling all Divisions.  
+   - Predictors: race, gender, year, and Division fixed effects.  
+   - Purpose: to estimate whether disparities persist **across Melbourne as a whole**, while controlling for both local baseline differences (Divisions) and shifts across time (years).  
+
+3. **Multilevel (hierarchical) model**  
+   - A logistic regression with Division included as a **random effect**.  
+   - Predictors: race, gender, year; Divisions allowed to vary in their baseline hit rates.  
+   - Purpose: to provide a more robust Melbourne-wide estimate by stabilising results in Divisions with small sample sizes and assessing whether disparities are **systematic across the city**.  
+
+Together, these models move from **localised analysis** (division-level) to **city-wide estimation** (pooled and multilevel). This layered approach ensures we can identify both **geographically specific disparities** (e.g. Brimbank/Melton, Werribee) and assess whether those disparities reflect a broader **systematic pattern of racial profiling** in Melbourne.  
+
+## Division- and Station-Level Logistic Regression Models  
+
+The proportion tests showed that disparities in hit rates were not uniform across Melbourne, with some divisions and stations suggesting stronger evidence of racial disparity than others.  
+To explore this further, we estimated **logistic regression models separately for each Division and for selected Stations**.  
+
+The outcome is whether **any contraband was found** (`Found = Yes`). Each model includes predictors for:  
+
+- **Race** (African vs White)  
+- **Gender** (Female vs Male)  
+- An **interaction between race and gender**  
+
+Running separate models at both the **division** and **station** level allows us to:  
+
+1. Assess whether disparities are **geographically concentrated** in particular areas.  
+2. Avoid masking local differences that would be hidden in a pooled analysis.  
+3. Provide results that are **directly interpretable for community advocacy and policy discussions** in specific local contexts.  
+
+Because sample sizes for African-appearance searches are limited, especially at the station level, we restricted analysis to:  
+- Divisions with both White and African searches recorded.  
+- Stations with at least **10 searches of African-appearing individuals**, to avoid unstable estimates.  
+
+As with the proportion tests, a finding that African-appearing individuals have significantly lower odds of contraband being found indicates they are being searched on a **lower evidentiary threshold** — a hallmark of racial profiling.  
+
+
+```{r division-models-optionA-noYear, echo=FALSE, warning=FALSE, message=FALSE}
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(broom)
+library(kableExtra)
+library(stringr)
+
+# --------- helpers ----------
+is_yes <- function(x) {
+  if (is.logical(x)) return(!is.na(x) & x)
+  tolower(as.character(x)) %in% c("yes","y","true","1")
+}
+
+fmt_p <- function(p) {
+  ifelse(is.na(p), NA_character_,
+         ifelse(p < 0.001, "<0.001", sprintf("%.3f", p)))
+}
+
+# --------- prepare data ----------
+dat_div <- ddat %>%
+  filter(!is.na(Division),
+         Racial.appearance.transformed %in% c("African","White"),
+         !is.na(Found),
+         Gender %in% c("M","F")) %>%
+  transmute(
+    Division = Division,
+    Success  = as.integer(is_yes(Found)),
+    Race     = factor(Racial.appearance.transformed, levels = c("White","African")),
+    Gender   = factor(Gender, levels = c("M","F"))
+  )
+
+# Precompute per-division context for captions
+div_context <- ddat %>%
+  filter(!is.na(Division),
+         Racial.appearance.transformed %in% c("African","White"),
+         !is.na(Found)) %>%
+  mutate(Success = as.integer(is_yes(Found))) %>%
+  group_by(Division, Racial.appearance.transformed) %>%
+  summarise(succ = sum(Success), tot = n(), .groups = "drop") %>%
+  tidyr::pivot_wider(names_from = Racial.appearance.transformed,
+                     values_from = c(succ, tot),
+                     values_fill = 0) %>%
+  group_by(Division) %>%
+  mutate(n_total = tot_African + tot_White) %>%
+  ungroup()
+
+# --------- fit per-division models & print tables ----------
+data_by_div <- split(dat_div, dat_div$Division)
+
+walk(names(data_by_div), function(div_name) {
+  df <- data_by_div[[div_name]]
+
+  # skip if only one outcome class
+  if (dplyr::n_distinct(df$Success) < 2L) return(invisible(NULL))
+
+  # fit model with Race * Gender (no Year)
+  mdl <- tryCatch(
+    glm(Success ~ Race * Gender, data = df, family = binomial),
+    error = function(e) NULL
+  )
+  if (is.null(mdl)) return(invisible(NULL))
+
+  # tidy to ORs with 95% CI
+  td <- tryCatch(
+    tidy(mdl, exponentiate = TRUE, conf.int = TRUE),
+    error = function(e) {
+      tidy(mdl, exponentiate = TRUE, conf.int = FALSE) %>%
+        mutate(conf.low = NA_real_, conf.high = NA_real_)
+    }
+  ) %>%
+    select(term, estimate, conf.low, conf.high, p.value) %>%
+    mutate(
+      Term = case_when(
+        term == "RaceAfrican" ~ "Race: African vs White (Male ref.)",
+        term == "GenderF" ~ "Gender: Female vs Male",
+        term == "RaceAfrican:GenderF" ~ "Interaction: African × Female",
+        TRUE ~ term
+      ),
+      `Odds Ratio`      = estimate,
+      `95% CI (Lower)`  = conf.low,
+      `95% CI (Upper)`  = conf.high,
+      `p-value`         = p.value
+    ) %>%
+    select(Term, `Odds Ratio`, `95% CI (Lower)`, `95% CI (Upper)`, `p-value`) %>%
+    mutate(
+      `p-value` = fmt_p(`p-value`),
+      `Odds Ratio` = sprintf("%.3f", `Odds Ratio`),
+      `95% CI (Lower)` = ifelse(is.na(`95% CI (Lower)`), "—", sprintf("%.3f", `95% CI (Lower)`)),
+      `95% CI (Upper)` = ifelse(is.na(`95% CI (Upper)`), "—", sprintf("%.3f", `95% CI (Upper)`))
+    )
+
+  # caption context
+  cx <- div_context %>% filter(Division == div_name)
+  cap_bits <- c(
+    paste0("n=", ifelse(nrow(cx)==1, cx$n_total, NA_integer_)),
+    if (nrow(cx)==1) paste0("Afr: ", cx$succ_African, "/", cx$tot_African) else NULL,
+    if (nrow(cx)==1) paste0("Wh: ",  cx$succ_White,   "/", cx$tot_White)   else NULL
+  )
+  cap_ctx <- paste(cap_bits[!is.na(cap_bits)], collapse = " · ")
+
+  # print table
+  td %>%
+    kbl(
+      caption = paste0("Division: ", div_name, " — Logistic regression of search success (any contraband).  ", cap_ctx),
+      align = c("l","r","r","r","r"),
+      escape = TRUE
+    ) %>%
+    kable_paper(full_width = FALSE) %>%
+    kable_styling(bootstrap_options = c("striped","condensed","hover"),
+                  position = "left") %>%
+    column_spec(1, width = "22em") %>%
+    add_footnote(
+      label = "Model: Success ~ Race * Gender. Odds ratios shown (95% CI). Reference group = White males.",
+      notation = "symbol"
+    ) %>%
+    print()
+})
+```
+
+
+### Interpretation  
+
+Both the station-level and division-level logistic regressions show strong evidence of racial disparity in Melbourne’s **outer west**.  
+
+At the **station level**, African-appearing males had only about **one-third the odds** of a successful search compared to White males (*OR = 0.319, p = 0.037*). This suggests that African individuals were more frequently searched on a **lower evidentiary threshold**, with police suspicion less likely to result in the discovery of contraband.  
+
+At the **divisional level (NWMR Division 3 – Brimbank & Melton)**, the pattern was even more pronounced. African-appearing males had just **one-fifth the odds** of a successful search compared to White males (*OR = 0.213, p = 0.013*). White females also showed lower odds than White males, but the racial disparity was clear and statistically robust.  
+
+Interaction terms for African females could not be reliably estimated because there were virtually **no successful searches of African females** recorded in the dataset. The resulting “0.000 … Inf” values are statistical artefacts of these sparse data and should be interpreted as a lack of sufficient cases rather than evidence of no effect.  
+
+Taken together, these results point to **geographically concentrated racial disparities** in stop-and-search practices, particularly in Brimbank, Melton, and associated stations. These are areas marked by **socio-economic disadvantage, larger African diaspora communities, and longstanding tension between residents and police**. The findings align with **community concerns** that African-appearing individuals, especially young men, are being subjected to searches on a weaker threshold of suspicion.  
+
+
+```{r station-models-optionA-noYear, echo=FALSE, warning=FALSE, message=FALSE}
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(broom)
+library(kableExtra)
+library(stringr)
+
+# -------- helpers ----------
+is_yes <- function(x) {
+  if (is.logical(x)) return(!is.na(x) & x)
+  tolower(as.character(x)) %in% c("yes","y","true","1")
+}
+fmt_p <- function(p) ifelse(is.na(p), NA_character_, ifelse(p < 0.001, "<0.001", sprintf("%.3f", p)))
+
+# -------- prepare data ----------
+dat_sta <- ddat %>%
+  filter(!is.na(Station.uniform),
+         Racial.appearance.transformed %in% c("African","White"),
+         !is.na(Found),
+         Gender %in% c("M","F")) %>%
+  transmute(
+    Station = Station.uniform,
+    Success = as.integer(is_yes(Found)),
+    Race    = factor(Racial.appearance.transformed, levels = c("White","African")),
+    Gender  = factor(Gender, levels = c("M","F"))
+  )
+
+# Inclusion: stations with at least 10 African searches
+sta_context <- dat_sta %>%
+  count(Station, Race) %>%
+  pivot_wider(names_from = Race, values_from = n, values_fill = 0) %>%
+  filter(African >= 10)
+
+# Add success counts for captions
+sta_success <- dat_sta %>%
+  group_by(Station, Race) %>%
+  summarise(succ = sum(Success), tot = n(), .groups = "drop") %>%
+  pivot_wider(names_from = Race, values_from = c(succ, tot), values_fill = 0) %>%
+  mutate(n_total = tot_African + tot_White)
+
+# -------- fit per-station models ----------
+data_by_sta <- split(dat_sta, dat_sta$Station)
+
+walk(sta_context$Station, function(sta_name) {
+  df <- data_by_sta[[sta_name]]
+
+  if (dplyr::n_distinct(df$Success) < 2L) return(invisible(NULL))
+
+  mdl <- tryCatch(
+    glm(Success ~ Race * Gender, data = df, family = binomial),
+    error = function(e) NULL
+  )
+  if (is.null(mdl)) return(invisible(NULL))
+
+  td <- tryCatch(
+    tidy(mdl, exponentiate = TRUE, conf.int = TRUE),
+    error = function(e) {
+      tidy(mdl, exponentiate = TRUE, conf.int = FALSE) %>%
+        mutate(conf.low = NA_real_, conf.high = NA_real_)
+    }
+  ) %>%
+    select(term, estimate, conf.low, conf.high, p.value) %>%
+    mutate(
+      Term = case_when(
+        term == "RaceAfrican" ~ "Race: African vs White (Male ref.)",
+        term == "GenderF" ~ "Gender: Female vs Male (White ref.)",
+        term == "RaceAfrican:GenderF" ~ "Interaction: African × Female",
+        TRUE ~ term
+      ),
+      `Odds Ratio`      = estimate,
+      `95% CI (Lower)`  = conf.low,
+      `95% CI (Upper)`  = conf.high,
+      `p-value`         = p.value
+    ) %>%
+    select(Term, `Odds Ratio`, `95% CI (Lower)`, `95% CI (Upper)`, `p-value`) %>%
+    mutate(
+      `p-value` = fmt_p(`p-value`),
+      `Odds Ratio` = sprintf("%.3f", `Odds Ratio`),
+      `95% CI (Lower)` = ifelse(is.na(`95% CI (Lower)`), "—", sprintf("%.3f", `95% CI (Lower)`)),
+      `95% CI (Upper)` = ifelse(is.na(`95% CI (Upper)`), "—", sprintf("%.3f", `95% CI (Upper)`))
+    )
+
+  # Only print if Race: African vs White is significant at < 0.05
+  race_row <- td %>% filter(str_detect(Term, "Race: African vs White"))
+  if (nrow(race_row) == 1 && suppressWarnings(as.numeric(race_row$`p-value`)) >= 0.05) {
+    return(invisible(NULL))
+  }
+
+  cx <- sta_success %>% filter(Station == sta_name)
+  cap_bits <- c(
+    paste0("n=", ifelse(nrow(cx)==1, cx$n_total, NA_integer_)),
+    if (nrow(cx)==1) paste0("Afr: ", cx$succ_African, "/", cx$tot_African) else NULL,
+    if (nrow(cx)==1) paste0("Wh: ",  cx$succ_White,   "/", cx$tot_White)   else NULL
+  )
+  cap_ctx <- paste(cap_bits[!is.na(cap_bits)], collapse = " · ")
+
+  td %>%
+    kbl(
+      caption = paste0("Station: ", sta_name, " — Logistic regression of search success (any contraband). ", cap_ctx),
+      align = c("l","r","r","r","r"),
+      escape = TRUE
+    ) %>%
+    kable_paper(full_width = FALSE) %>%
+    kable_styling(bootstrap_options = c("striped","condensed","hover"),
+                  position = "left") %>%
+    column_spec(1, width = "22em") %>%
+    add_footnote(
+      label = "Model: Success ~ Race * Gender. Odds ratios shown (95% CI). Reference group = White males.",
+      notation = "symbol"
+    ) %>%
+    print()
+})
+```
+
+
+
+## Pooled Logistic Regression with Division Fixed Effects 
+
+The division- and station-level models highlight that disparities are **most visible in Melbourne’s outer west**, but their scope is necessarily local and limited by small sample sizes.  
+To understand whether these disparities reflect isolated hotspots or a **systematic Melbourne-wide pattern**, we next estimate a **pooled logistic regression**.  
+
+This model combines all divisions into a single analysis, while adjusting for:  
+
+- **Division fixed effects** — to absorb baseline geographic differences  
+- **Year** — to account for temporal variation  
+- **Gender** — to ensure disparities are not conflated with gender differences  
+
+The pooled model provides a headline estimate of whether, across metropolitan Melbourne, African-appearing individuals are consistently subjected to searches with a **lower evidentiary threshold** than their White counterparts.  
+## Pooled Logistic Regression with Division and Year Controls
+
+The division-by-division regressions above highlight that disparities are **not evenly distributed** across Melbourne: some divisions show strong evidence of racial profiling, while others do not. However, these models are limited by their small sample sizes and lack of adjustment for broader temporal patterns.  
+
+To provide a **Melbourne-wide estimate**, we next run a pooled logistic regression across all metropolitan divisions. This model includes predictors for **Race (African vs White)**, **Gender**, and **Year**, while controlling for **Division fixed effects**.  
+
+Including Division as a fixed effect absorbs baseline differences in hit rates across geographic areas (for example, some divisions may simply have higher or lower success rates overall, due to differences in demographics or policing style). Adding Year controls for shifts in search practices across 2018, 2019, 2022 and 2023, ensuring that the Race effect is not conflated with a particularly high- or low-hit-rate year.  
+
+This pooled model therefore allows us to test whether African-appearing individuals are, on average, **less likely to have contraband found** even after accounting for gender, year, and local policing context. It provides a headline figure for **Melbourne as a whole**, complementing the division-level models by showing whether the disparities identified locally add up to a systematic pattern across the city.  
+
+
+```{r pooled-model-optionB-year, echo=FALSE, warning=FALSE, message=FALSE}
+library(dplyr)
+library(tidyr)
+library(broom)
+library(kableExtra)
+library(forcats)
+library(stringr)
+
+# ---------- helpers ----------
+is_yes <- function(x) {
+  if (is.logical(x)) return(!is.na(x) & x)
+  tolower(as.character(x)) %in% c("yes","y","true","1")
+}
+fmt_p <- function(p) ifelse(is.na(p), NA_character_, ifelse(p < 0.001, "<0.001", sprintf("%.3f", p)))
+
+# ---------- prepare data ----------
+dat_pool <- ddat %>%
+  filter(
+    Racial.appearance.transformed %in% c("African","White"),
+    Gender %in% c("M","F"),
+    !is.na(Found), !is.na(Division), !is.na(Year)
+  ) %>%
+  transmute(
+    Success = as.integer(is_yes(Found)),
+    Race    = factor(Racial.appearance.transformed, levels = c("White","African")),
+    Gender  = factor(Gender, levels = c("M","F")),
+    Year    = factor(Year) %>% fct_relevel("2022","2018","2019","2023"),  # ref = 2022
+    Division = factor(Division)  # fixed effects
+  )
+
+# ---------- fit pooled model ----------
+mdl_pool <- glm(Success ~ Race * Gender + Year + Division, data = dat_pool, family = binomial)
+
+# ---------- tidy to Odds Ratios with 95% CI ----------
+td <- tryCatch(
+  tidy(mdl_pool, exponentiate = TRUE, conf.int = TRUE),
+  error = function(e) {
+    tidy(mdl_pool, exponentiate = TRUE, conf.int = FALSE) %>%
+      mutate(conf.low = NA_real_, conf.high = NA_real_)
+  }
+) %>%
+  mutate(
+    Term = case_when(
+      term == "(Intercept)"          ~ "(Intercept) — White male, Year 2022, Division ref.",
+      term == "RaceAfrican"          ~ "Race: African vs White (Male, 2022, Division ref.)",
+      term == "GenderF"              ~ "Gender: Female vs Male (White, 2022, Division ref.)",
+      str_detect(term, "^Year")      ~ str_replace(term, "^Year", "Year: "),
+      str_detect(term, "^Division")  ~ str_replace(term, "^Division", "Division: "),
+      term == "RaceAfrican:GenderF"  ~ "Interaction: African × Female",
+      TRUE                           ~ term
+    ),
+    `Odds Ratio`      = estimate,
+    `95% CI (Lower)`  = conf.low,
+    `95% CI (Upper)`  = conf.high,
+    `p-value`         = p.value
+  ) %>%
+  select(Term, `Odds Ratio`, `95% CI (Lower)`, `95% CI (Upper)`, `p-value`) %>%
+  mutate(
+    `Odds Ratio`      = sprintf("%.3f", `Odds Ratio`),
+    `95% CI (Lower)`  = ifelse(is.na(`95% CI (Lower)`), "—", sprintf("%.3f", `95% CI (Lower)`)),
+    `95% CI (Upper)`  = ifelse(is.na(`95% CI (Upper)`), "—", sprintf("%.3f", `95% CI (Upper)`)),
+    `p-value`         = fmt_p(`p-value`)
+  )
+
+# ---------- pretty table ----------
+td %>%
+  kbl(
+    caption = "Pooled logistic regression of search success (any contraband): Success ~ Race * Gender + Year + Division. Reference = White males in 2022, Division reference = first level.",
+    align = c("l","r","r","r","r"),
+    escape = TRUE
+  ) %>%
+  kable_paper(full_width = FALSE) %>%
+  kable_styling(bootstrap_options = c("striped","condensed","hover"), position = "left") %>%
+  column_spec(1, width = "28em") %>%
+  add_footnote(
+    label = "Odds ratios with 95% CI. Division entered as fixed effects to absorb baseline differences across areas.",
+    notation = "symbol"
+  ) %>%
+  print()
+
+# ---------- optional: compact 'headline' effects ----------
+headline <- td %>%
+  filter(Term %in% c("Race: African vs White (Male, 2022, Division ref.)",
+                     "Interaction: African × Female")) %>%
+  rename(`Term (key effects)` = Term)
+
+if (nrow(headline) > 0) {
+  headline %>%
+    kbl(
+      caption = "Key effects (pooled model): Race African vs White (male baseline) and African × Female interaction",
+      align = c("l","r","r","r","r"),
+      escape = TRUE
+    ) %>%
+    kable_paper(full_width = FALSE) %>%
+    kable_styling(bootstrap_options = c("condensed","hover"), position = "left") %>%
+    print()
+}
+```
+
+### Interpretation  
+
+The pooled logistic regression indicates that, across metropolitan Melbourne, **African-appearing males had significantly lower odds of contraband being found than White males**, even after controlling for gender, year, and division fixed effects.  
+Specifically, their odds of a successful search were about **23% lower** (*OR = 0.771, p = 0.042*).  
+
+Female gender was associated with slightly lower odds of a find, but this was not statistically significant.  
+The African × Female interaction was also non-significant, likely reflecting the very small number of African females in the dataset.  
+
+Year-to-year variation was modest and generally non-significant once other factors were accounted for, indicating that disparities are not driven by particular years.  
+Several divisions, especially in the **north-western metropolitan region**, showed significantly lower baseline hit rates, consistent with earlier descriptive results.  
+
+Overall, these results confirm that racial disparities in search outcomes are **not limited to isolated divisions or stations**, but persist at a **Melbourne-wide level**.  
+This strengthens the conclusion that African-appearing individuals are being searched on a **lower evidentiary threshold**, consistent with patterns of racial profiling.  
+
+## Multilevel Logistic Regression with Division Random Effects  
+
+The pooled model provides a Melbourne-wide estimate while controlling for gender, year, and division differences.  
+However, treating divisions as fixed effects assumes each division is **independent** and estimated with equal certainty, even though some divisions have far more searches than others.  
+To address this, we use **multilevel (hierarchical) logistic regression**, which accounts for clustering of searches within divisions and “borrows strength” across areas with small samples.
+
+We present two specifications:
+
+1. **Model 1 — Random intercepts only:** each Division has its own baseline hit rate.  
+2. **Model 2 — Random intercepts + random slopes for Race:** allows the **African–White disparity** itself to vary by Division.
+
+### Model 1: Random Intercepts for Division
+
+This model estimates the odds of a successful search while allowing each Division to have its own baseline (intercept):
+
+- Outcome: `Found = Yes` (any contraband found)  
+- Predictors: **Race** (African vs White), **Gender** (F vs M), **Year** (2018, 2019, 2022, 2023)  
+- Random effects: **(1 | Division)** 
+
+```{r multilevel-model-glmer, echo=FALSE, warning=FALSE, message=FALSE}
+library(lme4)
+library(broom.mixed)
+library(dplyr)
+library(forcats)
+library(kableExtra)
+
+# -------- helpers ----------
+is_yes <- function(x) {
+  if (is.logical(x)) return(!is.na(x) & x)
+  tolower(as.character(x)) %in% c("yes","y","true","1")
+}
+fmt_p <- function(p) ifelse(is.na(p), NA_character_,
+                            ifelse(p < 0.001, "<0.001", sprintf("%.3f", p)))
+
+# -------- prepare data ----------
+dat_glmer <- ddat %>%
+  filter(Racial.appearance.transformed %in% c("African","White"),
+         Gender %in% c("M","F"),
+         !is.na(Found), !is.na(Division), !is.na(Year)) %>%
+  transmute(
+    Success = as.integer(is_yes(Found)),
+    Race    = factor(Racial.appearance.transformed, levels = c("White","African")),
+    Gender  = factor(Gender, levels = c("M","F")),
+    Year    = factor(Year) %>% fct_relevel("2022","2018","2019","2023"),
+    Division = factor(Division)
+  )
+
+# -------- fit multilevel model ----------
+mdl_glmer <- glmer(Success ~ Race * Gender + Year + (1 | Division),
+                   data = dat_glmer, family = binomial,
+                   control = glmerControl(optimizer = "bobyqa"))
+
+# -------- tidy to Odds Ratios with 95% CI ----------
+td_glmer <- tidy(mdl_glmer, exponentiate = TRUE, conf.int = TRUE) %>%
+  mutate(
+    Term = case_when(
+      effect == "fixed" & term == "(Intercept)"          ~ "(Intercept) — White male, Year 2022 (Division random intercept)",
+      effect == "fixed" & term == "RaceAfrican"          ~ "Race: African vs White (Male, 2022 ref.)",
+      effect == "fixed" & term == "GenderF"              ~ "Gender: Female vs Male (White, 2022 ref.)",
+      effect == "fixed" & grepl("^Year", term)           ~ sub("^Year", "Year: ", term),
+      effect == "fixed" & term == "RaceAfrican:GenderF"  ~ "Interaction: African × Female",
+      TRUE ~ term
+    ),
+    `Odds Ratio`      = estimate,
+    `95% CI (Lower)`  = conf.low,
+    `95% CI (Upper)`  = conf.high,
+    `p-value`         = p.value
+  ) %>%
+  select(Term, `Odds Ratio`, `95% CI (Lower)`, `95% CI (Upper)`, `p-value`) %>%
+  mutate(
+    `Odds Ratio` = sprintf("%.3f", `Odds Ratio`),
+    `95% CI (Lower)` = ifelse(is.na(`95% CI (Lower)`), "—", sprintf("%.3f", `95% CI (Lower)`)),
+    `95% CI (Upper)` = ifelse(is.na(`95% CI (Upper)`), "—", sprintf("%.3f", `95% CI (Upper)`)),
+    `p-value` = fmt_p(`p-value`)
+  )
+
+# -------- pretty table ----------
+td_glmer %>%
+  kbl(
+    caption = "Multilevel logistic regression of search success (any contraband): Success ~ Race * Gender + Year + (1 | Division). Reference group = White males in 2022.",
+    align = c("l","r","r","r","r"),
+    escape = TRUE
+  ) %>%
+  kable_paper(full_width = FALSE) %>%
+  kable_styling(bootstrap_options = c("striped","condensed","hover"),
+                position = "left") %>%
+  column_spec(1, width = "28em") %>%
+  add_footnote(
+    label = "Odds ratios with 95% CI. Random intercepts allow each Division to have its own baseline hit rate, while estimating an overall racial effect across Melbourne.",
+    notation = "symbol"
+  ) %>%
+  print()
+```
+
+
+### **Interpretation**
+
+The model shows that **African-appearing males had about 24% lower odds of a successful search than White males** (*OR ≈ 0.761, p = 0.031*), controlling for gender and year.  
+
+Gender and year effects were **not statistically significant** once other variables were included.  
+
+The **random intercept variance** indicates modest baseline differences across divisions, suggesting the disparity is **systematic across Melbourne**, not confined to a few local areas.
+
+
+### **Model 2: Random Intercepts + Random Slopes for Race**
+
+This extension tests whether the **size of the African–White disparity** varies by Division:  
+
+- **Outcome:** `Found = Yes`  
+- **Predictors:** Race, Gender, Year  
+- **Random effects:** `(Race | Division)` — random intercepts **and** random slopes for Race  
+
+```{r multilevel-model-glmer-2, echo=FALSE, warning=FALSE, message=FALSE}
+mdl_glmer_slopes <- glmer(Success ~ Race * Gender + Year + (Race | Division),
+                          data = dat_glmer, family = binomial,
+                          control = glmerControl(optimizer = "bobyqa"))
+summary(mdl_glmer_slopes)
+```
+### **Interpretation**
+
+Allowing the Race effect to vary by Division yielded **very small slope variance** and a **singular (boundary) fit**, indicating **no meaningful between-division variation** in the disparity.  
+
+In practical terms, the **African–White gap in hit rates appears consistent across divisions**, reinforcing the conclusion from Model 1 that **African-appearing individuals face a lower evidentiary threshold city-wide**.  
+
+
+# **Modelling Analysis: Overall Insights**
+
+Across the different modelling strategies — division-level regressions, pooled logistic regression, and multilevel models — the evidence consistently points to **racial disparities in search outcomes**.  
+
+- **Division and station models** showed that disparities were especially pronounced in Melbourne’s **outer western suburbs** (Brimbank, Melton, Werribee), aligning with areas of socio-economic disadvantage and strong community concern about over-policing.  
+- The **pooled model** confirmed that these disparities are not just local anomalies: African-appearing males had **significantly lower odds of contraband being found** across Melbourne, even after adjusting for gender, year, and division differences.  
+- The **multilevel models** demonstrated that the disparity is **systematic across the city**, not meaningfully varying by division, which strengthens the conclusion that this is a broad structural pattern rather than an isolated hotspot effect.  
+
+Together, these models provide a **robust and layered picture**: while raw hit rates highlight where disparities look most obvious, statistical modelling shows that the issue is both **geographically concentrated** in some areas and **systematic city-wide**.
+
+---
+
+# **Conclusion**
+
+This analysis of **uniform foot patrol drug searches in metropolitan Melbourne (2018, 2019, 2022, 2023)** provides clear evidence that individuals perceived as **African** are searched on a **lower evidentiary threshold** compared to those perceived as White.  
+
+Key findings include:  
+
+- **Descriptive results** showed lower hit rates for African-appearing individuals across most contexts.  
+- **Proportion tests** and **division/station-level models** identified particularly strong disparities in Brimbank, Melton, and Werribee.  
+- **Pooled and multilevel models** demonstrated that the disparity persists after accounting for gender, year, and division, and is **consistent across Melbourne** rather than confined to a few local areas.  
+
+These results are consistent with **racial profiling**: African-appearing individuals are more frequently subjected to searches that are less likely to yield contraband, implying that suspicion is applied more readily to them.  
+
+While the magnitude of disparity varies locally, the **overall pattern is systematic**.  
+This highlights the need for **greater police accountability and independent oversight**, and provides an empirical foundation for **community advocacy and policy reform** aimed at fairer, more equitable policing in Melbourne.  

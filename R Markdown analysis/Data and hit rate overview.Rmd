@@ -418,12 +418,17 @@ ft
 
 # Conclusion
 
+To credibly assess potential racial profiling, we next **narrow the focus** to the most routine and comparable setting: **drug searches conducted by uniform police on foot patrols**.  
+These searches represent the majority of everyday public-place encounters and therefore provide the clearest test of discretionary decision-making.  
 
-To assess racial profiling credibly, we will compare like with like by restricting the analysis to drug searches conducted by uniform police. These searches make up the vast majority of ordinary public-place encounters and provide the most comparable context for decision-making at the point of search. We further limit the racial comparison to people perceived as White and African, because pooling Middle Eastern and Mediterranean into a single broad category introduces excess heterogeneity.
+For racial comparison, we restrict attention to people perceived as **White** and **African**. Other categories, such as the merged Mediterranean/Middle Eastern group, are too heterogeneous to interpret reliably and would risk obscuring clear patterns.  
 
-Within this scope, we will estimate adjusted hit-rate differences at the division level. For each division, we will fit a logistic regression of the hit indicator on an African (vs White) indicator, controlling for age, gender, year, and station, with cluster-robust standard errors at the station level to account for peer effects. We will report division-specific effects and then summarise across divisions using either a multilevel model (partial pooling across stations/divisions) or a simple meta-analytic synthesis. Sensitivity checks will address missing racial appearance and alternative place controls; where repeated individuals can be identified, we will cluster by person as well.
+Within this restricted scope, we will estimate **adjusted hit-rate differences at the division level**, using logistic regression models of search success. These models will control for gender and year, and later we extend to multilevel frameworks that account for clustering by division or station. Results will be expressed as **odds ratios and marginal effects**, highlighting both statistical and substantive significance.  
 
-This design removes major sources of confounding from search type and unit, focuses on the setting most people experience, and still accounts for geography—important given the distinct pattern observed in the North West Metro Region and substantial demographic and crime-level differences across LGAs. Results will be presented as odds ratios and average marginal effects to communicate both statistical and substantive significance. Findings will generalise to uniform drug searches; analyses of other search types or units can be undertaken separately using the same framework.
+This design removes major sources of confounding (such as search type and police unit), focuses on the **setting most people actually experience**, and still incorporates geographic context. This is especially important given the distinct disparities already evident in the **North West Metro Region**, where socio-economic disadvantage and demographic concentration intersect with intense policing.  
+
+By building the analysis in this stepwise way—from descriptive hit rates to adjusted division- and station-level models, and then to pooled and multilevel approaches—we can test whether the disparities observed are **localised anomalies** or reflect a **systematic city-wide pattern** in stop-and-search practices.  
+
 
 
 ---
