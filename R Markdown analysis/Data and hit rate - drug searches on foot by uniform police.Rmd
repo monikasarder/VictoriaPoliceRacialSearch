@@ -196,7 +196,7 @@ For this analysis, we restrict to:
 - **Station linkage:** Only searches associated with a uniform station  
 - **Racial appearance:** Excluding categories with very small counts or unusable merged groupings  
 
-This yields a final analysis dataset (`ddat`) of **7,534 searches**, limited to individuals perceived as **White** or **African**. These categories provide both a majority baseline and a racialised minority group of concern, enabling a focused and interpretable comparison.  
+This yields a final analysis dataset of **7,534 searches**, limited to individuals perceived as **White** or **African**. These categories provide both a majority baseline and a racialised minority group of concern, enabling a focused and interpretable comparison.  
 
 ### What s82 allows  
 
@@ -1298,7 +1298,21 @@ This extension tests whether the **size of the African–White disparity** varie
 mdl_glmer_slopes <- glmer(Success ~ Race * Gender + Year + (Race | Division),
                           data = dat_glmer, family = binomial,
                           control = glmerControl(optimizer = "bobyqa"))
-summary(mdl_glmer_slopes)
+
+
+# Tidy model output
+mdl_tbl <- broom.mixed::tidy(mdl_glmer_slopes, effects = "fixed", conf.int = TRUE)
+
+# Clean up column names for readability
+mdl_tbl <- mdl_tbl[, c("term", "estimate", "conf.low", "conf.high", "p.value")]
+names(mdl_tbl) <- c("Term", "Estimate (log-odds)", "95% CI Low", "95% CI High", "p-value")
+
+# Print table
+knitr::kable(
+  mdl_tbl,
+  digits = 3,
+  caption = "Fixed effects from multilevel logistic regression (Success ~ Race * Gender + Year + (Race | Division))."
+)
 ```
 ### **Interpretation**
 

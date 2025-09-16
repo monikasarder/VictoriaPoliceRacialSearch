@@ -418,16 +418,13 @@ ft
 
 # Conclusion
 
-To credibly assess potential racial profiling, we next **narrow the focus** to the most routine and comparable setting: **drug searches conducted by uniform police on foot patrols**.  
-These searches represent the majority of everyday public-place encounters and therefore provide the clearest test of discretionary decision-making.  
 
-For racial comparison, we restrict attention to people perceived as **White** and **African**. Other categories, such as the merged Mediterranean/Middle Eastern group, are too heterogeneous to interpret reliably and would risk obscuring clear patterns.  
+The descriptive results highlight both the promise and the limits of raw hit-rate comparisons. Clear disparities appear across appearance groups and geographic divisions, but unadjusted figures cannot fully resolve whether these patterns reflect differences in policing thresholds or in underlying population composition.  
 
-Within this restricted scope, we will estimate **adjusted hit-rate differences at the division level**, using logistic regression models of search success. These models will control for gender and year, and later we extend to multilevel frameworks that account for clustering by division or station. Results will be expressed as **odds ratios and marginal effects**, highlighting both statistical and substantive significance.  
+To move beyond description, we next narrow the scope to a more standardised setting — drug searches by uniformed officers on foot patrols. This setting captures the bulk of everyday encounters and removes confounding variation in search type and policing unit. Within that restricted frame, we can apply regression models to test whether racial disparities in hit rates remain once gender, year, and geography are accounted for.  
 
-This design removes major sources of confounding (such as search type and police unit), focuses on the **setting most people actually experience**, and still incorporates geographic context. This is especially important given the distinct disparities already evident in the **North West Metro Region**, where socio-economic disadvantage and demographic concentration intersect with intense policing.  
+In this way, the descriptive overview provides the baseline picture, while the next section introduces the analytic tools needed to determine whether the disparities observed are localised anomalies or evidence of a broader, systematic pattern in Victoria Police stop-and-search practices.
 
-By building the analysis in this stepwise way—from descriptive hit rates to adjusted division- and station-level models, and then to pooled and multilevel approaches—we can test whether the disparities observed are **localised anomalies** or reflect a **systematic city-wide pattern** in stop-and-search practices.  
 
 
 
