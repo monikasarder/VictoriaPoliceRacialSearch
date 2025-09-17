@@ -167,9 +167,9 @@ print_hit_table <- function(df, caption, show_bh = TRUE) {
     print()
 }
 ```
-# 1 Short summary  
+# Short summary  
 
-This analysis examines **drug searches conducted by uniformed officers on foot patrols in Melbourne**. These encounters represent the most routine form of warrantless public-place searches, where outcomes are highly dependent on officer discretion.  
+This analysis examines **7,534 drug searches conducted by uniformed officers on foot patrols in Melbourne, of white and African appearing people**. These encounters represent the most routine form of warrantless public-place searches, where outcomes are highly dependent on officer discretion. The racial appearance categories in scope represent the two largest recorded racial groupings in the dataset.
 
 The focus is on whether search outcomes suggest evidence of **racial profiling**. Specifically, we compare the **hit rates** — the proportion of searches that result in contraband being found — for two groups:  
 
@@ -179,9 +179,9 @@ The focus is on whether search outcomes suggest evidence of **racial profiling**
 By restricting the dataset to this context and to these two appearance categories, we provide a clear test of whether African-appearing people are subjected to searches on a **lower evidentiary threshold**. Lower hit rates for one group, despite comparable or higher search intensity, would suggest that police suspicion is being applied unevenly — a hallmark of racial profiling.  
   
   
-# 2 About the dataset (subset definition)  
+# About the dataset (subset definition)  
 
-This dataset contains records of **52,654 warrantless searches** conducted by Victoria Police in the years **2018, 2019, 2022, and 2023**.  
+This dataset contains records of **7,534 warrantless searches** conducted by Victoria Police in the years **2018, 2019, 2022, and 2023**.  
 
 Data from **2020 and 2021** is excluded due to the atypical policing environment during the COVID-19 pandemic.  
 
@@ -194,28 +194,25 @@ For this analysis, we restrict to:
 - **Unit type:** Uniform police only  
 - **Search type:** Drug searches conducted under s82 of the *Drugs, Poisons and Controlled Substances Act 1981*  
 - **Station linkage:** Only searches associated with a uniform station  
-- **Racial appearance:** Excluding categories with very small counts or unusable merged groupings  
+- **Racial appearance:** White and African appearance
 
-This yields a final analysis dataset of **7,534 searches**, limited to individuals perceived as **White** or **African**. These categories provide both a majority baseline and a racialised minority group of concern, enabling a focused and interpretable comparison.  
+This restriction enables us to compare searches for the most common drug searches experienced by the public in Melbourne, and restrict the data to reliable racial appearance categories.
 
-### What s82 allows  
+## What s82 allows  
 
 Under section 82 of the *Drugs, Poisons and Controlled Substances Act 1981*, a police officer may search a person **without a warrant** if they have *reasonable grounds to suspect* possession of a drug of dependence.  
 This is the most frequently invoked search power in the dataset and represents a context where discretionary judgments by officers play a central role.  
 
-## 2.1 Variables in this subset  
+## Variables in this subset  
 
-The following variables are central to the analysis:  
+The following variables are included in the analysis:  
 
-- **Date** — date of the stop and search  
+- **Year** — year of the stop and search  
 - **Region / Division / PSA / Station** — police geographic hierarchy  
 - **Racial.appearance.transformed** — officer-perceived racial appearance (cleaned categories)  
 - **Gender** — officer-perceived gender of the person searched  
-- **Age / Age group** — age of the person searched  
 - **Found** — whether any contraband was located (hit outcome)  
-- **Contact.Type** — search conducted on foot (`P`)  
 - **Unit.type** — uniform officers only (subset restriction)  
-- **Station.uniform** — the station associated with the officer  
 - **Rank** — officer rank (e.g. Constable, Senior Constable)  
 - **Year** — 2018, 2019, 2022, or 2023  
 
@@ -226,18 +223,13 @@ Derived variables include:
 
 ---
 
-## 2.2 Data limitations  
+## Data limitations  
 
 ### Racial appearance categories  
-- Racial appearance is **assigned by officers**, not self-identified, and should be interpreted as how race is perceived in the policing context.  
-- The merged **Mediterranean/Middle Eastern** category is excluded because it conflates populations racialised differently in practice.  
-- Small categories (e.g. South American, n = 40) and the residual “Other” category (n = 254) are excluded due to low counts or heterogeneity.  
-- As a result, disparity testing is restricted to **White vs African** searches, which are sufficiently large and analytically comparable.  
+The original dataset for drug searches conducted by uniform officers on foot patrol numbered 13,896. Race data was missing from 20% of the records.  Several categories had very small numbers or had been recategorised over the observation period.  As a result, disparity testing is restricted to **White vs African** searches, which are sufficiently large and analytically comparable.  These are the two largest race categories and account for over half (54%) of the relevant data.
 
-### Missing data  
-- **Age**: Missing for **42.9%** of searches in the White vs African subset. Age is therefore excluded from modelling, which limits the ability to adjust for age differences across groups.  
-- **Gender**: Fully recorded in this subset, but subject to officer perception rather than self-identification.  
-- **Racial appearance**: In the broader dataset, 20.6% of searches had no recorded racial appearance (n = 2,860). These records are excluded from disparity testing.  
+### Age data  
+Age data was missing for 42.9% of searches in the White vs African subset. Age is therefore excluded from modelling, which limits the ability to adjust for age differences across groups. We expect this would have an effect as African migrant populations in in local government areas tend to be younger than their white-appearing counterparts. 
 
 ### Scope of coverage  
 - The dataset covers only **warrantless stop and search events conducted in public places**. This focus is deliberate: such encounters are entirely reliant on officer discretion, since there is no warrant, prior intelligence, or judicial approval.  
@@ -286,11 +278,7 @@ print(dfSummary(ddat.per,
 
 ## Police undertaking searches  
 
-Search numbers were relatively consistent across the four years examined, with a slight peak in 2022.  
-
-Most searches were conducted by **uniform police** (72%). **Transit police** carried out around 7%, while the **Public Order Response Team (PORT)** — a specialist unit trained for large-scale protest and crowd control — accounted for 6%.  
-
-By rank, **Constables** and **Senior Constables** were the most frequently involved, reflecting the predominance of frontline officers in this type of activity.  
+Search numbers were relatively consistent across the four years examined, with a slight peak in 2022.  By rank, Constables and Senior Constables were the most frequently involved, reflecting the predominance of frontline officers in this type of activity.  
 
 
 **Table 3 Police and units undertaking searches**
@@ -322,243 +310,36 @@ print(dfSummary(dat.pol,
       method = 'render')
 ```
 
-## Context: recorded drug offences and search intensity  
-
-To interpret whether search activity simply reflects drug crime patterns, we compare:  
-
-- **Recorded drug offences** from the Crime Statistics Agency (CSA)  
-- **Population levels** from ABS 2021 Census  
-- **Socio-economic disadvantage** (SEIFA IRSD)  
-
-This allows us to assess whether police searches are concentrated in areas with higher offending or whether they occur disproportionately in some regions regardless of crime levels.  
-
-### Interpretation  
-
-CSA data show that drug offending is not evenly distributed across Melbourne. Some divisions (e.g. **NWMR Division 1 – Melbourne/Yarra**) recorded very high levels of drug crime, while others (e.g. **Brimbank/Melton**) showed much lower offence totals.  
-
-When we compare searches to offending:  
-
-- In some divisions, there is a **rough match** between high search counts and high recorded offences (e.g. Melbourne/Yarra).  
-- In others, **searches outpace drug offending**. For example, **Banyule/Darebin/Whittlesea/Nillumbik** and **Port Phillip/Stonnington** have high search intensity despite more modest drug offence totals.  
-- Conversely, **Knox/Maroondah/Yarra Ranges** has relatively high recorded drug offending but lower search activity.  
-
-This suggests that search intensity does not map neatly onto drug offending. Instead, policing decisions appear to reflect **operational priorities and local demographics** as much as crime levels. For racial disparity analysis, this is critical: if searches are not simply following drug crime, then factors such as **community composition, socio-economic conditions, and discretionary policing cultures** may help explain why some groups experience heavier policing. 
-
-
-```{r division_context_all, echo=FALSE, message=FALSE, warning=FALSE}
-### Search intensity by population, drug offences, and SEIFA (IRSD)
-
-library(readxl)
-library(dplyr)
-library(tidyr)
-library(stringr)
-library(knitr)
-library(ggplot2)
-library(scales)
-
-# --------------------------------------------
-# Helper: harmonise LGA names to ABS/CSA 2021
-# --------------------------------------------
-fix_lga <- function(x) {
-  x <- str_trim(x)
-  x <- str_replace_all(x, fixed("Merri-bek"), "Moreland")
-  x <- str_replace_all(x, fixed("Mornington"), "Mornington Peninsula")
-  x <- str_replace_all(x, fixed("Dandenong"), "Greater Dandenong")
-  x
-}
-
-# --------------------------------------------
-# 1) ABS SEIFA 2021 (anchor population + IRSD; IRSD = Score...3/Decile...4)
-# --------------------------------------------
-seifa <- read_excel(
-  "../Primary datasets - VicPol Search/Local Government Area, Indexes, SEIFA 2021.xlsx",
-  sheet = "Table 1",
-  skip = 5
-) %>%
-  select(
-    `2021 Local Government Area (LGA) Name`,
-    IRSD_Score  = `Score...3`,
-    IRSD_Decile = `Decile...4`,
-    SEIFA_Pop   = `Usual Resident Population`
-  ) %>%
-  rename(LGA = `2021 Local Government Area (LGA) Name`) %>%
-  mutate(LGA = fix_lga(as.character(LGA)))
-
-# --------------------------------------------
-# 2) CSA offences — Table 02 (filter years & Drug offences only)
-# --------------------------------------------
-years_of_interest <- c(2018, 2019, 2022, 2023)
-
-offences <- read_excel(
-  "../Primary datasets - VicPol Search/Data_Tables_LGA_Recorded_Offences_Year_Ending_December_2023_0.xlsx",
-  sheet = "Table 02"
-) %>%
-  mutate(`Local Government Area` = fix_lga(`Local Government Area`))
-
-lga_drug_off <- offences %>%
-  filter(
-    Year %in% years_of_interest,
-    `Offence Division` == "C Drug offences"
-  ) %>%
-  group_by(`Local Government Area`) %>%
-  summarise(Drug_Offences = sum(`Offence Count`, na.rm = TRUE), .groups = "drop")
-
-# --------------------------------------------
-# 3) Division → LGA mapping (harmonise names)
-# --------------------------------------------
-division_lga <- tribble(
-  ~Division, ~LGAs,
-  "NWMR Division 1", "Melbourne, Yarra",
-  "NWMR Division 2", "Hobsons Bay, Maribyrnong, Wyndham",
-  "NWMR Division 3", "Brimbank, Melton",
-  "NWMR Division 4", "Hume, Moonee Valley, Merri-bek",
-  "NWMR Division 5", "Banyule, Darebin, Nillumbik, Whittlesea",
-  "SMR Division 1", "Port Phillip, Stonnington",
-  "SMR Division 2", "Glen Eira, Kingston",
-  "SMR Division 3", "Cardinia, Casey, Dandenong",
-  "SMR Division 4", "Frankston, Mornington",
-  "Eastern Region Division 1", "Boroondara, Manningham, Monash, Whitehorse",
-  "Eastern Region Division 2", "Knox, Maroondah, Yarra Ranges"
-) %>%
-  mutate(LGA = str_split(LGAs, ",\\s*")) %>%
-  unnest(LGA) %>%
-  mutate(LGA = fix_lga(LGA))
-
-# Labels: append first LGA in brackets to Division
-division_labels <- division_lga %>%
-  group_by(Division) %>%
-  summarise(FirstLGA = first(LGA), .groups = "drop") %>%
-  mutate(Division_label = paste0(Division, " (", FirstLGA, ")"))
-
-# --------------------------------------------
-# 4) Aggregate to Division (ABS pop anchor + IRSD weighted; CSA drug offences)
-# --------------------------------------------
-division_pop <- division_lga %>%
-  left_join(seifa, by = c("LGA" = "LGA")) %>%
-  group_by(Division) %>%
-  summarise(
-    Pop2021     = sum(SEIFA_Pop, na.rm = TRUE),
-    IRSD_Score  = round(weighted.mean(IRSD_Score,  w = SEIFA_Pop, na.rm = TRUE), 1),
-    IRSD_Decile = round(weighted.mean(IRSD_Decile, w = SEIFA_Pop, na.rm = TRUE), 1),
-    .groups = "drop"
-  )
-
-division_drug <- division_lga %>%
-  left_join(lga_drug_off, by = c("LGA" = "Local Government Area")) %>%
-  group_by(Division) %>%
-  summarise(Drug_Offences = sum(Drug_Offences, na.rm = TRUE), .groups = "drop")
-
-# --------------------------------------------
-# 5) Search counts per Division (White vs African final sample, n = 7,534)
-# --------------------------------------------
-division_searches <- tribble(
-  ~Division, ~Searches,
-  "NWMR Division 1", 1505,
-  "NWMR Division 5", 1190,
-  "Eastern Region Division 2", 820,
-  "NWMR Division 4", 683,
-  "NWMR Division 2", 642,
-  "SMR Division 1", 621,
-  "Eastern Region Division 1", 536,
-  "SMR Division 3", 498,
-  "SMR Division 4", 466,
-  "SMR Division 2", 291,
-  "NWMR Division 3", 282
-)
-
-# --------------------------------------------
-# 6) Final table (add labels; compute rates)
-# --------------------------------------------
-division_context <- division_searches %>%
-  left_join(division_pop,  by = "Division") %>%
-  left_join(division_drug, by = "Division") %>%
-  left_join(division_labels, by = "Division") %>%
-  mutate(
-    Searches_per_1k      = round(Searches / Pop2021 * 1000, 2),
-    Searches_per_Offence = round(ifelse(Drug_Offences > 0, Searches / Drug_Offences, NA_real_), 2)
-  ) %>%
-  arrange(desc(Searches_per_1k))
-
-# Table with Division label (first LGA in brackets)
-kable(
-  division_context %>%
-    select(Division_label, Searches, Pop2021, Drug_Offences,
-           IRSD_Score, IRSD_Decile, Searches_per_1k, Searches_per_Offence),
-  caption = "Search intensity by Division: ABS 2021 population (SEIFA URP), CSA drug offences (2018, 2019, 2022, 2023), and SEIFA IRSD (weighted)."
-)
-
-# --------------------------------------------
-# 7) Plots (use Division_label on axis)
-# --------------------------------------------
-plot_df <- division_context %>%
-  mutate(
-    Division_label = reorder(Division_label, Searches_per_1k),
-    IRSD_Decile = as.numeric(IRSD_Decile)
-  )
-
-p1 <- ggplot(plot_df, aes(x = Division_label, y = Searches_per_1k, fill = IRSD_Decile)) +
-  geom_col() +
-  coord_flip() +
-  labs(
-    title = "Search intensity by Division (per 1,000 residents, ABS 2021 anchor)",
-    subtitle = "Fill = SEIFA IRSD decile (lower = more disadvantaged)",
-    x = NULL, y = "Searches per 1,000 residents", fill = "IRSD decile"
-  ) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
-  scale_fill_viridis_c(option = "C", direction = -1, na.value = "grey80") +
-  geom_text(aes(label = round(Searches_per_1k, 2)),
-            hjust = -0.15, size = 3, color = "grey10") +
-  theme_minimal(base_size = 12)
-
-p2 <- ggplot(plot_df, aes(x = Division_label, y = Searches_per_Offence)) +
-  geom_col(fill = "#6aaed6") +
-  coord_flip() +
-  labs(
-    title = "Searches per recorded drug offence (CSA, selected years)",
-    subtitle = "Higher values indicate more searches per offence",
-    x = NULL, y = "Searches per drug offence"
-  ) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
-  geom_text(aes(label = round(Searches_per_Offence, 2)),
-            hjust = -0.15, size = 3, color = "grey10") +
-  theme_minimal(base_size = 12)
-
-p1
-p2
-```
 # Hit Rate Patterns  
 
 An important way to assess stop-and-search practices is through **hit rates** — the proportion of searches that result in contraband being found.  
+
 If searches are consistently based on *reasonable suspicion*, hit rates should be similar across groups.  
+
 Where a group has consistently lower hit rates, this suggests that officers may be applying a **lower threshold of suspicion**, a core indicator of potential racial profiling.  
 
 This section examines hit rates in the restricted dataset of **7,534 Melbourne metropolitan drug searches by uniform police on foot patrol** (2018, 2019, 2022, 2023).  
-A “hit” is defined as the discovery of **any prohibited item**, not just the item specified under the search power.  
 
----
+A “hit” is defined as the discovery of any prohibited item, not just the item specified under the search power.  
 
 ## Hit rates by person searched  
 
 Hit rates varied by race, gender, and age:  
 
 - **By racial appearance.**  
-  White-appearing people had a hit rate of **14.1%** (957 finds out of 6,779 searches).  
-  African-appearing people had a lower hit rate of **11.4%** (86/755).  
-  This indicates that African-appearance individuals were **less likely to be found with contraband**, despite being searched in substantial numbers.  
+  - White-appearing people had a hit rate of **14.1%** (957 finds out of 6,779 searches).  
+  - African-appearing people had a lower hit rate of **11.4%** (86/755).  
+  - This indicates that African-appearance individuals were **less likely to be found with contraband**, despite being searched in substantial numbers.  
 
 - **By gender.**  
-  Men had a hit rate of **14.1%** (837/5,956), compared with **13.1%** for women (206/1,578).  
-  Searches were heavily concentrated on men, accounting for four in five cases.  
+  - Men had a hit rate of **14.1%** (837/5,956), compared with **13.1%** for women (206/1,578).  
+  - Searches were heavily concentrated on men, accounting for four in five cases.  
 
 - **By age.**  
-  Younger people, particularly those under 18, had lower hit rates compared with adults.  
+  - Younger people, particularly those under 18, had lower hit rates compared with adults.  
 
 - **By year.**  
-  Hit rates were lowest in **2018 (12.1%)**, rose in **2019 (14.5%)**, and were fairly stable in **2022 (14.0%)** and **2023 (14.4%)**.  
-
-**Interpretation.**  
-Hit rates were consistently lower for African-appearing individuals compared with White individuals, suggesting a lower evidentiary threshold for initiating searches. Gender differences were small, and year-to-year variation modest, indicating that the racial disparity is not explained by shifts in overall effectiveness.  
-
+  - Hit rates were lowest in **2018 (12.1%)**, rose in **2019 (14.5%)**, and were fairly stable in **2022 (14.0%)** and **2023 (14.4%)**.  
 
 **Table 5 Hit rates by person characteristics**
 
@@ -614,12 +395,14 @@ ft <- add_footer_lines(ft, values = c("Overall association tests:", tests$p_str)
 ft
 
 ```
-
+**Interpretation.**  
+Hit rates were consistently lower for African-appearing individuals compared with White individuals, suggesting a lower evidentiary threshold for initiating searches. Gender differences were small, and year-to-year variation modest, indicating that the racial disparity is not explained by shifts in overall effectiveness.  
 
 ## Hit rates by police member and operating context  
 
+Hit rates varied by rank and division. 
+
 - **By rank.** Constables and Senior Constables dominated search activity, and their hit rates were broadly similar.  
-- **By unit.** Highway Patrol, PSO units, and Transit recorded higher hit rates (25–35%), consistent with their concentration around transport hubs and travel corridors where contraband possession may be more common. Uniform police, who conducted most searches, recorded lower hit rates (around 17%).  
 - **By geography.** Hit rates were lower in the **North West Metro Region**, which includes diverse and disadvantaged areas such as Brimbank and Melbourne, compared with other parts of the city.  
 - **By time.** Across 2018, 2019, 2022, and 2023, hit rates varied only modestly.  
 
@@ -677,9 +460,7 @@ kable(combined_summary,
 
 # Division- and Station-Level Proportion Tests  
 
-To move beyond descriptive comparisons, we tested whether differences in hit rates between **African** and **White** individuals were statistically significant within each Division and Station.  
-
-We used two-sample proportion tests (`prop.test`), where a significantly lower hit rate for African-appearing individuals suggests that police may be applying a **lower threshold of suspicion** — a key indicator of potential racial profiling.  
+To move beyond descriptive comparisons, we tested whether differences in hit rates between **African** and **White** individuals were statistically significant within each Division and Station. We used two-sample proportion tests (`prop.test`).
 
 ---
 
@@ -689,15 +470,6 @@ We used two-sample proportion tests (`prop.test`), where a significantly lower h
   - African: **3/70 (4.3%)** vs White: **30/212 (14.2%)**  
   - Risk difference = –9.9%, Risk ratio = 0.30, *p* = 0.026  
 - This division is marked by **high disadvantage, rapid population growth, and large African diaspora communities**, and has been the focus of **intense policing of youth crime**.  
-
----
-
-## Station-Level Findings  
-
-- **Werribee Station** also displayed a significant disparity:  
-  - African: **5/57 (8.8%)** vs White: **22/103 (21.4%)**  
-  - Risk difference = –12.6%, Risk ratio = 0.41, *p* = 0.042  
-- Werribee is in the same outer-western growth corridor as Brimbank/Melton, with a **substantial African community** and a history of **public concern about over-policing**.  
 
 
 ```{r prop_test_division_station_sig, message=FALSE, warning=FALSE, echo = FALSE}
@@ -718,6 +490,14 @@ print_hit_table(
   show_bh = TRUE
 )
 ```
+---
+
+## Station-Level Findings  
+
+- **Werribee Station** also displayed a significant disparity:  
+  - African: **5/57 (8.8%)** vs White: **22/103 (21.4%)**  
+  - Risk difference = –12.6%, Risk ratio = 0.41, *p* = 0.042  
+- Werribee is in the same outer-western growth corridor as Brimbank/Melton, with a **substantial African community** and a history of **public concern about over-policing**.  
 
 ```{r stations-hitrate-with-prop, echo=FALSE, message=FALSE, warning=FALSE}
 alpha <- 0.05
@@ -742,13 +522,12 @@ print_hit_table(
 ## Interpretation  
 
 The proportion tests suggest that disparities are **geographically concentrated** in Melbourne’s **outer west**, where disadvantage and demographic change intersect with intensive policing.  
-Other Divisions and Stations did not show statistically significant differences, but many had small African sample sizes. **Absence of significance does not mean absence of disparity.**  
+Other Divisions and Stations did not show statistically significant differences, but many had small African sample sizes. Absence of significance does not mean absence of disparity. 
 
-These results highlight the need for **multivariate modelling** to control for confounders such as **gender, year, and local policing context**.  
+These results highlight the need for multivariate modelling to control for confounders such as **gender, year, and local policing context**.  
 
 # Statistical Modelling  
 
-The descriptive summaries and proportion tests suggest that hit rate disparities between African- and White-appearing individuals may exist, particularly in certain geographic areas. To test these disparities more rigorously, we use **logistic regression models**.  
 
 Logistic regression estimates the odds that a search will result in contraband being found, while adjusting for other variables. This allows us to move beyond descriptive comparisons and ask whether observed differences reflect systematic disparities in how suspicion is applied.  
 
@@ -774,7 +553,8 @@ Together, these models move from **localised analysis** (division-level) to **ci
 ## Division- and Station-Level Logistic Regression Models  
 
 The proportion tests showed that disparities in hit rates were not uniform across Melbourne, with some divisions and stations suggesting stronger evidence of racial disparity than others.  
-To explore this further, we estimated **logistic regression models separately for each Division and for selected Stations**.  
+
+To explore this further, we estimated **logistic regression models separately for each Division and for stations where there were at least twenty searches of people of African appearance in the observations.**  
 
 The outcome is whether **any contraband was found** (`Found = Yes`). Each model includes predictors for:  
 
@@ -792,8 +572,9 @@ Because sample sizes for African-appearance searches are limited, especially at 
 - Divisions with both White and African searches recorded.  
 - Stations with at least **10 searches of African-appearing individuals**, to avoid unstable estimates.  
 
-As with the proportion tests, a finding that African-appearing individuals have significantly lower odds of contraband being found indicates they are being searched on a **lower evidentiary threshold** — a hallmark of racial profiling.  
+As with the proportion tests, a finding that African-appearing individuals have significantly lower odds of contraband being found indicates they are being searched on a **lower evidentiary threshold.**  
 
+Summary tables models where the coefficient of racial appearance was lower than 0.05 appear below.  
 
 ```{r division-models-optionA-noYear, echo=FALSE, warning=FALSE, message=FALSE}
 library(dplyr)
@@ -858,17 +639,24 @@ walk(names(data_by_div), function(div_name) {
   )
   if (is.null(mdl)) return(invisible(NULL))
 
-  # tidy to ORs with 95% CI
-  td <- tryCatch(
+  # tidy (raw) to inspect p-values before formatting
+  td_raw <- tryCatch(
     tidy(mdl, exponentiate = TRUE, conf.int = TRUE),
     error = function(e) {
       tidy(mdl, exponentiate = TRUE, conf.int = FALSE) %>%
         mutate(conf.low = NA_real_, conf.high = NA_real_)
     }
   ) %>%
-    select(term, estimate, conf.low, conf.high, p.value) %>%
+    select(term, estimate, conf.low, conf.high, p.value)
+
+  # --- show model only if ANY non-intercept term is significant at 0.05 ---
+  keep_if_sig <- any(td_raw$term != "(Intercept)" & td_raw$p.value < 0.05, na.rm = TRUE)
+  if (!keep_if_sig) return(invisible(NULL))
+  # -------------------------------------------------------------------------
+
+  td <- td_raw %>%
     mutate(
-      Term = case_when(
+      Term = dplyr::case_when(
         term == "RaceAfrican" ~ "Race: African vs White (Male ref.)",
         term == "GenderF" ~ "Gender: Female vs Male",
         term == "RaceAfrican:GenderF" ~ "Interaction: African × Female",
@@ -888,18 +676,20 @@ walk(names(data_by_div), function(div_name) {
     )
 
   # caption context
-  cx <- div_context %>% filter(Division == div_name)
+  cx <- div_context %>% dplyr::filter(Division == div_name)
   cap_bits <- c(
-    paste0("n=", ifelse(nrow(cx)==1, cx$n_total, NA_integer_)),
-    if (nrow(cx)==1) paste0("Afr: ", cx$succ_African, "/", cx$tot_African) else NULL,
-    if (nrow(cx)==1) paste0("Wh: ",  cx$succ_White,   "/", cx$tot_White)   else NULL
+    paste0("n=", ifelse(nrow(cx) == 1, cx$n_total, NA_integer_)),
+    if (nrow(cx) == 1) paste0("Afr: ", cx$succ_African, "/", cx$tot_African) else NULL,
+    if (nrow(cx) == 1) paste0("Wh: ",  cx$succ_White,   "/", cx$tot_White)   else NULL
   )
   cap_ctx <- paste(cap_bits[!is.na(cap_bits)], collapse = " · ")
 
   # print table
   td %>%
     kbl(
-      caption = paste0("Division: ", div_name, " — Logistic regression of search success (any contraband).  ", cap_ctx),
+      caption = paste0("Division: ", div_name,
+                       " — Logistic regression of search success (any contraband).  ",
+                       cap_ctx),
       align = c("l","r","r","r","r"),
       escape = TRUE
     ) %>%
@@ -912,30 +702,13 @@ walk(names(data_by_div), function(div_name) {
       notation = "symbol"
     ) %>%
     print()
-})
+})  # closes walk()
+
+
 ```
 
-
-### Interpretation  
-
-Both the station-level and division-level logistic regressions show strong evidence of racial disparity in Melbourne’s **outer west**.  
-
-At the **station level**, African-appearing males had only about **one-third the odds** of a successful search compared to White males (*OR = 0.319, p = 0.037*). This suggests that African individuals were more frequently searched on a **lower evidentiary threshold**, with police suspicion less likely to result in the discovery of contraband.  
-
-At the **divisional level (NWMR Division 3 – Brimbank & Melton)**, the pattern was even more pronounced. African-appearing males had just **one-fifth the odds** of a successful search compared to White males (*OR = 0.213, p = 0.013*). White females also showed lower odds than White males, but the racial disparity was clear and statistically robust.  
-
-Interaction terms for African females could not be reliably estimated because there were virtually **no successful searches of African females** recorded in the dataset. The resulting “0.000 … Inf” values are statistical artefacts of these sparse data and should be interpreted as a lack of sufficient cases rather than evidence of no effect.  
-
-Taken together, these results point to **geographically concentrated racial disparities** in stop-and-search practices, particularly in Brimbank, Melton, and associated stations. These are areas marked by **socio-economic disadvantage, larger African diaspora communities, and longstanding tension between residents and police**. The findings align with **community concerns** that African-appearing individuals, especially young men, are being subjected to searches on a weaker threshold of suspicion.  
-
-
 ```{r station-models-optionA-noYear, echo=FALSE, warning=FALSE, message=FALSE}
-library(dplyr)
-library(tidyr)
-library(purrr)
-library(broom)
-library(kableExtra)
-library(stringr)
+
 
 # -------- helpers ----------
 is_yes <- function(x) {
@@ -961,7 +734,7 @@ dat_sta <- ddat %>%
 sta_context <- dat_sta %>%
   count(Station, Race) %>%
   pivot_wider(names_from = Race, values_from = n, values_fill = 0) %>%
-  filter(African >= 10)
+  filter(African >= 20)
 
 # Add success counts for captions
 sta_success <- dat_sta %>%
@@ -1044,11 +817,23 @@ walk(sta_context$Station, function(sta_name) {
 })
 ```
 
+### Interpretation  
+
+Both the station-level and division-level logistic regressions show evidence of racial disparity in Melbourne’s **outer west**.  
+
+At the **divisional level (NWMR Division 3 – Brimbank & Melton)**, the pattern was even more pronounced. African-appearing males had just **one-fifth the odds** of a successful search compared to White males (*OR = 0.213, p = 0.013*). White females also showed lower odds than White males, but the racial disparity was clear and statistically robust.  
+
+At the **station level**, African-appearing males had only about **one-third the odds** of a successful search compared to White males (*OR = 0.319, p = 0.037*). This suggests that African individuals were more frequently searched on a **lower evidentiary threshold**, with police suspicion less likely to result in the discovery of contraband.  
+
+Interaction terms for African females could not be reliably estimated because there were virtually **no successful searches of African females** recorded in the dataset. The resulting “0.000 … Inf” values are statistical artefacts of these sparse data and should be interpreted as a lack of sufficient cases rather than evidence of no effect.  
+
+Taken together, these results point to **geographically concentrated racial disparities** in stop-and-search practices, particularly in Brimbank, Melton, and associated stations. These are areas marked by **socio-economic disadvantage, larger African diaspora communities, and longstanding tension between residents and police**. The findings align with **community concerns** that African-appearing individuals, especially young men, are being subjected to searches on a weaker threshold of suspicion.  
 
 
 ## Pooled Logistic Regression with Division Fixed Effects 
 
 The division- and station-level models highlight that disparities are **most visible in Melbourne’s outer west**, but their scope is necessarily local and limited by small sample sizes.  
+
 To understand whether these disparities reflect isolated hotspots or a **systematic Melbourne-wide pattern**, we next estimate a **pooled logistic regression**.  
 
 This model combines all divisions into a single analysis, while adjusting for:  
@@ -1058,7 +843,8 @@ This model combines all divisions into a single analysis, while adjusting for:
 - **Gender** — to ensure disparities are not conflated with gender differences  
 
 The pooled model provides a headline estimate of whether, across metropolitan Melbourne, African-appearing individuals are consistently subjected to searches with a **lower evidentiary threshold** than their White counterparts.  
-## Pooled Logistic Regression with Division and Year Controls
+
+## Pooled Logistic Regression with Division and Year Controls 
 
 The division-by-division regressions above highlight that disparities are **not evenly distributed** across Melbourne: some divisions show strong evidence of racial profiling, while others do not. However, these models are limited by their small sample sizes and lack of adjustment for broader temporal patterns.  
 
@@ -1170,22 +956,24 @@ if (nrow(headline) > 0) {
 
 ### Interpretation  
 
-The pooled logistic regression indicates that, across metropolitan Melbourne, **African-appearing males had significantly lower odds of contraband being found than White males**, even after controlling for gender, year, and division fixed effects.  
-Specifically, their odds of a successful search were about **23% lower** (*OR = 0.771, p = 0.042*).  
+The pooled logistic regression indicates that, across metropolitan Melbourne, **African-appearing males had significantly lower odds of contraband being found than White males**, even after controlling for gender, year, and division fixed effects.  Specifically, their odds of a successful search were about **23% lower** (*OR = 0.771, p = 0.042*).  
 
 Female gender was associated with slightly lower odds of a find, but this was not statistically significant.  
 The African × Female interaction was also non-significant, likely reflecting the very small number of African females in the dataset.  
 
 Year-to-year variation was modest and generally non-significant once other factors were accounted for, indicating that disparities are not driven by particular years.  
+
 Several divisions, especially in the **north-western metropolitan region**, showed significantly lower baseline hit rates, consistent with earlier descriptive results.  
 
 Overall, these results confirm that racial disparities in search outcomes are **not limited to isolated divisions or stations**, but persist at a **Melbourne-wide level**.  
+
 This strengthens the conclusion that African-appearing individuals are being searched on a **lower evidentiary threshold**, consistent with patterns of racial profiling.  
 
 ## Multilevel Logistic Regression with Division Random Effects  
 
 The pooled model provides a Melbourne-wide estimate while controlling for gender, year, and division differences.  
 However, treating divisions as fixed effects assumes each division is **independent** and estimated with equal certainty, even though some divisions have far more searches than others.  
+
 To address this, we use **multilevel (hierarchical) logistic regression**, which accounts for clustering of searches within divisions and “borrows strength” across areas with small samples.
 
 We present two specifications:
@@ -1279,9 +1067,9 @@ td_glmer %>%
 
 ### **Interpretation**
 
-The model shows that **African-appearing males had about 24% lower odds of a successful search than White males** (*OR ≈ 0.761, p = 0.031*), controlling for gender and year.  
+The model shows that African-appearing males had about 24% lower odds of a successful search than White males (*OR ≈ 0.761, p = 0.031*), controlling for gender and year.  
 
-Gender and year effects were **not statistically significant** once other variables were included.  
+Gender and year effects were not statistically significant once other variables were included.  
 
 The **random intercept variance** indicates modest baseline differences across divisions, suggesting the disparity is **systematic across Melbourne**, not confined to a few local areas.
 
@@ -1345,5 +1133,6 @@ Key findings include:
 
 These results are consistent with **racial profiling**: African-appearing individuals are more frequently subjected to searches that are less likely to yield contraband, implying that suspicion is applied more readily to them.  
 
-While the magnitude of disparity varies locally, the **overall pattern is systematic**.  
-This highlights the need for **greater police accountability and independent oversight**, and provides an empirical foundation for **community advocacy and policy reform** aimed at fairer, more equitable policing in Melbourne.  
+While the magnitude of disparity varies locally, the overall pattern is systematic.  
+
+This highlights the need for greater police accountability and independent oversight, and provides an empirical foundation for community advocacy and policy reform aimed at fairer, more equitable policing in Melbourne.  
