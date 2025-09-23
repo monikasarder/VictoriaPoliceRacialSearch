@@ -21,7 +21,7 @@ This repository was developed to support public interest analysis and community-
 
 ## Repository Contents
 
-- **[VicPol Racial Profiling Data.xlsx](VicPol%20Search%20Data%20Clean/VicPol%20Search%20Data%20Clean.xlsx)**  
+- **[VicPol Racial Profiling Data.xlsx](VicPol%20Search%20Data%20Clean/VicPol%20Search%20Data%20Clean.xlsx?raw=true)**  
   Cleaned dataset of all warrantless searches across all police units  
 
 - **[R-code-cleaning](R-code-cleaning/)**  

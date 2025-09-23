@@ -1,5 +1,5 @@
 ---
-title: "Foot Patrol Drug Searches by Uniform Officers: Data Overview and Hit Rates"
+title: "Racial profiling - drug searches on foot by uniform police"
 author: "Monika Sarder"
 date: "`r Sys.Date()`"
 output: 
