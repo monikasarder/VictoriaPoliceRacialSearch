@@ -352,23 +352,25 @@ display: none;
 </div>
 
 
-<div id="vicpol-stop-and-search-dataset" class="section level1">
-<h1>VicPol Stop and Search Dataset</h1>
+<div id="vicpol-stop-and-search-dataset-and-racial-profiling-analysis" class="section level1">
+<h1>VicPol Stop and Search Dataset and Racial Profiling Analysis</h1>
 <p><a href="VicPol%20Search%20Data%20Clean/VicPol%20Search%20Data%20Clean.xlsx?raw=true">📥
 <strong>Download Cleaned Dataset (XLSX)</strong></a></p>
 <div id="about-the-dataset" class="section level2">
 <h2>About the Dataset</h2>
-<p>This repository contains my cleaned and enriched version of Victoria
-Police stop-and-search data — over 50,000 <strong>warrantless
-searches</strong> conducted in 2018, 2019, 2022, and 2023. The dataset
-has been processed in R to improve data quality, standardise formats,
-and add geographic location fields. It is designed to support public,
-academic, and community stakeholders in assessing patterns of policing
-and the potential presence of racial profiling in Victoria.</p>
-<p>The <strong>original raw data</strong> was obtained under the Freedom
-of Information Act by the <a href="https://www.racialprofilingresearch.org/">Racial Profiling Data
-Monitoring Project</a> (previously hosted by the Centre Against Racial
-Profiling) and is made available there “free for use by the public.”</p>
+<p>This repository contains:</p>
+<ul>
+<li>A cleaned version of Victoria Police stop-and-search data (50,000+
+<strong>warrantless searches</strong> from 2018, 2019, 2022, 2023),
+processed in R to improve quality, standardise formats, and add
+geographic fields.<br />
+</li>
+<li>A racial profiling analysis of <strong>drug searches on foot by
+uniform police</strong>, comparing outcomes for white- and
+African-appearing people using hit-rate methods.</li>
+</ul>
+<p>The original raw data was obtained under FOI by the <a href="https://www.racialprofilingresearch.org/">Racial Profiling Data
+Monitoring Project</a> and is made publicly available there.</p>
 </div>
 <div id="purpose-of-this-repository" class="section level2">
 <h2>Purpose of this Repository</h2>
@@ -389,14 +391,20 @@ uniform police</strong>, assessing racial disparities using established
 <div id="repository-contents" class="section level2">
 <h2>Repository Contents</h2>
 <ul>
-<li><strong>VicPol Racial Profiling Data.xlsx</strong> – Cleaned dataset
-of all warrantless searches across all police units<br />
-</li>
-<li><strong>Data Overview</strong> – Summary of variables, search types,
-and coverage limitations<br />
-</li>
-<li><strong>Data Analysis</strong> – Subset analysis of drug searches by
-uniform police, including hit rates by race and location</li>
+<li><p><strong><a href="VicPol%20Search%20Data%20Clean/VicPol%20Search%20Data%20Clean.xlsx">VicPol
+Racial Profiling Data.xlsx</a></strong><br />
+Cleaned dataset of all warrantless searches across all police
+units</p></li>
+<li><p><strong><a href="R%20Code%20for%20cleaning%20and%20transforming%20data/">R Code for
+Cleaning and Transforming Data</a></strong><br />
+Scripts for data cleaning and preparation</p></li>
+<li><p><strong>Data Overview</strong><br />
+R Markdown file summarising variables, search types, and coverage
+limitations:<br />
+<a href="R%20Markdown%20Analysis/Data%20and%20hit%20rate%20overview.Rmd"><code>Data and hit rate overview.Rmd</code></a></p></li>
+<li><p><strong>Racial Profiling Analysis</strong><br />
+R Markdown file analysing drug searches on foot by uniform police:<br />
+<a href="R%20Markdown%20Analysis/Racial%20profiling%20-%20drug%20searches%20on%20foot%20by%20uniform%20police.Rmd"><code>Racial profiling – drug searches on foot by uniform police.Rmd</code></a></p></li>
 </ul>
 <hr />
 </div>

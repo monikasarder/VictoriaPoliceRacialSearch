@@ -1,13 +1,15 @@
-# VicPol Stop and Search Dataset
+# VicPol Stop and Search Dataset and Racial Profiling Analysis
 
 [📥 **Download Cleaned Dataset (XLSX)**](VicPol%20Search%20Data%20Clean/VicPol%20Search%20Data%20Clean.xlsx?raw=true)
- 
 
 ## About the Dataset
 
-This repository contains my cleaned and enriched version of Victoria Police stop-and-search data — over 50,000 **warrantless searches** conducted in 2018, 2019, 2022, and 2023. The dataset has been processed in R to improve data quality, standardise formats, and add geographic location fields. It is designed to support public, academic, and community stakeholders in assessing patterns of policing and the potential presence of racial profiling in Victoria.
+This repository contains:
 
-The **original raw data** was obtained under the Freedom of Information Act by the [Racial Profiling Data Monitoring Project](https://www.racialprofilingresearch.org/) (previously hosted by the Centre Against Racial Profiling) and is made available there “free for use by the public.”
+- A cleaned version of Victoria Police stop-and-search data (50,000+ **warrantless searches** from 2018, 2019, 2022, 2023), processed in R to improve quality, standardise formats, and add geographic fields.  
+- A racial profiling analysis of **drug searches on foot by uniform police**, comparing outcomes for white- and African-appearing people using hit-rate methods.  
+
+The original raw data was obtained under FOI by the [Racial Profiling Data Monitoring Project](https://www.racialprofilingresearch.org/) and is made publicly available there.
 
 ## Purpose of this Repository
 
@@ -19,9 +21,19 @@ This repository was developed to support public interest analysis and community-
 
 ## Repository Contents
 
-- **VicPol Racial Profiling Data.xlsx** – Cleaned dataset of all warrantless searches across all police units  
-- **Data Overview** – Summary of variables, search types, and coverage limitations  
-- **Data Analysis** – Subset analysis of drug searches by uniform police, including hit rates by race and location  
+- **[VicPol Racial Profiling Data.xlsx](VicPol%20Search%20Data%20Clean/VicPol%20Search%20Data%20Clean.xlsx)**  
+  Cleaned dataset of all warrantless searches across all police units  
+
+- **[R Code for Cleaning and Transforming Data](R%20Code%20for%20cleaning%20and%20transforming%20data/)**  
+  Scripts for data cleaning and preparation  
+
+- **Data Overview**  
+  R Markdown file summarising variables, search types, and coverage limitations:  
+  [`Data and hit rate overview.Rmd`](R%20Markdown%20Analysis/Data%20and%20hit%20rate%20overview.Rmd)
+
+- **Racial Profiling Analysis**  
+  R Markdown file analysing drug searches on foot by uniform police:  
+  [`Racial profiling – drug searches on foot by uniform police.Rmd`](R%20Markdown%20Analysis/Racial%20profiling%20-%20drug%20searches%20on%20foot%20by%20uniform%20police.Rmd)
 
 ---
 
