@@ -237,6 +237,16 @@ dat.sr3 <- dat.sr3 %>%
     TRUE ~ "Missing"  # catch any unexpected cases
   ))
 
+#Drugs on foot only
+
+#drug.dat <- dat.sr3  %>%
+#  filter(
+#    Contact.Type == "P",
+#    Area.type == "Metro",
+#    !is.na(`Search.type - Drugs`),
+#    !is.na(Station.uniform)
+#  ) 
+
 # ------------------------------------------------------------
 # Save outputs
 # ------------------------------------------------------------
@@ -245,6 +255,7 @@ saveRDS(dat.sr3, "VicPol Search Data Clean/VicPol Search Data Clean.RDS")
 wb <- loadWorkbook("VicPol Search Data Clean/VicPol Search Data Clean.xlsx")
 writeData(wb, sheet = "Data", x = dat.sr3)
 saveWorkbook(wb, "VicPol Search Data Clean/VicPol Search Data Clean.xlsx", overwrite = TRUE)
+
 
 
 
