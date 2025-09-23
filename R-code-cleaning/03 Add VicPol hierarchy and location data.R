@@ -8,8 +8,8 @@ library(openxlsx)
 # ------------------------------------------------------------
 
 # Load 2018-19 and 2022-23 data
-dat1 <- readRDS( "R Code for cleaning and transforming data/Processed/data.18.19.wrangled.RDS")
-dat2 <- readRDS( "R Code for cleaning and transforming data/Processed/data.22.23.wrangled.RDS")
+dat1 <- readRDS( "R-code-cleaning/Processed/data.18.19.wrangled.RDS")
+dat2 <- readRDS( "R-code-cleaning/Processed/data.22.23.wrangled.RDS")
 
 # Combine datasets
 dat <- rbind(dat1, dat2) %>%

@@ -24,18 +24,16 @@ This repository was developed to support public interest analysis and community-
 - **[VicPol Racial Profiling Data.xlsx](VicPol%20Search%20Data%20Clean/VicPol%20Search%20Data%20Clean.xlsx)**  
   Cleaned dataset of all warrantless searches across all police units  
 
-- **[R Code for Cleaning and Transforming Data](R%20Code%20for%20cleaning%20and%20transforming%20data/)**  
-  Scripts for data cleaning and preparation  
+- **[R-code-cleaning](R-code-cleaning/)**  
+  R scripts for cleaning and transforming the dataset  
 
-- **Data Overview**  
-  R Markdown file summarising variables, search types, and coverage limitations:  
-  [`Data and hit rate overview.Rmd`](R%20Markdown%20Analysis/Data%20and%20hit%20rate%20overview.Rmd)
+- **[Data and hit rate overview.Rmd](Data-summary-and-profiling-analysis/Data%20and%20hit%20rate%20overview.Rmd)**  
+  Overview of variables, search types, and coverage limitations  
 
-- **Racial Profiling Analysis**  
-  R Markdown file analysing drug searches on foot by uniform police:  
-  [`Racial profiling – drug searches on foot by uniform police.Rmd`](R%20Markdown%20Analysis/Racial%20profiling%20-%20drug%20searches%20on%20foot%20by%20uniform%20police.Rmd)
-
----
+- **[Racial profiling – drug searches on foot by uniform police.Rmd](Data-summary-and-profiling-analysis/Racial%20profiling%20-%20drug%20searches%20on%20foot%20by%20uniform%20police.Rmd)**  
+  Analysis of drug searches on foot by uniform police, including hit rates by race and location  
+  
+--- 
 
 ## Data Notes
 
