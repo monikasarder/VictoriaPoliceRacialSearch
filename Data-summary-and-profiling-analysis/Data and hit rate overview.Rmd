@@ -40,13 +40,18 @@ dat <- readRDS("../VicPol Search Data Clean/VicPol Search Data Clean.RDS")
 
 ```
 
-# Short  summary
+# Short summary
 
-This overview considers the dataset for a racial profiling analysis using hit rates—the share of searches that result in a find. Our goals are twofold: to understand the data well enough to decide how best to conduct a credible hit-rate analysis of racial profiling, and to explain the dataset’s key components so others can use it appropriately.
+This overview was carried out with the aim of understanding how Victoria Police stop-and-search data can be examined for racial profiling using hit-rate analysis—the share of searches that result in a find. The goal is twofold: (1) to assess whether the dataset is suitable for credible analysis of potential racial disparities in policing thresholds, and (2) to document its structure so others can use it appropriately.  
 
-The dataset contains 52,654 warrantless public-place searches from 2018, 2019, 2022, and 2023. Most public encounters involve uniformed officers, and drug searches are by far the most common search type. Transit and Public Order Response Team (PORT) deployments are a smaller share of activity but are concentrated around transport hubs and travel corridors.
+The dataset covers 52,654 warrantless public-place searches across 2018, 2019, 2022, and 2023, mostly by uniformed officers, with drug searches the dominant search type. Descriptive results highlight clear differences in outcomes:  
 
-Hit rate here means any contraband or prohibited item found during a search. Hit rates vary most clearly between people, especially by racial appearance: people perceived as White tend to record higher hit rates than several racialised groups; males tend to be higher than females; and teenagers (≤17) are generally lower than adults. Context also shapes outcomes: PSO, Transit, and Highway Patrol units show higher hit rates than Uniform members, consistent with where and when they operate; by search type, weapons-related searches are higher than drug searches, and specified-place searches for items like graffiti implements are higher again. Geography matters too: overall metro and regional rates are similar, but the North West Metro Region’s hit rate is lower than other regions. These differences can confound racial comparisons if not accounted for, so any assessment must compare like with like.
+- **By racial appearance**: people perceived as White recorded higher hit rates (17.8%) than many racialised groups, including African (12.9%) and Middle Eastern (10%) individuals.  
+- **By context**: PSO, Transit, and Highway Patrol units had higher hit rates than Uniform police; graffiti and weapons searches were more successful than drug searches.  
+- **By geography**: the North West Metro Region, covering Melbourne’s diverse western and northern suburbs, showed significantly lower hit rates than other regions.  
+- **By demographics**: males had higher hit rates than females, and teenagers (≤17) had lower hit rates than adults.  
+
+These patterns suggest that disparities in search outcomes are real, but raw hit-rate comparisons cannot alone establish whether police apply different evidentiary thresholds across groups. To move beyond description, the analysis must be narrowed to a standardised setting (e.g. drug searches by uniformed officers on foot patrols) and then modelled to account for confounders such as gender, year, and geography.  
 
 # About the Dataset
 
@@ -103,7 +108,7 @@ Note that multiple powers can apply in a single search - for example where polic
 
 Victoria Police records the **perceived racial appearance** of individuals at the time of the search. These categories reflect how the officer perceives the person’s racial appearance — they are *not* based on self-identification or ancestry and should be understood as indicators of how race is *perceived* in the policing context.
 
-In addition, **2,097 records** are classified under the merged **‘Mediterranean/Middle Eastern’** category. Since 2020, Victoria Police has combined these two appearance labels, limiting the ability to meaningfully assess outcomes for people of Middle Eastern appearance. While individuals of Mediterranean descent are often perceived as non-racialised or White, those of Middle Eastern appearance may be racialised differently in police interactions. The merger obscures this distinction, rendering these records **unusable for racial disparity analysis** involving Middle Eastern individuals.
+In addition, **2,097 records** are classified under the merged **‘Mediterranean/Middle Eastern’** category. Since at least 2022, Victoria Police has combined these two appearance labels, limiting the ability to meaningfully assess outcomes for people of Middle Eastern appearance. While individuals of Mediterranean descent are often perceived as non-racialised or White, those of Middle Eastern appearance may be racialised differently in police interactions. The merger obscures this distinction, rendering these records **unusable for racial disparity analysis** involving Middle Eastern individuals.
 
 ### Missing Data
 
@@ -356,25 +361,37 @@ ft
 
 **Table 6 Hit rates by police member and operating context**
 ```{r Finds pol, echo=FALSE, warning=FALSE, results='asis'}
-
-
-# 1) Recode and reorder factors (note: removed the duplicate "Unit.type" in across)
+# Recode and reorder factors
 dat2 <- dat %>%
   mutate(
     Found = factor(Found, levels = c("Yes", "No")),  # Yes before No
     Year  = fct_relevel(as.character(Year), "2018", "2019", "2022", "2023"),
-    # Lump very-rare units to stabilise counts (tune 'min' as needed)
-    Unit.type = fct_lump_min(Unit.type, min = 50, other_level = "Other") |> fct_drop(),
-    # Order the rest by frequency
-    Rank.of.Member = fct_infreq(Rank.of.Member) |> fct_drop(),
-    Area.type      = fct_infreq(Area.type) |> fct_drop(),
-    Region         = fct_infreq(Region) |> fct_drop()
+
+    # Age group: make NA explicit, then keep your specified order (Missing last)
+    `Age group` = `Age group` |>
+      fct_explicit_na(na_level = "Missing") |>
+      fct_relevel(
+        "Under 12", "12 to 17", "18 to 25",
+        "26 to 35", "36 to 45", "46 and over", "Missing"
+      ) |>
+      fct_drop(),
+
+    # Race & Gender: make NA explicit, then order by frequency
+    `Racial.appearance.transformed` = `Racial.appearance.transformed` |>
+      fct_explicit_na(na_level = "Missing") |>
+      fct_infreq() |>
+      fct_drop(),
+
+    Gender = Gender |>
+      fct_explicit_na(na_level = "Missing") |>
+      fct_infreq() |>
+      fct_drop()
   )
 
-# 2) Variables to tabulate (exclude 'Found' here; it's the 'by' variable)
-vars_for_table <- c("Rank.of.Member", "Unit.type", "Area.type", "Region", "Year")
+# Variables to tabulate (exclude 'Found' here; it's the 'by' variable)
+vars_for_table <- c("Racial.appearance.transformed", "Gender", "Age group")
 
-# 3) Crosstable WITHOUT internal tests (prevents Fisher blow-ups)
+# Build crosstable WITHOUT internal tests (prevents Fisher blow-ups)
 ct <- crosstable(
   dat2[, c(vars_for_table, "Found")],
   by = "Found",
@@ -383,9 +400,10 @@ ct <- crosstable(
   showNA = "ifany",
   percent_digits = 1
 )
+
 ft <- as_flextable(ct)
 
-# 4) Safe association test per variable
+# Safe association test per variable: Fisher for 2x2, else Chi-square with simulated p
 safe_test <- function(x, y) {
   tbl <- table(x, y, useNA = "no")
   tbl <- tbl[rowSums(tbl) > 0, colSums(tbl) > 0, drop = FALSE]
@@ -404,14 +422,10 @@ tests <- map(vars_for_table, ~ safe_test(dat2[[.x]], dat2$Found)) |>
   mutate(p_str = sprintf("%s — %s, p = %s",
                          variable, test, format.pval(p, digits = 4)))
 
-# 5) Append p-values to the table footer
-ft <- flextable::add_footer_lines(
-  ft,
-  values = c("Overall association tests:", tests$p_str)
-)
+# Append p-values to the table footer
+ft <- add_footer_lines(ft, values = c("Overall association tests:", tests$p_str))
 
 ft
-
 
 ```
 

@@ -167,7 +167,32 @@ print_hit_table <- function(df, caption, show_bh = TRUE) {
     print()
 }
 ```
-# Short summary  
+
+# Short summary
+
+This analysis examines 7,534 drug searches conducted by uniformed officers on foot patrols in Melbourne, focusing on people perceived as White or African. These encounters are the most routine form of warrantless public-place searches and depend heavily on officer discretion.
+
+
+### Melbourne-wide findings
+- Hit rates: White 14.1% (957/6,779) vs African 11.4% (86/755); Fisher’s exact p = 0.040.
+- Pooled logistic regression (controls: Division fixed effects, Year, Gender): OR = 0.771 (95% CI 0.596–0.985), p = 0.042 — African-appearing males had ~23% lower odds of a find than White males.
+- Multilevel logistic regression (random intercepts for Division): OR = 0.761 (95% CI 0.594–0.975), p = 0.031 — confirms the disparity after accounting for clustering by Division.
+
+
+### Local hotspots
+- NWMR Division 3 (Brimbank & Melton): African 4.3% (3/70) vs White 14.2% (30/212); risk ratio = 0.30, p = 0.026.
+- Werribee Station: African 8.8% (5/57) vs White 21.4% (22/103); risk ratio = 0.41, p = 0.042.
+
+
+### Limits of statistical significance
+- Most other divisions and stations did not reach statistical significance, primarily because of small African sample sizes (often only a few dozen searches). Wide confidence intervals and multiple-testing adjustments mean that many apparent disparities cannot be declared significant.
+- Non-significance does not equal absence of disparity — rather, it reflects the limited statistical power in areas with few recorded searches of African-appearing individuals.
+
+
+### Interpretation
+Across Melbourne, African-appearing people are consistently subjected to searches with lower hit rates and lower odds of contraband being found, even after adjusting for year and division. This pattern is strongest in Melbourne’s outer west (Brimbank, Melton, Werribee), but persists at a city-wide level. Together, these results are consistent with racial profiling: African-appearing individuals are more frequently searched on a weaker threshold of suspicion.
+
+# Introduction  
 
 This analysis examines **7,534 drug searches conducted by uniformed officers on foot patrols in Melbourne, of white and African appearing people**. These encounters represent the most routine form of warrantless public-place searches, where outcomes are highly dependent on officer discretion. The racial appearance categories in scope represent the two largest recorded racial groupings in the dataset.
 
@@ -469,7 +494,7 @@ To move beyond descriptive comparisons, we tested whether differences in hit rat
 - **North West Metro Region (NWMR) Division 3 – Brimbank and Melton** showed a clear disparity:  
   - African: **3/70 (4.3%)** vs White: **30/212 (14.2%)**  
   - Risk difference = –9.9%, Risk ratio = 0.30, *p* = 0.026  
-- This division is marked by **high disadvantage, rapid population growth, and large African diaspora communities**, and has been the focus of **intense policing of youth crime**.  
+- This division is marked by **socio-economic disadvantage and large  diaspora communities**.  
 
 
 ```{r prop_test_division_station_sig, message=FALSE, warning=FALSE, echo = FALSE}
@@ -844,20 +869,9 @@ This model combines all divisions into a single analysis, while adjusting for:
 
 The pooled model provides a headline estimate of whether, across metropolitan Melbourne, African-appearing individuals are consistently subjected to searches with a **lower evidentiary threshold** than their White counterparts.  
 
-## Pooled Logistic Regression with Division and Year Controls 
-
-The division-by-division regressions above highlight that disparities are **not evenly distributed** across Melbourne: some divisions show strong evidence of racial profiling, while others do not. However, these models are limited by their small sample sizes and lack of adjustment for broader temporal patterns.  
-
-To provide a **Melbourne-wide estimate**, we next run a pooled logistic regression across all metropolitan divisions. This model includes predictors for **Race (African vs White)**, **Gender**, and **Year**, while controlling for **Division fixed effects**.  
-
-Including Division as a fixed effect absorbs baseline differences in hit rates across geographic areas (for example, some divisions may simply have higher or lower success rates overall, due to differences in demographics or policing style). Adding Year controls for shifts in search practices across 2018, 2019, 2022 and 2023, ensuring that the Race effect is not conflated with a particularly high- or low-hit-rate year.  
-
-This pooled model therefore allows us to test whether African-appearing individuals are, on average, **less likely to have contraband found** even after accounting for gender, year, and local policing context. It provides a headline figure for **Melbourne as a whole**, complementing the division-level models by showing whether the disparities identified locally add up to a systematic pattern across the city.  
 
 
 ```{r pooled-model-optionB-year, echo=FALSE, warning=FALSE, message=FALSE}
-library(dplyr)
-library(tidyr)
 library(broom)
 library(kableExtra)
 library(forcats)
