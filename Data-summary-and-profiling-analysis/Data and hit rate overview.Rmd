@@ -309,7 +309,7 @@ dat2 <- dat %>%
   )
 
 # Variables to tabulate (exclude 'Found' here; it's the 'by' variable)
-vars_for_table <- c("Racial.appearance.transformed", "Gender", "Age group")
+vars_for_table <- c("Racial.appearance.transformed", "Gender", "Age group", "Contact.Type")
 
 # Build crosstable WITHOUT internal tests (prevents Fisher blow-ups)
 ct <- crosstable(
@@ -361,35 +361,22 @@ ft
 
 **Table 6 Hit rates by police member and operating context**
 ```{r Finds pol, echo=FALSE, warning=FALSE, results='asis'}
+
+
 # Recode and reorder factors
 dat2 <- dat %>%
   mutate(
     Found = factor(Found, levels = c("Yes", "No")),  # Yes before No
     Year  = fct_relevel(as.character(Year), "2018", "2019", "2022", "2023"),
-
-    # Age group: make NA explicit, then keep your specified order (Missing last)
-    `Age group` = `Age group` |>
-      fct_explicit_na(na_level = "Missing") |>
-      fct_relevel(
-        "Under 12", "12 to 17", "18 to 25",
-        "26 to 35", "36 to 45", "46 and over", "Missing"
-      ) |>
-      fct_drop(),
-
-    # Race & Gender: make NA explicit, then order by frequency
-    `Racial.appearance.transformed` = `Racial.appearance.transformed` |>
-      fct_explicit_na(na_level = "Missing") |>
-      fct_infreq() |>
-      fct_drop(),
-
-    Gender = Gender |>
-      fct_explicit_na(na_level = "Missing") |>
-      fct_infreq() |>
-      fct_drop()
+    # Frequency order for operating-context variables
+    across(
+      .cols = all_of(c("Unit.type", "Rank.of.Member", "Area.type", "Region")),
+      .fns  = ~ as_factor(.) |> fct_infreq() |> fct_drop()
+    )
   )
 
 # Variables to tabulate (exclude 'Found' here; it's the 'by' variable)
-vars_for_table <- c("Racial.appearance.transformed", "Gender", "Age group")
+vars_for_table <- c("Unit.type", "Rank.of.Member", "Area.type", "Region", "Year")
 
 # Build crosstable WITHOUT internal tests (prevents Fisher blow-ups)
 ct <- crosstable(
@@ -426,6 +413,7 @@ tests <- map(vars_for_table, ~ safe_test(dat2[[.x]], dat2$Found)) |>
 ft <- add_footer_lines(ft, values = c("Overall association tests:", tests$p_str))
 
 ft
+
 
 ```
 
