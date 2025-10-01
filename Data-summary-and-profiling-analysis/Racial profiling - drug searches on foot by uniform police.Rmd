@@ -57,11 +57,8 @@ ddat <- dat %>%
 ```
 
 ```{r hitrate-prop-helpers, echo=FALSE, message=FALSE, warning=FALSE}
-library(dplyr)
-library(tidyr)
+
 library(purrr)
-library(broom)
-library(kableExtra)
 library(scales)
 library(stringr)
 
@@ -170,12 +167,23 @@ print_hit_table <- function(df, caption, show_bh = TRUE) {
 
 # Short summary
 
-This analysis examines 7,534 drug searches conducted by uniformed officers on foot patrols in Melbourne, focusing on people perceived as White or African. These encounters are the most routine form of warrantless public-place searches and depend heavily on officer discretion.
+This analysis of 7,534 warrantless drug searches carried out by **uniform officers on foot patrol in metropolitan Melbourne (2018, 2019, 2022, 2023)** provides clear evidence that individuals perceived as **African** are searched on a **lower evidentiary threshold** compared to those perceived as White.  
 
+Key findings include:  
+
+- **Descriptive results** showed lower hit rates for African-appearing individuals across most contexts.  
+- **Proportion tests** and **division/station-level models** identified particularly strong disparities in Brimbank, Melton, and Werribee.  
+- **Pooled and multilevel models** demonstrated that the disparity persists after accounting for gender, year, and division, and is **consistent across Melbourne** rather than confined to a few local areas.  
+
+These results are consistent with **racial profiling**: African-appearing individuals are more frequently subjected to searches that are less likely to yield contraband, implying that suspicion is applied more readily to them.  
+
+While the magnitude of disparity varies locally, the overall pattern is systematic.  
+
+This highlights the need for greater police accountability and independent oversight, and provides an empirical foundation for community advocacy and policy reform aimed at fairer, more equitable policing in Melbourne. 
 
 ### Melbourne-wide findings
 - Hit rates: White 14.1% (957/6,779) vs African 11.4% (86/755); Fisher’s exact p = 0.040.
-- Pooled logistic regression (controls: Division fixed effects, Year, Gender): OR = 0.771 (95% CI 0.596–0.985), p = 0.042 — African-appearing males had ~23% lower odds of a find than White males.
+- Pooled logistic regression (controls: Division fixed effects, Year, Gender): OR = 0.771 (95% CI 0.596–0.985), p = 0.042 — African-appearing males had ~23% lower odds of a find than White-appearing males.
 - Multilevel logistic regression (random intercepts for Division): OR = 0.761 (95% CI 0.594–0.975), p = 0.031 — confirms the disparity after accounting for clustering by Division.
 
 
@@ -194,12 +202,14 @@ Across Melbourne, African-appearing people are consistently subjected to searche
 
 # Introduction  
 
-This analysis examines **7,534 drug searches conducted by uniformed officers on foot patrols in Melbourne, of white and African appearing people**. These encounters represent the most routine form of warrantless public-place searches, where outcomes are highly dependent on officer discretion. The racial appearance categories in scope represent the two largest recorded racial groupings in the dataset.
+This analysis examines **7,534 drug searches conducted by uniformed officers on foot patrols in Melbourne, of white- and African-appearing people**. These encounters represent the most routine form of warrantless public-place searches, where outcomes are highly dependent on officer discretion. The racial appearance categories in scope represent two of the largest and consistently recorded racial groupings in the dataset.  
 
 The focus is on whether search outcomes suggest evidence of **racial profiling**. Specifically, we compare the **hit rates** — the proportion of searches that result in contraband being found — for two groups:  
 
 - **White-appearing individuals**, who form the majority baseline  
 - **African-appearing individuals**, a racialised minority consistently highlighted in community concerns about disproportionate policing  
+
+Concerns about the over-policing of African-Australian communities are not new. People such as **Haile Michael**, who successfully challenged Victoria Police’s discriminatory stop-and-search practices in the landmark [**Haile Michael**](https://www.abc.net.au/news/2013-03-18/victoria-police-accused-of-racially-profiling-african-men/4578358) case, have documented and contested these patterns for more than a decade.  
 
 By restricting the dataset to this context and to these two appearance categories, we provide a clear test of whether African-appearing people are subjected to searches on a **lower evidentiary threshold**. Lower hit rates for one group, despite comparable or higher search intensity, would suggest that police suspicion is being applied unevenly — a hallmark of racial profiling.  
   
@@ -251,8 +261,44 @@ Derived variables include:
 ## Data limitations  
 
 ### Racial appearance categories  
-The original dataset for drug searches conducted by uniform officers on foot patrol numbered 13,896. Race data was missing from 20% of the records.  Several categories had very small numbers or had been recategorised over the observation period.  As a result, disparity testing is restricted to **White vs African** searches, which are sufficiently large and analytically comparable.  These are the two largest race categories and account for over half (54%) of the relevant data.
+The original dataset for drug searches conducted by uniform officers on foot patrol numbered 13,896. Race data was missing from *20% of the records*.  Several categories had very small numbers or had been recategorised over the observation period.  As a result, disparity testing is restricted to **White vs African** searches, which are sufficiently large and analytically comparable.  Together these racial categories account for over half (54%) of the relevant data.
 
+```{r race prop, echo=FALSE, message=FALSE, warning=FALSE}
+# Count + percent for all groups (no filtering)
+tab_ra <- ddat %>%
+  mutate(
+    Racial.appearance.transformed =
+      fct_explicit_na(Racial.appearance.transformed, "Missing")
+  ) %>%
+  count(Racial.appearance.transformed, name = "Count") %>%
+  arrange(desc(Count)) %>%
+  mutate(Percent = Count / sum(Count))
+
+# Add total row
+tab_ra_tot <- bind_rows(
+  tab_ra,
+  tibble(
+    Racial.appearance.transformed = "Total",
+    Count = sum(tab_ra$Count),
+    Percent = 1
+  )
+)
+
+# Format percent for display
+tab_ra_tot <- tab_ra_tot %>%
+  mutate(Percent = percent(Percent, accuracy = 0.1))
+
+# Render table
+kbl(
+  tab_ra_tot,
+  caption = "Racial appearance (all groups): count and percentage of searches",
+  align = c("l", "r", "r"),
+  col.names = c("Racial appearance (transformed)", "Count", "Percent")
+) %>%
+  kable_classic(full_width = FALSE) %>%
+  add_header_above(c(" " = 1, "Searches" = 2))
+
+```
 ### Age data  
 Age data was missing for 42.9% of searches in the White vs African subset. Age is therefore excluded from modelling, which limits the ability to adjust for age differences across groups. We expect this would have an effect as African migrant populations in in local government areas tend to be younger than their white-appearing counterparts. 
 
@@ -272,7 +318,7 @@ Records with missing or unusable racial appearance are excluded to allow meaning
 
 - **Racial appearance.** Most searches involved people perceived as White, with African-appearance individuals making up around one in ten of the analytic sample.  
 - **Gender.** Searches were concentrated on men, who accounted for about four-fifths of those stopped.  
-- **Age.** While children and adolescents appear in the dataset, most searches targeted young adults in their late teens and twenties, followed by those in their thirties.  
+- **Age.** While children and adolescents appear in the dataset, most searches targeted adults aged 18 to 45. People aged 46 and over were searched relatively infrequently.
 
 These patterns highlight that discretionary stop-and-search practices fall unevenly across the community, with young men and racialised groups particularly over-represented.  
 
@@ -846,11 +892,11 @@ walk(sta_context$Station, function(sta_name) {
 
 Both the station-level and division-level logistic regressions show evidence of racial disparity in Melbourne’s **outer west**.  
 
-At the **divisional level (NWMR Division 3 – Brimbank & Melton)**, the pattern was even more pronounced. African-appearing males had just **one-fifth the odds** of a successful search compared to White males (*OR = 0.213, p = 0.013*). White females also showed lower odds than White males, but the racial disparity was clear and statistically robust.  
+At the **divisional level (NWMR Division 3 – Brimbank & Melton)**, the pattern was even more pronounced. African-appearing males had just **one-fifth the odds** of a successful search compared to White-appearing males (*OR = 0.213, p = 0.013*). White-appearing females also showed lower odds than White-appearing males, but the racial disparity was clear and statistically robust.  
 
-At the **station level**, African-appearing males had only about **one-third the odds** of a successful search compared to White males (*OR = 0.319, p = 0.037*). This suggests that African individuals were more frequently searched on a **lower evidentiary threshold**, with police suspicion less likely to result in the discovery of contraband.  
+At the **station level**, African-appearing males had only about **one-third the odds** of a successful search compared to White-appearing males (*OR = 0.319, p = 0.037*). This suggests that African individuals were more frequently searched on a **lower evidentiary threshold**, with police suspicion less likely to result in the discovery of contraband.  
 
-Interaction terms for African females could not be reliably estimated because there were virtually **no successful searches of African females** recorded in the dataset. The resulting “0.000 … Inf” values are statistical artefacts of these sparse data and should be interpreted as a lack of sufficient cases rather than evidence of no effect.  
+Interaction terms for African-appearing females could not be reliably estimated because there were virtually **no successful searches of African-appearing females** recorded in the dataset. The resulting “0.000 … Inf” values are statistical artefacts of these sparse data and should be interpreted as a lack of sufficient cases rather than evidence of no effect.  
 
 Taken together, these results point to **geographically concentrated racial disparities** in stop-and-search practices, particularly in Brimbank, Melton, and associated stations. These are areas marked by **socio-economic disadvantage, larger African diaspora communities, and longstanding tension between residents and police**. The findings align with **community concerns** that African-appearing individuals, especially young men, are being subjected to searches on a weaker threshold of suspicion.  
 
@@ -872,10 +918,6 @@ The pooled model provides a headline estimate of whether, across metropolitan Me
 
 
 ```{r pooled-model-optionB-year, echo=FALSE, warning=FALSE, message=FALSE}
-library(broom)
-library(kableExtra)
-library(forcats)
-library(stringr)
 
 # ---------- helpers ----------
 is_yes <- function(x) {
@@ -948,32 +990,14 @@ td %>%
     notation = "symbol"
   ) %>%
   print()
-
-# ---------- optional: compact 'headline' effects ----------
-headline <- td %>%
-  filter(Term %in% c("Race: African vs White (Male, 2022, Division ref.)",
-                     "Interaction: African × Female")) %>%
-  rename(`Term (key effects)` = Term)
-
-if (nrow(headline) > 0) {
-  headline %>%
-    kbl(
-      caption = "Key effects (pooled model): Race African vs White (male baseline) and African × Female interaction",
-      align = c("l","r","r","r","r"),
-      escape = TRUE
-    ) %>%
-    kable_paper(full_width = FALSE) %>%
-    kable_styling(bootstrap_options = c("condensed","hover"), position = "left") %>%
-    print()
-}
 ```
 
 ### Interpretation  
 
-The pooled logistic regression indicates that, across metropolitan Melbourne, **African-appearing males had significantly lower odds of contraband being found than White males**, even after controlling for gender, year, and division fixed effects.  Specifically, their odds of a successful search were about **23% lower** (*OR = 0.771, p = 0.042*).  
+The pooled logistic regression indicates that, across metropolitan Melbourne, **African-appearing males had significantly lower odds of contraband being found than White-appearing males**, even after controlling for gender, year, and division fixed effects.  Specifically, their odds of a successful search were about **23% lower** (*OR = 0.771, p = 0.042*).  
 
 Female gender was associated with slightly lower odds of a find, but this was not statistically significant.  
-The African × Female interaction was also non-significant, likely reflecting the very small number of African females in the dataset.  
+The African × Female interaction was also non-significant, likely reflecting the very small number of African-appearing females in the dataset.  
 
 Year-to-year variation was modest and generally non-significant once other factors were accounted for, indicating that disparities are not driven by particular years.  
 
@@ -1081,7 +1105,7 @@ td_glmer %>%
 
 ### **Interpretation**
 
-The model shows that African-appearing males had about 24% lower odds of a successful search than White males (*OR ≈ 0.761, p = 0.031*), controlling for gender and year.  
+The model shows that African-appearing males had about 24% lower odds of a successful search than White-appearing males (*OR ≈ 0.761, p = 0.031*), controlling for gender and year.  
 
 Gender and year effects were not statistically significant once other variables were included.  
 
@@ -1133,20 +1157,4 @@ Across the different modelling strategies — division-level regressions, pooled
 
 Together, these models provide a **robust and layered picture**: while raw hit rates highlight where disparities look most obvious, statistical modelling shows that the issue is both **geographically concentrated** in some areas and **systematic city-wide**.
 
----
 
-# **Conclusion**
-
-This analysis of **uniform foot patrol drug searches in metropolitan Melbourne (2018, 2019, 2022, 2023)** provides clear evidence that individuals perceived as **African** are searched on a **lower evidentiary threshold** compared to those perceived as White.  
-
-Key findings include:  
-
-- **Descriptive results** showed lower hit rates for African-appearing individuals across most contexts.  
-- **Proportion tests** and **division/station-level models** identified particularly strong disparities in Brimbank, Melton, and Werribee.  
-- **Pooled and multilevel models** demonstrated that the disparity persists after accounting for gender, year, and division, and is **consistent across Melbourne** rather than confined to a few local areas.  
-
-These results are consistent with **racial profiling**: African-appearing individuals are more frequently subjected to searches that are less likely to yield contraband, implying that suspicion is applied more readily to them.  
-
-While the magnitude of disparity varies locally, the overall pattern is systematic.  
-
-This highlights the need for greater police accountability and independent oversight, and provides an empirical foundation for community advocacy and policy reform aimed at fairer, more equitable policing in Melbourne.  
