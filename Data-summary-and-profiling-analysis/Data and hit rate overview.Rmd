@@ -423,7 +423,7 @@ ft
 
 The descriptive results highlight both the promise and the limits of raw hit-rate comparisons. Clear disparities appear across appearance groups and geographic divisions, but unadjusted figures cannot fully resolve whether these patterns reflect differences in policing thresholds or in underlying population composition.  
 
-To move beyond description, we next narrow the scope to a more standardised setting — drug searches by uniformed officers on foot patrols. This setting captures the bulk of everyday encounters and removes confounding variation in search type and policing unit. Within that restricted frame, we can apply regression models to test whether racial disparities in hit rates remain once gender, year, and geography are accounted for.  
+To move beyond description, we next narrow the scope to a more standardised setting — crime specific searches by uniformed officers on foot patrols. By examining first drug, and then weapons searches, we examine the bulk of everyday encounters and removes confounding variation in search type and policing unit. Within that restricted frame, we can apply regression models to test whether racial disparities in hit rates remain once gender, year, and geography are accounted for.  
 
 In this way, the descriptive overview provides the baseline picture, while the next section introduces the analytic tools needed to determine whether the disparities observed are localised anomalies or evidence of a broader, systematic pattern in Victoria Police stop-and-search practices.
 
