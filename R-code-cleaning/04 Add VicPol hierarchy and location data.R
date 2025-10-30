@@ -237,15 +237,21 @@ dat.sr3 <- dat.sr3 %>%
     TRUE ~ "Missing"  # catch any unexpected cases
   ))
 
-#Drugs on foot only
+#
 
-#drug.dat <- dat.sr3  %>%
-#  filter(
-#    Contact.Type == "P",
-#    Area.type == "Metro",
-#    !is.na(`Search.type - Drugs`),
-#    !is.na(Station.uniform)
-#  ) 
+#Merge in CSA stats
+csa <- readRDS( "R-code-cleaning/Processed/CSA rates.RDS")
+
+csa <- csa %>%
+  mutate(yearl = str_c(Local.Government.Area, as.character(Year), sep = " - "))%>%
+  select(-Year, -Local.Government.Area)
+
+dat.sr3 <-dat.sr3 %>%
+  mutate(yearl = str_c(Local.Government.Area, as.character(Year), sep = " - "))
+
+dat.sr3 <- dat.sr3 %>% 
+  left_join(csa, by = "yearl")%>%
+  select(-yearl)
 
 # ------------------------------------------------------------
 # Save outputs

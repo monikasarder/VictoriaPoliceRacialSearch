@@ -606,7 +606,7 @@ We apply three complementary modelling strategies:
 
 1. **Division-level models**  
    - Separate logistic regressions are estimated for each police Division.  
-   - Predictors: race (African vs White), gender (female vs male), and an interaction between race and gender.  
+   - Predictors: race (African vs White), gender (female vs male), an interaction between race and gender, Year and LGA.  
    - Purpose: to test whether disparities are **geographically concentrated**, identifying divisions where African-appearing individuals face a significantly lower chance of a successful search.  
 
 2. **Pooled model with Division fixed effects**  
@@ -621,39 +621,23 @@ We apply three complementary modelling strategies:
 
 Together, these models move from **localised analysis** (division-level) to **city-wide estimation** (pooled and multilevel). This layered approach ensures we can identify both **geographically specific disparities** (e.g. Brimbank/Melton, Werribee) and assess whether those disparities reflect a broader **systematic pattern of racial profiling** in Melbourne.  
 
-## Division- and Station-Level Logistic Regression Models  
+## Division-Level Logistic Regression Models  
 
 The proportion tests showed that disparities in hit rates were not uniform across Melbourne, with some divisions and stations suggesting stronger evidence of racial disparity than others.  
 
-To explore this further, we estimated **logistic regression models separately for each Division and for stations where there were at least twenty searches of people of African appearance in the observations.**  
+To explore this further, we estimated **logistic regression models separately for each Division.**  
 
 The outcome is whether **any contraband was found** (`Found = Yes`). Each model includes predictors for:  
 
 - **Race** (African vs White)  
-- **Gender** (Female vs Male)  
+- **Gender** (Female vs Male)   
 - An **interaction between race and gender**  
-
-Running separate models at both the **division** and **station** level allows us to:  
-
-1. Assess whether disparities are **geographically concentrated** in particular areas.  
-2. Avoid masking local differences that would be hidden in a pooled analysis.  
-3. Provide results that are **directly interpretable for community advocacy and policy discussions** in specific local contexts.  
-
-Because sample sizes for African-appearance searches are limited, especially at the station level, we restricted analysis to:  
-- Divisions with both White and African searches recorded.  
-- Stations with at least **10 searches of African-appearing individuals**, to avoid unstable estimates.  
-
-As with the proportion tests, a finding that African-appearing individuals have significantly lower odds of contraband being found indicates they are being searched on a **lower evidentiary threshold.**  
+- Local Government Area - recognising that 
+- Year: recognising that search intensity may vary from year to year.
 
 Summary tables models where the coefficient of racial appearance was lower than 0.05 appear below.  
 
-```{r division-models-optionA-noYear, echo=FALSE, warning=FALSE, message=FALSE}
-library(dplyr)
-library(tidyr)
-library(purrr)
-library(broom)
-library(kableExtra)
-library(stringr)
+```{r LGA model, echo=FALSE, warning=FALSE, message=FALSE}
 
 # --------- helpers ----------
 is_yes <- function(x) {
@@ -669,6 +653,7 @@ fmt_p <- function(p) {
 # --------- prepare data ----------
 dat_div <- ddat %>%
   filter(!is.na(Division),
+         !is.na(Local.Government.Area),
          Racial.appearance.transformed %in% c("African","White"),
          !is.na(Found),
          Gender %in% c("M","F")) %>%
@@ -676,7 +661,9 @@ dat_div <- ddat %>%
     Division = Division,
     Success  = as.integer(is_yes(Found)),
     Race     = factor(Racial.appearance.transformed, levels = c("White","African")),
-    Gender   = factor(Gender, levels = c("M","F"))
+    Gender   = factor(Gender, levels = c("M","F")),
+    Year     = Year,
+    LGA      = factor(Local.Government.Area)
   )
 
 # Precompute per-division context for captions
@@ -687,9 +674,9 @@ div_context <- ddat %>%
   mutate(Success = as.integer(is_yes(Found))) %>%
   group_by(Division, Racial.appearance.transformed) %>%
   summarise(succ = sum(Success), tot = n(), .groups = "drop") %>%
-  tidyr::pivot_wider(names_from = Racial.appearance.transformed,
-                     values_from = c(succ, tot),
-                     values_fill = 0) %>%
+  pivot_wider(names_from = Racial.appearance.transformed,
+              values_from = c(succ, tot),
+              values_fill = 0) %>%
   group_by(Division) %>%
   mutate(n_total = tot_African + tot_White) %>%
   ungroup()
@@ -703,14 +690,13 @@ walk(names(data_by_div), function(div_name) {
   # skip if only one outcome class
   if (dplyr::n_distinct(df$Success) < 2L) return(invisible(NULL))
 
-  # fit model with Race * Gender (no Year)
+  # NEW MODEL: Local.Government.Area * Race + Gender + factor(Year)
   mdl <- tryCatch(
-    glm(Success ~ Race * Gender, data = df, family = binomial),
+    glm(Success ~ LGA * Race + Gender + factor(Year), data = df, family = binomial),
     error = function(e) NULL
   )
   if (is.null(mdl)) return(invisible(NULL))
 
-  # tidy (raw) to inspect p-values before formatting
   td_raw <- tryCatch(
     tidy(mdl, exponentiate = TRUE, conf.int = TRUE),
     error = function(e) {
@@ -720,17 +706,22 @@ walk(names(data_by_div), function(div_name) {
   ) %>%
     select(term, estimate, conf.low, conf.high, p.value)
 
-  # --- show model only if ANY non-intercept term is significant at 0.05 ---
+  # Only show divisions where something significant (<0.05)
   keep_if_sig <- any(td_raw$term != "(Intercept)" & td_raw$p.value < 0.05, na.rm = TRUE)
   if (!keep_if_sig) return(invisible(NULL))
-  # -------------------------------------------------------------------------
 
+  # Friendly labels for output
   td <- td_raw %>%
     mutate(
-      Term = dplyr::case_when(
+      Term = case_when(
         term == "RaceAfrican" ~ "Race: African vs White (Male ref.)",
         term == "GenderF" ~ "Gender: Female vs Male",
-        term == "RaceAfrican:GenderF" ~ "Interaction: African × Female",
+        str_detect(term, "^factor\\(Year\\).+") ~
+          paste0("Year: ", str_replace(term, "^factor\\(Year\\)", ""), " vs ref."),
+        str_detect(term, "^LGA") & !str_detect(term, ":") ~
+          paste0("LGA: ", str_replace(term, "^LGA", ""), " vs ref."),
+        str_detect(term, "LGA.*:RaceAfrican") ~
+          paste0("Interaction: LGA × African"),
         TRUE ~ term
       ),
       `Odds Ratio`      = estimate,
@@ -746,12 +737,20 @@ walk(names(data_by_div), function(div_name) {
       `95% CI (Upper)` = ifelse(is.na(`95% CI (Upper)`), "—", sprintf("%.3f", `95% CI (Upper)`))
     )
 
-  # caption context
-  cx <- div_context %>% dplyr::filter(Division == div_name)
+  # caption context incl. years present in this division's data
+  cx <- div_context %>% filter(Division == div_name)
+  yrs <- sort(unique(stats::na.omit(df$Year)))
+  years_txt <- if (length(yrs) == 0) NULL else if (length(yrs) == 1) {
+    paste0("Year: ", yrs)
+  } else {
+    paste0("Years: ", min(yrs), "–", max(yrs))
+  }
+
   cap_bits <- c(
-    paste0("n=", ifelse(nrow(cx) == 1, cx$n_total, NA_integer_)),
-    if (nrow(cx) == 1) paste0("Afr: ", cx$succ_African, "/", cx$tot_African) else NULL,
-    if (nrow(cx) == 1) paste0("Wh: ",  cx$succ_White,   "/", cx$tot_White)   else NULL
+    paste0("n=", ifelse(nrow(cx)==1, cx$n_total, NA_integer_)),
+    if (nrow(cx)==1) paste0("Afr: ", cx$succ_African, "/", cx$tot_African) else NULL,
+    if (nrow(cx)==1) paste0("Wh: ",  cx$succ_White,   "/", cx$tot_White)   else NULL,
+    years_txt
   )
   cap_ctx <- paste(cap_bits[!is.na(cap_bits)], collapse = " · ")
 
@@ -759,7 +758,7 @@ walk(names(data_by_div), function(div_name) {
   td %>%
     kbl(
       caption = paste0("Division: ", div_name,
-                       " — Logistic regression of search success (any contraband).  ",
+                       " — Logistic regression of search success (any contraband). ",
                        cap_ctx),
       align = c("l","r","r","r","r"),
       escape = TRUE
@@ -769,17 +768,14 @@ walk(names(data_by_div), function(div_name) {
                   position = "left") %>%
     column_spec(1, width = "22em") %>%
     add_footnote(
-      label = "Model: Success ~ Race * Gender. Odds ratios shown (95% CI). Reference group = White males.",
+      label = "Model: Success ~ Local.Government.Area * Race + Gender + Year (fixed effects). Odds ratios shown (95% CI). Reference group = White males, earliest Year, and first LGA alphabetically.",
       notation = "symbol"
     ) %>%
     print()
-})  # closes walk()
-
-
+})
 ```
 
-```{r station-models-optionA-noYear, echo=FALSE, warning=FALSE, message=FALSE}
-
+```{r station-models-optionA-withYear-LGA, echo=FALSE, warning=FALSE, message=FALSE}
 
 # -------- helpers ----------
 is_yes <- function(x) {
@@ -791,6 +787,7 @@ fmt_p <- function(p) ifelse(is.na(p), NA_character_, ifelse(p < 0.001, "<0.001",
 # -------- prepare data ----------
 dat_sta <- ddat %>%
   filter(!is.na(Station.uniform),
+         !is.na(Local.Government.Area),
          Racial.appearance.transformed %in% c("African","White"),
          !is.na(Found),
          Gender %in% c("M","F")) %>%
@@ -798,49 +795,55 @@ dat_sta <- ddat %>%
     Station = Station.uniform,
     Success = as.integer(is_yes(Found)),
     Race    = factor(Racial.appearance.transformed, levels = c("White","African")),
-    Gender  = factor(Gender, levels = c("M","F"))
+    Gender  = factor(Gender, levels = c("M","F")),
+    Year    = Year,
+    LGA     = factor(Local.Government.Area)
   )
 
-# Inclusion: stations with at least 10 African searches
+# Inclusion: stations with at least 20 African searches
 sta_context <- dat_sta %>%
   count(Station, Race) %>%
-  pivot_wider(names_from = Race, values_from = n, values_fill = 0) %>%
+  tidyr::pivot_wider(names_from = Race, values_from = n, values_fill = 0) %>%
   filter(African >= 20)
 
 # Add success counts for captions
 sta_success <- dat_sta %>%
   group_by(Station, Race) %>%
   summarise(succ = sum(Success), tot = n(), .groups = "drop") %>%
-  pivot_wider(names_from = Race, values_from = c(succ, tot), values_fill = 0) %>%
+  tidyr::pivot_wider(names_from = Race, values_from = c(succ, tot), values_fill = 0) %>%
   mutate(n_total = tot_African + tot_White)
 
 # -------- fit per-station models ----------
 data_by_sta <- split(dat_sta, dat_sta$Station)
 
-walk(sta_context$Station, function(sta_name) {
+purrr::walk(sta_context$Station, function(sta_name) {
   df <- data_by_sta[[sta_name]]
 
   if (dplyr::n_distinct(df$Success) < 2L) return(invisible(NULL))
 
   mdl <- tryCatch(
-    glm(Success ~ Race * Gender, data = df, family = binomial),
+    glm(Success ~ Race * Gender + factor(Year) + factor(LGA), data = df, family = binomial),
     error = function(e) NULL
   )
   if (is.null(mdl)) return(invisible(NULL))
 
   td <- tryCatch(
-    tidy(mdl, exponentiate = TRUE, conf.int = TRUE),
+    broom::tidy(mdl, exponentiate = TRUE, conf.int = TRUE),
     error = function(e) {
-      tidy(mdl, exponentiate = TRUE, conf.int = FALSE) %>%
-        mutate(conf.low = NA_real_, conf.high = NA_real_)
+      broom::tidy(mdl, exponentiate = TRUE, conf.int = FALSE) %>%
+        dplyr::mutate(conf.low = NA_real_, conf.high = NA_real_)
     }
   ) %>%
-    select(term, estimate, conf.low, conf.high, p.value) %>%
-    mutate(
-      Term = case_when(
+    dplyr::select(term, estimate, conf.low, conf.high, p.value) %>%
+    dplyr::mutate(
+      Term = dplyr::case_when(
         term == "RaceAfrican" ~ "Race: African vs White (Male ref.)",
         term == "GenderF" ~ "Gender: Female vs Male (White ref.)",
         term == "RaceAfrican:GenderF" ~ "Interaction: African × Female",
+        stringr::str_detect(term, "^factor\\(Year\\).+") ~
+          paste0("Year: ", stringr::str_replace(term, "^factor\\(Year\\)", ""), " vs ref."),
+        stringr::str_detect(term, "^factor\\(LGA\\).+")  ~
+          paste0("LGA: ",  stringr::str_replace(term, "^factor\\(LGA\\)",  ""), " vs ref."),
         TRUE ~ term
       ),
       `Odds Ratio`      = estimate,
@@ -848,8 +851,8 @@ walk(sta_context$Station, function(sta_name) {
       `95% CI (Upper)`  = conf.high,
       `p-value`         = p.value
     ) %>%
-    select(Term, `Odds Ratio`, `95% CI (Lower)`, `95% CI (Upper)`, `p-value`) %>%
-    mutate(
+    dplyr::select(Term, `Odds Ratio`, `95% CI (Lower)`, `95% CI (Upper)`, `p-value`) %>%
+    dplyr::mutate(
       `p-value` = fmt_p(`p-value`),
       `Odds Ratio` = sprintf("%.3f", `Odds Ratio`),
       `95% CI (Lower)` = ifelse(is.na(`95% CI (Lower)`), "—", sprintf("%.3f", `95% CI (Lower)`)),
@@ -857,31 +860,40 @@ walk(sta_context$Station, function(sta_name) {
     )
 
   # Only print if Race: African vs White is significant at < 0.05
-  race_row <- td %>% filter(str_detect(Term, "Race: African vs White"))
+  race_row <- dplyr::filter(td, stringr::str_detect(Term, "Race: African vs White"))
   if (nrow(race_row) == 1 && suppressWarnings(as.numeric(race_row$`p-value`)) >= 0.05) {
     return(invisible(NULL))
   }
 
-  cx <- sta_success %>% filter(Station == sta_name)
+  # Caption bits incl. year(s)
+  cx <- dplyr::filter(sta_success, Station == sta_name)
+  yrs <- sort(unique(stats::na.omit(df$Year)))
+  years_txt <- if (length(yrs) == 0) NULL else if (length(yrs) == 1) {
+    paste0("Year: ", yrs)
+  } else {
+    paste0("Years: ", min(yrs), "–", max(yrs))
+  }
+
   cap_bits <- c(
     paste0("n=", ifelse(nrow(cx)==1, cx$n_total, NA_integer_)),
     if (nrow(cx)==1) paste0("Afr: ", cx$succ_African, "/", cx$tot_African) else NULL,
-    if (nrow(cx)==1) paste0("Wh: ",  cx$succ_White,   "/", cx$tot_White)   else NULL
+    if (nrow(cx)==1) paste0("Wh: ",  cx$succ_White,   "/", cx$tot_White)   else NULL,
+    years_txt
   )
   cap_ctx <- paste(cap_bits[!is.na(cap_bits)], collapse = " · ")
 
   td %>%
-    kbl(
+    kableExtra::kbl(
       caption = paste0("Station: ", sta_name, " — Logistic regression of search success (any contraband). ", cap_ctx),
       align = c("l","r","r","r","r"),
       escape = TRUE
     ) %>%
-    kable_paper(full_width = FALSE) %>%
-    kable_styling(bootstrap_options = c("striped","condensed","hover"),
+    kableExtra::kable_paper(full_width = FALSE) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped","condensed","hover"),
                   position = "left") %>%
-    column_spec(1, width = "22em") %>%
-    add_footnote(
-      label = "Model: Success ~ Race * Gender. Odds ratios shown (95% CI). Reference group = White males.",
+    kableExtra::column_spec(1, width = "22em") %>%
+    kableExtra::add_footnote(
+      label = "Model: Success ~ Race * Gender + Year + Local.Government.Area (fixed effects). Odds ratios shown (95% CI). Reference = White males; earliest Year; first LGA alphabetically.",
       notation = "symbol"
     ) %>%
     print()
