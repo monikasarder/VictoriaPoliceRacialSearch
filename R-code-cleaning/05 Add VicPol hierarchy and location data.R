@@ -233,11 +233,12 @@ dat.sr3 <- dat.sr3 %>%
     Age >= 18 & Age <= 25 ~ "18 to 25",
     Age >= 26 & Age <= 35 ~ "26 to 35",
     Age >= 36 & Age <= 45 ~ "36 to 45",
-    Age >= 46 ~ "46 and over",
+    Age >= 46 & Age <= 55 ~ "46 to 55",
+    Age >= 56 & Age <= 65 ~ "56 to 65",
+    Age >= 66 ~ "66 and over",
     TRUE ~ "Missing"  # catch any unexpected cases
   ))
 
-#
 
 #Merge in CSA stats
 csa <- readRDS( "R-code-cleaning/Processed/CSA rates.RDS")
@@ -253,6 +254,11 @@ dat.sr3 <- dat.sr3 %>%
   left_join(csa, by = "yearl")%>%
   select(-yearl)
 
+#Merge in ABS
+abs <- readRDS( "R-code-cleaning/Processed/LGA pop.RDS")
+
+dat.sr3 <- dat.sr3 %>% 
+  left_join(abs, by = "Local.Government.Area")
 # ------------------------------------------------------------
 # Save outputs
 # ------------------------------------------------------------
