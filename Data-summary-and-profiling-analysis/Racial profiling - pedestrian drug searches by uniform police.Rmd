@@ -16,26 +16,22 @@ output:
 ---
 # Abstract {-}
 
-This study analyses **7,534 warrantless drug searches** conducted by **uniform, station-based officers during pedestrian encounters** in metropolitan Melbourne during **2018, 2019, 2022, and 2023**.  
 
-It focuses on people perceived by police as **White** or **African**, who together comprise over 50% of searches.  
+This study analyses **7,534** warrantless drug searches conducted by uniform, station-based officers during pedestrian encounters in metropolitan Melbourne (2018, 2019, 2022, 2023). It focuses on people perceived by police as **White** or **African**, who together comprise over half of all recorded searches.
 
-Across years, **hit rates** (contraband found) were generally lower for African-appearing individuals than for White-appearing individuals.  
+Across years, hit rates (contraband found) were generally lower for African-appearing individuals than for White-appearing individuals. Two complementary models test whether this disparity persists after accounting for local context.
 
-Exploratory checks in the appendix confirm that areas with **higher recorded drug-crime rates** tend to have **more searches per capita** and somewhat **lower evidentiary yield**, supporting the need to adjust for **station-level policing intensity** when testing for racial disparities.  
+**Model A** (fixed-effects logistic regression with **Station×Year** effects) shows that, within the same station and year, African-appearing individuals had **≈30% lower odds** of a hit than White-appearing individuals (**OR = 0.70, 95% CI 0.51–0.96, p = 0.028**).  
 
-Two complementary models assess whether these disparities persist after accounting for context.  
-**Model A**, a **fixed-effects logistic regression** with **Station×Year effects**, finds that within the same station and year, African-appearing individuals had **≈30% lower odds of a hit** than White-appearing individuals (**OR = 0.70, 95% CI 0.51–0.96, p = 0.028**).  
+**Model B** (multilevel logistic regression with **random intercepts for station**; **N = 7,479** across 71 stations) finds a comparable city-wide effect (**OR = 0.73, 95% CI 0.57–0.93, p = 0.011**). Gender and officer rank were not significant predictors.
 
-**Model B**, a **multilevel logistic regression** with **random intercepts for station** (**N = 7,479 across 71 stations**), shows a comparable city-wide effect, with African-appearing individuals having a **≈30% lower odds of a hit** than White-appearing individuals (**OR = 0.73, 95% CI 0.57–0.93, p = 0.011**).  
+Disparities are **spatially uneven**. Division-level models show the largest and most statistically robust disparity in **NWMR Division 3 (Brimbank–Melton)**, with a marginal effect in **NWMR Division 5 (Banyule–Darebin–Whittlesea–Nillumbik)**. 
 
-Search target’s gender and rank of officer conducting the search were not significant predictors.  
+Station-level analyses, clustered by year, identify pronounced shortfalls in evidentiary yield for African-appearing individuals at **Caroline Springs, Sunshine, and Werribee**, and a marginal effect at **Flemington**. The reverse pattern appears at **Melbourne North** and **Pakenham**, suggesting context-specific differences in targeting or operational intelligence.
 
-Together, the models indicate a **persistent but spatially uneven racial disparity** in evidentiary yield that is **not explained** by station-level or officer-level characteristics.  
+**Caveat.** Station-level fixed-effects models are inherently less stable due to small sample sizes, quasi-complete separation, and few clustering units. These results should therefore be interpreted as **diagnostic indicators** of local disparities rather than precise effect estimates.
 
-While the hit-rate framework cannot infer motive, the results are **consistent with lower search thresholds being applied to African-appearing individuals** in certain operational contexts.  
-
-These findings highlight the importance of **station-level review and transparency** in Victoria Police’s stop-and-search practices.  
+While the hit-rate framework cannot determine motive, the persistence and concentration of lower evidentiary yields are **consistent with lower search thresholds** being applied to African-appearing individuals in certain operational contexts. These findings underscore the importance of **station-level accountability, review, and transparency** in Victoria Police’s stop-and-search practices.
 
 # Introduction
 
@@ -81,11 +77,11 @@ As Persico and Todd emphasise, equalised hit rates across racial groups are a ne
 
 ### Limitations and critiques
 
-Despite its appeal, the hit-rate framework has attracted **substantial criticism** in the policing and econometric literature. Analysts including **Ridgeway and MacDonald (2010)** note that hit-rate analyses can **misattribute disparities** if underlying offence types, officer roles, or situational contexts differ systematically across racial groups. In practice, disparities in hit rates may reflect **differences in exposure, offence type, or patrol environments** rather than the discretionary threshold itself.  
+Despite its appeal, the hit-rate framework has attracted substantial criticism in the policing and econometric literature. Analysts including Ridgeway and MacDonald (2010) note that hit-rate analyses can misattribute disparities if situational contexts differ systematically across racial groups.
 
-The RAND review further highlights a structural issue known as the **“subgroup validity problem”** (Ayres 2002): if different racial groups are subject to **pedestrian encounters** for different types of suspected offences — for instance, if one group is more often stopped for low-yield drug possession — aggregate hit rates will differ even under unbiased policing. Similarly, failing to control for **station-level variation** or **officer assignment patterns** can confound results, overstating or obscuring racial effects.  
+Similarly, failing to control for station-level variation or officer assignment patterns can confound results, overstating or obscuring racial effects.
 
-As such, the hit-rate test should be interpreted as an **indicator of potential bias**, not as a definitive measure. When combined with **station-level controls**, **fixed-effects modelling**, and **internal benchmarking** (comparing officers or stations operating in similar contexts), it remains a valuable tool for identifying areas where **discretionary decision-making may be unequally applied**.  
+As such, the hit-rate test should be interpreted as an indicator of potential bias, not as a definitive measure. When combined with station-level controls, fixed-effects modelling, and internal benchmarking (comparing officers or stations operating in similar contexts), it remains a valuable tool for identifying areas where discretionary decision-making may be unequally applied.
 
 ## Context
 
@@ -955,7 +951,7 @@ The dependent variable again indicates whether contraband was found (*Found_yes 
 
 > This allows assessment of whether racial disparities persist **after accounting for typical station-level contexts**, not just within narrow Station×Year comparisons.
 
-### 5.2.2.1 Model summary and robustness checks
+###  Model summary and robustness checks
 
 **Specification.**  
 Model B was estimated using `lme4::glmer` with a logit link:
@@ -974,7 +970,7 @@ The race coefficient represents the expected difference in the odds of a “hit�
 An odds ratio below 1 indicates that, on average across Melbourne, *African-appearing* individuals were less likely to yield contraband even after accounting for local conditions.
 
 **Robustness considerations.**  
-- Random intercepts adjust for **average structural heterogeneity** between stations, addressing part of RAND’s critique.  
+- Random intercepts adjust for **average structural heterogeneity** between stations, addressing part of Ridgeway and MacDonald's critique.  
 - Because they do not absorb year-specific shocks or unobserved deployment cycles, some time-varying confounding may remain.  
 - Compared with Model A, this model offers broader generalisability but less control over local differences; together, they bracket the plausible range of the racial disparity.
 
@@ -1118,92 +1114,20 @@ The significant variance in random station intercepts (σ²ₛₜₐₜᵢₒₙ
 
 This pattern suggests that the disparity likely reflects **local operational cultures, leadership practices, or community-policing dynamics** rather than a single, city-wide bias. It underscores the importance of **spatial accountability**—identifying and addressing the specific stations where discretionary searches of African-appearing people are consistently less evidence-based.
 
+# Division and station disparities
 
-# Appendix
+## Division
 
+### Cross tabs
 
+The next set of analyses examines how racial disparities vary across Victoria Police Divisions.
 
-```{r Finds racial all, echo=FALSE, warning=FALSE, results='asis'}
-ddats<-ddat %>%
-  filter(Racial.appearance.transformed %in% c("Missing", "White","Mediterranean/Middle Eastern – Unusable",
-                                              "Asian","African", "Aboriginal"))
+While city-wide models identify overall differences between African- and White-appearing individuals, these aggregated results can conceal important geographic heterogeneity. Divisions differ markedly in demographics, policing practices, and resource allocation, all of which may influence discretionary search behaviour.
 
-ct <- crosstable::crosstable(
-  ddats,
-  by = "Found",
-  cols = "Racial.appearance.transformed",
-  total = TRUE,
-  test = FALSE,          # we'll add our own robust test
-  showNA = "ifany",
-  percent_digits = 1
-)
+To illustrate these spatial contrasts, we first present cross-tabulated hit rates comparing the proportion of drug searches that resulted in contraband being found for African- and White-appearing individuals within each Division. These descriptive figures provide a direct view of raw disparities before adjusting for officer or station effects. 
 
-ft <- crosstable::as_flextable(ct)
+```{r division cross tabs, echo = FALSE, warning=FALSE, message=FALSE}
 
-# 3) Safe association test (Fisher for 2x2, else Chi-square with simulated p)
-safe_test <- function(x, y) {
-  tbl <- table(x, y, useNA = "no")
-  tbl <- tbl[rowSums(tbl) > 0, colSums(tbl) > 0, drop = FALSE]
-  if (all(dim(tbl) == c(2, 2))) {
-    res <- fisher.test(tbl, workspace = 2e8)
-    list(label = "Fisher's exact", p = res$p.value)
-  } else {
-    res <- chisq.test(tbl, simulate.p.value = TRUE, B = 100000)
-    list(label = "Chi-square (simulated p)", p = res$p.value)
-  }
-}
-
-tres <- safe_test(ddats$Racial.appearance.transformed, ddats$Found)
-p_line <- sprintf("Racial.appearance.transformed — %s, p = %s",
-                  tres$label, format.pval(tres$p, digits = 4))
-
-# 4) Add footer and a clear title
-ft <- flextable::add_footer_lines(ft, values = c("Overall association test:", p_line))
-ft <- flextable::set_caption(ft, caption = "Racial appearance vs Found (with totals)")
-ft
-```
-
-## Hit rates by Division and Station with at least 20 searches  
-
-```{r race prop, echo=FALSE, message=FALSE, warning=FALSE}
-# Count + percent for all groups (no filtering)
-tab_ra <- ddat %>%
-  mutate(
-    Racial.appearance.transformed =
-      fct_explicit_na(Racial.appearance.transformed, "Missing")
-  ) %>%
-  count(Racial.appearance.transformed, name = "Count") %>%
-  arrange(desc(Count)) %>%
-  mutate(Percent = Count / sum(Count))
-
-# Add total row
-tab_ra_tot <- bind_rows(
-  tab_ra,
-  tibble(
-    Racial.appearance.transformed = "Total",
-    Count = sum(tab_ra$Count),
-    Percent = 1
-  )
-)
-
-# Format percent for display
-tab_ra_tot <- tab_ra_tot %>%
-  mutate(Percent = percent(Percent, accuracy = 0.1))
-
-# Render table
-kbl(
-  tab_ra_tot,
-  caption = "Racial appearance (all groups): count and percentage of searches",
-  align = c("l", "r", "r"),
-  col.names = c("Racial appearance (transformed)", "Count", "Percent")
-) %>%
-  kable_classic(full_width = FALSE) %>%
-  add_header_above(c(" " = 1, "Searches" = 2))
-
-```
-
-*Table X Hit rate disparity at Division level* 
-```{r div table, echo = FALSE, warning = FALSE, message=FALSE}
 # ===============================================================
 
 # Division-level hit-rate disparity (African vs White)
@@ -1216,7 +1140,7 @@ kbl(
 
 # ---- parameters (can reuse; shown here for clarity) ----
 
-MIN_AFRICAN <- 20
+MIN_AFRICAN <- 0
 MIN_WHITE   <- 0
 
 # ---- build analysis frame ----
@@ -1312,6 +1236,186 @@ add_header_above(c(" " = 1, "Counts" = 2, "Hit Rates" = 2, "Ratio & CI" = 3, "Si
 
 ```
 
+### Division-level results: Fixed-effects logistic regressions (Station × Year)  
+
+Each model estimates, within a given Division, the relative odds that a search produced contraband (Found_yes = 1) for individuals perceived as African versus White, after adjusting for officer gender and rank, and controlling for Station × Year fixed effects.
+
+Standard errors are clustered by station, meaning that inference accounts for repeated observations within stations.Division models  
+
+```{r division station year, echo=FALSE, message=FALSE, warning = FALSE}
+
+# ===============================================================
+# Division-split models
+# Each model: Fixed-effects logistic regression (Station×Year)
+# Subset sample by Division; cluster SEs by Station
+# ===============================================================
+
+library(dplyr)
+library(fixest)
+library(broom)
+library(kableExtra)
+library(forcats)
+library(stringr)
+
+# --- Parameters ---
+MIN_AFRICAN <- 5   # minimum African searches per station (across all years)
+
+# --- Auto-detect Division column ---
+div_col <- names(ddat)[str_detect(names(ddat), regex("division", ignore_case = TRUE))]
+if (length(div_col) == 0) stop("No Division column found in ddat.")
+DIV_COL <- div_col[1]
+DIV_SYM <- rlang::sym(DIV_COL)
+
+# --- Eligible stations (≥ MIN_AFRICAN African total) ---
+elig_stations <- ddat %>%
+  filter(Racial.appearance.transformed %in% c("African", "White")) %>%
+  count(Station.uniform, Racial.appearance.transformed, name = "n") %>%
+  tidyr::pivot_wider(
+    names_from = Racial.appearance.transformed,
+    values_from = n,
+    values_fill = 0
+  ) %>%
+  filter(African >= MIN_AFRICAN) %>%
+  pull(Station.uniform)
+
+# --- Prepare base dataset ---
+dat <- ddat %>%
+  filter(
+    Racial.appearance.transformed %in% c("African", "White"),
+    Station.uniform %in% elig_stations
+  ) %>%
+  mutate(
+    Race        = factor(Racial.appearance.transformed, levels = c("White", "African")),
+    Found_yes   = is_yes(Found),
+    StationYear = interaction(Station.uniform, Year, drop = TRUE),
+    Gender      = factor(Gender),
+    Rank_clean  = recode(Rank.of.Member, "SSGT" = "SGT", "PSO" = "CONST", .default = Rank.of.Member),
+    Rank_clean  = forcats::fct_relevel(factor(Rank_clean), "CONST")
+  )
+
+# --- Run model per Division ---
+divisions <- sort(unique(dat[[DIV_COL]]))
+results_list <- list()
+
+for (div in divisions) {
+  d_sub <- dat %>% filter(!!DIV_SYM == div)
+  if (nrow(d_sub) < 50) next  # skip small samples
+  
+  # Fit FE model
+  mod <- tryCatch(
+    fixest::feglm(
+      Found_yes ~ Race + Gender + i(Rank_clean, ref = "CONST") | StationYear,
+      family = "binomial",
+      data = d_sub,
+      cluster = ~ Station.uniform
+    ),
+    error = function(e) NULL
+  )
+  if (is.null(mod)) next
+  
+  # Tidy table
+  tidy_tab <- broom::tidy(mod, conf.int = TRUE) %>%
+    filter(!str_detect(term, "StationYear")) %>%
+    mutate(
+      OR     = exp(estimate),
+      CI_low = exp(conf.low),
+      CI_high= exp(conf.high),
+      p_str  = ifelse(p.value < 0.001, "<0.001", sprintf("%.3f", p.value))
+    ) %>%
+    transmute(
+      Term = term,
+      `Odds Ratio` = round(OR, 3),
+      `95% CI (L)` = round(CI_low, 3),
+      `95% CI (U)` = round(CI_high, 3),
+      `p-value` = p_str
+    )
+  
+  caption <- paste0(
+    "Division: ", div,
+    " — Fixed-effects logistic regression (Station×Year), clustered by Station.uniform (N = ",
+    format(nrow(d_sub), big.mark=","), ")."
+  )
+  
+  results_list[[div]] <- kbl(tidy_tab, caption = caption, align = c("l","r","r","r","r")) |>
+    kable_paper(full_width = FALSE) |>
+    kable_styling(bootstrap_options = c("striped","hover"), position = "left")
+}
+
+# --- Print results sequentially ---
+for (div in names(results_list)) {
+  cat("\n\n")
+  print(results_list[[div]])
+  cat("\n\n")
+}
+```
+
+```{r div model summary, echo=FALSE, warning=FALSE, message=FALSE}
+library(dplyr)
+library(tidyr)
+library(tibble)
+library(kableExtra)
+
+# Helper for p-value formatting (optional)
+
+fmt_p <- function(p) ifelse(is.na(p), "", ifelse(p < 0.001, "<0.001", sprintf("%.3f", p)))
+
+div_summary <- tribble(
+~Division, ~OR, ~CI_L, ~CI_U, ~p, ~Interpretation,
+"Eastern Div 1 (Boroondara – Monash – Whitehorse – Manningham)", 0.50, 0.13, 1.98, 0.32, "No statistically reliable difference; large uncertainty.",
+"NWMR Div 1 (Melbourne – Yarra)",                                 1.13, 0.51, 2.48, 0.77, "Comparable hit rates for African and White individuals.",
+"NWMR Div 2 (Wyndham – Hobsons Bay – Maribyrnong)",                0.61, 0.31, 1.18, 0.14, "Lower odds of contraband finds for African-appearing people (≈ 40% lower) though not conventionally significant.",
+"NWMR Div 3 (Brimbank – Melton)",                                  0.14, 0.03, 0.64, 0.011,"Substantially lower evidentiary yield for African-appearing individuals; disparity statistically significant.",
+"NWMR Div 4 (Hume – Moonee Valley – Merri-bek)",                   0.68, 0.39, 1.20, 0.19, "Moderate but non-significant lower yield.",
+"NWMR Div 5 (Banyule – Darebin – Whittlesea – Nillumbik)",         0.72, 0.50, 1.03, 0.072,"Marginally significant disparity (≈ 30% lower odds).",
+"SMR Div 1 (Port Phillip – Stonnington)",                          1.10, 0.59, 2.03, 0.77, "No difference detected.",
+"SMR Div 3 (Dandenong – Casey – Cardinia)",                        0.83, 0.31, 2.19, 0.70, "No difference detected."
+) %>%
+mutate(
+`OR (African vs White)` = round(OR, 2),
+`95% CI` = paste0("[", sprintf("%.2f", CI_L), ", ", sprintf("%.2f", CI_U), "]"),
+`p` = fmt_p(p)
+) %>%
+select(
+Division,
+`OR (African vs White)`,
+`95% CI`,
+`p`,
+Interpretation
+)
+
+kbl(
+div_summary,
+caption = "4.2.1 Summary of racial disparity patterns (Division-split Station×Year FE models; snapshot from fitted outputs).",
+align = c("l","r","l","r","l")
+) |>
+kable_paper(full_width = FALSE) |>
+kable_styling(bootstrap_options = c("striped","hover"), position = "left")
+
+
+```
+Taken together, the division-specific fixed-effects models reveal **clear spatial variation** in the strength and direction of racial disparities.  
+
+The most pronounced and statistically robust disparity appears in **NWMR Division 3 (Brimbank–Melton)**, where searches of African-appearing individuals were far less likely to yield contraband even after controlling for officer rank, gender, and station-year context.  
+
+Several other Divisions—particularly **NWMR 2 (Wyndham–Maribyrnong–Hobsons Bay)** and **NWMR 5 (Darebin–Whittlesea–Banyule–Nillumbik)**—show similar but non-significant trends toward lower evidentiary yields.  
+
+In contrast, **southern and eastern Divisions** show no consistent racial pattern, with odds ratios close to unity and wide confidence intervals reflecting smaller numbers of African-appearing searches.  
+
+Overall, these findings suggest that **racial profiling is not uniformly distributed across metropolitan Melbourne**, but rather concentrated within certain policing environments, notably in Melbourne’s **north-western growth corridors**.  
+
+The following section examines **station-level results** to identify which local areas drive these divisional patterns.
+
+## Station-level  
+### Cross tabs  
+
+Having identified divisional differences, we next explore how these disparities manifest at the **station level**.  
+
+Because police stations vary greatly in size, community composition, and operational culture, local patterns can differ sharply even within the same Division.  
+
+The following cross-tabulations present **raw hit-rate comparisons** between African- and White-appearing individuals for each station with sufficient data.  
+
+These descriptive figures offer an initial view of where evidentiary yields diverge most noticeably before formal modelling is applied.
+
 *Table X Hit rate disparity at Station level* 
 ```{r station table, echo = FALSE, warning = FALSE, message=FALSE}
 # ===============================================================
@@ -1338,7 +1442,7 @@ add_header_above(c(" " = 1, "Counts" = 2, "Hit Rates" = 2, "Ratio & CI" = 3, "Si
 
 # ---- parameters ----
 
-MIN_AFRICAN <- 20
+MIN_AFRICAN <- 10
 MIN_WHITE   <- 0
 
 # ---- choose station column (prefer Station.uniform if present) ----
@@ -1453,6 +1557,283 @@ add_header_above(c(" " = 1, "Counts" = 2, "Hit Rates" = 2, "Ratio & CI" = 3, "Si
 }
 
 ```
+
+
+### Station-level fixed-effects models
+
+To examine whether racial disparities in search outcomes are concentrated within specific police stations, we estimate **station-level fixed-effects logistic regressions**.  
+Each model compares the odds that a search resulted in contraband (`Found_yes = 1`) for African- versus White-appearing individuals **within the same station and year**, controlling for officer gender and rank, and **clustering standard errors by year**.
+
+Only stations with at least **10 recorded searches of African-appearing individuals** (aggregated across all years) are included to ensure sufficient within-station representation for stable estimation.
+
+**Interpretive caveat.**  
+Because station-level datasets are relatively small, these models are **less statistically stable** than the broader division- or city-level regressions.  
+Some stations exhibit **quasi- or complete separation**, where one racial group has few or no positive search outcomes, leading to extremely high or near-zero odds ratios.  
+In addition, with only four clustering periods (2018, 2019, 2022, 2023), standard errors are based on a limited number of clusters.  
+
+For these reasons, station-level estimates should be treated as **diagnostic indicators** of local disparities — highlighting where evidentiary yields diverge most sharply — rather than as precise measurements of effect size.  
+They identify **where** disparities are likely to occur, not necessarily **how large** or **why** they occur.
+
+
+```{r station level analysis models, echo=FALSE, message=FALSE, warning=FALSE}
+# ===============================================================
+
+# Station-by-station FE models (subset by Station)
+
+# Model: Found_yes ~ Race + Gender + i(Rank_clean, ref="CONST") | StationYear
+
+# Clustered SEs by Year; print only if RaceAfrican p ≤ 0.10
+
+# Eligibility: Stations with ≥10 African-appearance searches (all years)
+
+# Assumes: `ddat` present; `is_yes()` helper available; packages loaded
+
+# ===============================================================
+
+
+
+# --- Parameters (tweak if desired) ---
+
+MIN_AFRICAN_STN <- 10   # minimum African-appearance searches per station (all years)
+ALPHA_PRINT     <- 0.10 # print if p ≤ 0.10 for RaceAfrican
+
+# --- Pre-compute eligibility: stations with at least MIN_AFRICAN_STN African ---
+
+elig_stations <- ddat %>%
+filter(Racial.appearance.transformed %in% c("African","White")) %>%
+count(Station.uniform, Racial.appearance.transformed, name = "n") %>%
+tidyr::pivot_wider(
+names_from  = Racial.appearance.transformed,
+values_from = n,
+values_fill = 0
+) %>%
+filter(African >= MIN_AFRICAN_STN) %>%
+pull(Station.uniform)
+
+# --- Base frame restricted to eligible stations + required variables ---
+
+dat0 <- ddat %>%
+filter(
+Racial.appearance.transformed %in% c("African","White"),
+Station.uniform %in% elig_stations
+) %>%
+mutate(
+Race        = factor(Racial.appearance.transformed, levels = c("White","African")),
+Found_yes   = is_yes(Found),
+Gender      = factor(Gender),
+Rank_clean  = dplyr::recode(
+Rank.of.Member,
+"SSGT" = "SGT",
+"PSO"  = "CONST",
+.default = Rank.of.Member
+),
+Rank_clean  = forcats::fct_drop(factor(Rank_clean)),
+Rank_clean  = forcats::fct_relevel(Rank_clean, "CONST"),
+Year        = factor(Year)  # ensure factor for clustering
+)
+
+# --- Iterate per Station ---
+
+stations <- sort(unique(dat0$Station.uniform))
+printed_any <- FALSE
+
+for (stn in stations) {
+d_sub <- dat0 %>%
+filter(Station.uniform == stn) %>%
+mutate(
+# Within a single station, Station×Year FE collapses to per-Year FE,
+# but we keep the original formula via interaction for fidelity.
+StationYear = interaction(Station.uniform, Year, drop = TRUE)
+)
+
+# Skip if no variation in key vars
+
+if (n_distinct(d_sub$Race) < 2) next
+if (n_distinct(d_sub$Found_yes) < 2) next
+
+# Fit FE model with clustered SEs by Year
+
+mod <- tryCatch(
+fixest::feglm(
+Found_yes ~ Race + Gender + i(Rank_clean, ref = "CONST") | StationYear,
+family  = "binomial",
+data    = d_sub,
+cluster = ~ Year   # <-- cluster by Year
+),
+error = function(e) NULL
+)
+if (is.null(mod)) next
+
+# Tidy and compute ORs
+
+tt <- broom::tidy(mod, conf.int = TRUE) %>%
+filter(!str_detect(term, "StationYear")) %>%
+mutate(
+OR     = exp(estimate),
+CI_low = exp(conf.low),
+CI_high= exp(conf.high),
+p_str  = ifelse(is.na(p.value), "",
+ifelse(p.value < 0.001, "<0.001", sprintf("%.3f", p.value)))
+)
+
+# Keep only if RaceAfrican significant at 10%
+
+row_af <- tt %>% filter(term %in% c("RaceAfrican", "Race::African", "RaceAfrican:"))
+if (nrow(row_af) == 0) next
+p_af <- suppressWarnings(as.numeric(row_af$p.value[1]))
+if (is.na(p_af) || p_af > ALPHA_PRINT) next
+
+# Build pretty table with all covariates
+
+tbl <- tt %>%
+transmute(
+Term         = term,
+`Odds Ratio` = round(OR, 3),
+`95% CI (L)` = round(CI_low, 3),
+`95% CI (U)` = round(CI_high, 3),
+`p-value`    = p_str
+)
+
+caption <- paste0(
+"Station: ", stn,
+" — FE logit (Station×Year), clustered by Year; N = ",
+format(nrow(d_sub), big.mark=","), "."
+)
+
+kbl(tbl, caption = caption, align = c("l","r","r","r","r")) |>
+kable_paper(full_width = FALSE) |>
+kable_styling(bootstrap_options = c("striped","hover"), position = "left") |>
+print()
+
+printed_any <- TRUE
+}
+
+if (!printed_any) {
+cat("No stations met the significance criterion (RaceAfrican p ≤ ", ALPHA_PRINT, ").")
+}
+```
+
+### Model analysis
+
+**Overview.**  
+The station-level fixed-effects logistic regressions identify several locations where racial disparities in search outcomes are statistically significant after accounting for officer rank, gender, and within-year variation. Each model compares the odds that a search produced contraband for African-appearing versus White-appearing individuals under otherwise comparable operational conditions, clustering standard errors by year.
+
+---
+
+**CAROLINE SPRINGS.**  
+Searches of African-appearing individuals were dramatically less likely to yield contraband (**OR = 0.03**, 95 % CI [0.008, 0.14], *p* < 0.001).  
+This represents an **approximate 97 % reduction in evidentiary yield**, indicating a substantial racial disparity within this station. Officer gender and rank also showed extreme or unstable coefficients, likely due to small sample size (N = 44) and complete separation for some groups.
+
+**FLEMINGTON.**  
+African-appearance searches had an odds ratio of **0.37** (95 % CI [0.13, 1.08], *p* = 0.069), suggesting a **possible 60 % lower hit rate**, though the estimate is only marginally significant. This pattern is consistent with known community concerns about disproportionate stop-and-search outcomes in this area.
+
+**MELBOURNE NORTH.**  
+In contrast, the odds ratio of **4.80** (95 % CI [1.83, 12.59], *p* = 0.001) indicates that African-appearing individuals were **significantly more likely** to have contraband found than White-appearing individuals in similar contexts. The direction of disparity here reverses relative to most other stations, suggesting localised operational or case-mix differences.
+
+**MILL PARK.**  
+The model produced an estimated odds ratio effectively **0 ( *p* < 0.001 )** for African-appearance, meaning that none or almost none of the searches yielded contraband. This reflects an **extreme disparity**, though interpretation is limited because of quasi-complete separation (no positive outcomes within one racial group).
+
+**PAKENHAM.**  
+The African-appearance coefficient is **OR = 3.41** (95 % CI [1.31, 8.86], *p* = 0.012), suggesting that African-appearing people were **more than three times as likely** to be found with contraband as White-appearing individuals, after adjusting for rank and gender. This indicates a potentially **targeted and evidence-based search pattern** at this station.
+
+**SUNSHINE.**  
+As with Caroline Springs, the odds ratio approximates **0 ( *p* < 0.001 )**, meaning African-appearance searches almost never yielded evidence. This implies a **very strong disparity** against African-appearing individuals in the same operational setting.
+
+**WERRIBEE.**  
+A statistically significant disparity is also observed (**OR = 0.26**, 95 % CI [0.17, 0.41], *p* < 0.001**). Searches of African-appearing people were about **74 % less likely** to produce contraband than those of White-appearing people. Officer rank shows an additional negative coefficient for Sergeants, possibly capturing role-specific search patterns.
+
+---
+
+**Interpretation summary.**  
+Large and statistically significant disparities in evidentiary yield are concentrated in **Caroline Springs, Sunshine, and Werribee**, with **Flemington** showing a marginal effect in the same direction. These results imply that discretionary searches of African-appearing individuals in several north-western suburbs are **substantially less evidence-based** than comparable searches of White-appearing people.  
+By contrast, **Melbourne North** and **Pakenham** display the opposite pattern, where searches of African-appearing individuals more often result in contraband findings, suggesting possible **differences in local targeting practices or operational intelligence quality**.  
+Overall, the results reinforce that **racial disparities are geographically concentrated**, reflecting **local station cultures and supervision environments** rather than a uniform metropolitan-wide bias.
+
+# Appendix
+
+
+
+```{r Finds racial all, echo=FALSE, warning=FALSE, results='asis'}
+ddats<-ddat %>%
+  filter(Racial.appearance.transformed %in% c("Missing", "White","Mediterranean/Middle Eastern – Unusable",
+                                              "Asian","African", "Aboriginal"))
+
+ct <- crosstable::crosstable(
+  ddats,
+  by = "Found",
+  cols = "Racial.appearance.transformed",
+  total = TRUE,
+  test = FALSE,          # we'll add our own robust test
+  showNA = "ifany",
+  percent_digits = 1
+)
+
+ft <- crosstable::as_flextable(ct)
+
+# 3) Safe association test (Fisher for 2x2, else Chi-square with simulated p)
+safe_test <- function(x, y) {
+  tbl <- table(x, y, useNA = "no")
+  tbl <- tbl[rowSums(tbl) > 0, colSums(tbl) > 0, drop = FALSE]
+  if (all(dim(tbl) == c(2, 2))) {
+    res <- fisher.test(tbl, workspace = 2e8)
+    list(label = "Fisher's exact", p = res$p.value)
+  } else {
+    res <- chisq.test(tbl, simulate.p.value = TRUE, B = 100000)
+    list(label = "Chi-square (simulated p)", p = res$p.value)
+  }
+}
+
+tres <- safe_test(ddats$Racial.appearance.transformed, ddats$Found)
+p_line <- sprintf("Racial.appearance.transformed — %s, p = %s",
+                  tres$label, format.pval(tres$p, digits = 4))
+
+# 4) Add footer and a clear title
+ft <- flextable::add_footer_lines(ft, values = c("Overall association test:", p_line))
+ft <- flextable::set_caption(ft, caption = "Racial appearance vs Found (with totals)")
+ft
+```
+
+## Hit rates by Division and Station with at least 20 searches  
+
+```{r race prop, echo=FALSE, message=FALSE, warning=FALSE}
+# Count + percent for all groups (no filtering)
+tab_ra <- ddat %>%
+  mutate(
+    Racial.appearance.transformed =
+      fct_explicit_na(Racial.appearance.transformed, "Missing")
+  ) %>%
+  count(Racial.appearance.transformed, name = "Count") %>%
+  arrange(desc(Count)) %>%
+  mutate(Percent = Count / sum(Count))
+
+# Add total row
+tab_ra_tot <- bind_rows(
+  tab_ra,
+  tibble(
+    Racial.appearance.transformed = "Total",
+    Count = sum(tab_ra$Count),
+    Percent = 1
+  )
+)
+
+# Format percent for display
+tab_ra_tot <- tab_ra_tot %>%
+  mutate(Percent = percent(Percent, accuracy = 0.1))
+
+# Render table
+kbl(
+  tab_ra_tot,
+  caption = "Racial appearance (all groups): count and percentage of searches",
+  align = c("l", "r", "r"),
+  col.names = c("Racial appearance (transformed)", "Count", "Percent")
+) %>%
+  kable_classic(full_width = FALSE) %>%
+  add_header_above(c(" " = 1, "Searches" = 2))
+
+```
+
+
+
 
 
 

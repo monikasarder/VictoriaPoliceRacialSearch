@@ -1,0 +1,489 @@
+---
+title: "Victoria Police Search Data Overview and Hit Rates"
+author: "Monika Sarder"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+    theme: readable
+    highlight: zenburn
+    fig_caption: true
+    df_print: paged
+    css: styles.css  # Optional: include this file if you want to customise styles
+---
+
+```{r setup, echo = FALSE, warning = FALSE, message=FALSE}
+knitr::opts_chunk$set(results = "asis")
+
+library(tidyverse)
+library(plotly)
+library(summarytools)
+library(kableExtra)
+library(magrittr)
+library(rmarkdown)
+library(forcats)
+library(gmodels)
+library(crosstable)
+library(janitor)
+library(DT)
+library(writexl)
+library(broom)
+library(lme4)
+library(broom.mixed)
+
+dat <- readRDS("../VicPol Search Data Clean/VicPol Search Data Clean.RDS")
+
+```
+
+# Victoria Police Warrantless Search Data (Melbourne Searches)
+
+> **TL;DR:**  
+> This dataset includes over **50,000 warrantless searches** conducted by Victoria Police in **2018, 2019, 2022, and 2023**, obtained through the [Centre Against Racial Profiling](https://www.centreagainstracialprofiling.au/). It captures key details such as **search type**, **search outcomes**, and **perceived racial appearance**.  
+> 
+> The analysis provides **summary statistics** and **exploratory hit rate comparisons** for over 25,000 drug searches undertaken by uniform police in Melbourne to help identify patterns that warrant further investigation. Findings should be interpreted with caution — **formal significance testing has not been applied** to most of the descriptive summaries presented on this page.
+
+
+## About the Dataset
+
+This dataset contains records of over **50,000 warrantless searches** conducted by Victoria Police in the years **2018, 2019, 2022, and 2023**. 
+
+Data for the years **2020 and 2021** is excluded due to the atypical policing environment associated with the COVID-19 pandemic.
+
+The dataset comprises records of **warrantless stop and search events** conducted in public places across Victoria. It was released through a Freedom of Information (FOI) request lodged by the[Centre Against Racial Profiling](https://www.centreagainstracialprofiling.au/) and includes detailed information about each search, including location, officer-perceived characteristics of the person searched, search type, and outcome.
+
+For a warrantless search to be lawful, police must **suspect on reasonable grounds** that the person is carrying a prohibited item, such as drugs, weapons, or graffiti implements.
+
+Each search is recorded under the relevant **legal power** (e.g. *Drugs, Poisons and Controlled Substances Act 1981*, s82) and includes one of three possible **outcomes**:
+
+- **Nothing found**  
+- **Search item found**: an item matching the type of contraband suspected (e.g. drugs found during a drug search)  
+- **Non-search item found**: a different type of contraband was found (e.g. a weapon found during a drug search)
+
+This dataset has been cleaned and transformed to enable analysis of **hit rates**, with particular focus on **racial disparities in drug searches**.
+
+### Key Variables
+
+The following key variables are are available in this dataset. 
+
+- `Date`: Date of the stop and search  
+- `Area.type`: Metropolitan or regional classification  
+- `Region`, `Division`, `PSA`, `Station`: Police geographic hierarchy  
+- `Racial.appearance.original`: The original officer-perceived racial appearance category as recorded by Victoria Police  
+- `Racial.appearance.transformed`: A harmonised version of racial appearance, created to adjust for multiple changes in category definitions across the reference period  
+- `Gender`: Officer-perceived gender of the person searched  
+- `Age`: Age of the person searched  
+- `Age group`: Age of the person searched 
+- `Search.type - Drugs`, `Search.type - Weapons`, `Search.type - Graffiti`: Indicates the type(s) of prohibited item being searched for  
+- `Found`: Whether **any** prohibited item was found — regardless of whether it was the item searched for under the power invoked (i.e. both drug power invoked, and drugs found, *and* drug power invoked, but weapons found instead count as a 'hit') 
+- `Contact.Type`: Whether the search was conducted on foot (`P`) or during a vehicle stop (`V`)  
+- `Unit.type`: Broad category of the police unit conducting the search (e.g. uniform, highway patrol)  
+- `Station.uniform`: The police station linked to the uniformed officer conducting the search (available for uniform police only)
+- `Rank`: Rank of the officer responsible for conducting the search (e.g. Constable, Senior Constable, Sergeant) 
+
+## Data limitations  
+
+### Racial Appearance Categories
+
+Victoria Police records the **perceived racial appearance** of individuals at the time of the search. These categories reflect how the officer perceives the person’s racial appearance — they are *not* based on self-identification or ancestry and should be understood as indicators of how race is *perceived* in the policing context.
+
+### Missing Data
+
+A substantial proportion of records are missing demographic information about the person who was searched.
+
+In particular, **racial appearance information is either missing or undetermined in a significant number of cases**. Specifically, **42% of all searches (22,117 records)** have no recorded racial appearance — despite this being a mandatory field since 2019. An additional **1.5% of searches (785 records)** are recorded as **‘Other’**, a category sometimes used when officers are unable or unwilling to assign a racial appearance. Together, these issues raise concerns about data quality and the consistency with which demographic details are recorded.
+
+In addition, **2,097 records** are classified under the merged **‘Mediterranean/Middle Eastern’** category. Since 2020, Victoria Police has combined these two appearance labels, limiting the ability to meaningfully assess outcomes for people of Middle Eastern appearance. While individuals of Mediterranean descent are often perceived as non-racialised or White, those of Middle Eastern appearance may be racialised differently in police interactions. The merger obscures this distinction, rendering these records **unusable for racial disparity analysis** involving Middle Eastern individuals.
+
+Altogether, these limitations affect over **45% of all records**, substantially impacting the completeness and reliability of race-based analysis.
+
+📁 **Download the cleaned dataset:**  
+[**VicPol Search Data Clean.xlsx**](https://github.com/monikasarder/VictoriaPoliceRacialSearch/raw/main/VicPol%20Search%20Data%20Clean/VicPol%20Search%20Data%20Clean.xlsx)
+
+## About the Analysis
+
+This analysis is **exploratory** and provides a high-level overview of Victoria Police stop and search practices, with the aim of informing further research, advocacy, and policy reform.
+
+Although the original dataset includes over 50,000 records of warrantless searches conducted across Victoria between 2018 and 2023, this analysis is **limited to drug searches** carried out by **uniform police officers** on **foot patrol** within the **Melbourne metropolitan area**. This scope was chosen for several key reasons:
+
+- **Drug searches** represent the vast majority of all search records — approximately **87%** — and are the most consistently recorded type of search.
+- Different search types (e.g. for weapons, graffiti implements, or volatile substances) have markedly different hit rates, reflecting differing legal thresholds and suspect profiles. Focusing only on drug searches reduces this variation and enhances comparability.
+- **Uniform police** are both the largest cohort and less likely to be engaged in specialist or covert operations. They are also the officers that members of the public are most likely to encounter during routine interactions in public places.
+- Restricting the analysis to **foot patrols** improves data quality, as these records have significantly less missing information — especially for **racial appearance**, which is a key variable of interest.
+- Limiting the analysis to **Melbourne** helps control for geographic differences in demographics, policing strategies, and enforcement practices that may confound the results.
+
+By focusing on a more homogeneous subset of the data — **drug searches by uniform police on foot patrol in metropolitan Melbourne** — we aim to reduce contextual variation and provide a more reliable basis for examining potential racial disparities in stop and search outcomes.
+
+
+### Hit Rate Analysis
+
+**Hit rate analysis is a standard method used to detect possible racial profiling**. It involves comparing the proportion of searches that result in the discovery of prohibited items — known as a “find” — across different racial groups. This approach is based on the principle that if all individuals are being searched under the same legal threshold, then hit rates should be broadly similar across groups. A consistently lower hit rate for a particular group may suggest that police are applying a lower threshold of suspicion, raising concerns about potential bias ([Gelman, Fagan & Kiss, 2007](https://www.jstor.org/stable/40059996); [Epp, Maynard-Moody & Haider-Markel, 2014](https://press.uchicago.edu/ucp/books/book/chicago/P/bo18061052.html)).
+
+This analysis focuses specifically on **drug searches conducted under Section 82 of the *Drugs, Poisons and Controlled Substances Act 1981***. Under this provision, police are permitted to search a person without a warrant if they form a reasonable belief that the person is carrying illicit drugs.
+
+Hit rates may be influenced by a range of factors such as the **type of search**, the **police unit conducting it**, or the **local area** in which the search occurred. For example, some suburbs may have higher or lower hit rates due to differences in enforcement practices, officer discretion, or local demographics.
+
+Therefore, to determine whether **race** is independently associated with lower hit rates, it is important to explore how these other factors may be influencing the results — and whether they are **confounding** the apparent impact of race. This section provides a preliminary exploration of hit rate patterns to help guide more robust, controlled statistical analysis in subsequent sections.
+
+# Data Overview  
+
+## Data summary  
+
+This section provides a summary of the **13,896** records included in the analysis. These represent **warrantless drug searches** conducted by **uniform police on foot patrol** in **Melbourne metropolitan areas** between **2018 and 2023**.
+
+The summary outlines the distribution of key variables such as year, racial appearance, gender, search outcomes, and other relevant characteristics. Notably, only 20.6% of the records are missing racial appearance data and only 4.5% of records are mssing gender data.
+
+**Table 1 Characteristics of searches**
+```{r summary, echo = FALSE, warning = FALSE}
+of.interest <- c("Year","Racial.appearance.transformed","Gender","Age group","Rank.of.Member", "Division","Found",
+                 "Search.type - Drugs")
+
+dat.dru <- dat %>%
+  filter(!is.na(`Search.type - Drugs`),
+        Area.type == "Metro",
+         Unit.type == "Uniform",
+        Contact.Type == "P")
+
+
+dat.dru$`Age group`[dat.dru$`Age group` == "Missing"] <- NA  
+
+dat.dru$Racial.appearance.transformed[dat.dru$Racial.appearance.transformed == "Missing"] <- NA  
+
+dat.dru <- dat.dru %>%
+  select(all_of(of.interest))%>%
+  mutate(across(everything(), ~ fct_infreq(.)))%>%
+  mutate(Year = fct_relevel(as.character(Year), c("2018", "2019", "2022", "2023")),
+         `Age group` = fct_relevel(`Age group`, c("Under 12", "12 to 17", "18 to 25","26 to 35", "36 to 45", "46 and over")))
+
+
+print(dfSummary(dat.dru, 
+          max.distinct.values = 10, 
+           varnumbers   = FALSE, 
+                valid.col    = FALSE, 
+                graph.magnif = 0.76,
+          headings = FALSE),
+      method = 'render')
+```
+
+
+
+## Hit Rate Patterns
+
+This section summarises whether the likelihood of a “find” (i.e. discovery of a prohibited item) varied across key demographic and operational variables. The analysis includes **13,896 warrantless drug searches** conducted by **uniform police on foot patrol** in **Melbourne** between **2018 and 2023**. The overall **average hit rate was 13.5%**.
+
+
+### Racial Appearance 
+
+Hit rates varied significantly across racial appearance categories (*p = 0.0216*). Individuals perceived as **White** had a hit rate of **14.1%**, higher than most racialised groups. Lower hit rates were observed for:
+
+- **South Asian**: 9.7%  
+- **African**: 11.4%  
+- **Middle Eastern**: 10.4%  
+- **Other**: 10.6%
+
+### Age group  
+
+Hit rate variation across age groups was minimal and was not of practical or statistical significance. 
+
+### Year of Search
+
+There were statistically significant differences in hit rates across years (*p = 0.0039*). The highest hit rate occurred in **2019 (15.3%)**, followed by **2022 and 2023 (13.3%)**, and the lowest in **2018 (12.1%)**. This may reflect changing operational priorities or enforcement practices over time.
+
+
+These disparities suggest that individuals from certain racial groups may be subject to more frequent searches under a lower threshold of suspicion — a key indicator of potential racial profiling.
+
+### Gender 
+
+Gender was significantly associated with hit rate (*p = 0.0005*), although the differences were relatively modest: 
+
+- **Male**: 13.5%  
+- **Female**: 12.4%  
+- **Missing gender**: 19.0%  
+- **Unknown (U)**: 0%
+
+
+### Rank of Police Member  
+
+Rank was not significantly associated with differences in hit rates (*p = 0.0991*). While **Sergeants (SGT)** had a slightly higher hit rate (16.8%), the difference was not statistically robust. Constables and Senior Constables, who conducted the majority of searches, had similar rates (13.1% and 14.1% respectively).
+
+### Police Division  
+
+Hit rates also varied significantly by police division (*p < 0.0001*), suggesting that local enforcement practices or operational focus may influence search outcomes. Divisions with the lowest hit rates included:
+
+- **North West Metro Region (NWMR) Division 1 (Melbourne, Yarra)**: 10.3%  
+- **NWMR Division 3 (Brimbank, Melton)**: 11.4%  
+- **NWMR Division 4  (Hume, Moonee Valley, Merri-bek)**: 11.6%  
+
+In contrast, divisions with the highest hit rates included:
+
+- **Southern Metro Region (SMR) Division 2 (Glen Eira, Kingston)**: 18.6%  
+- **SMR Division 4 (Frankston, Mornington)**: 18.0%  
+- **Eastern Region Division 1 (Boroondara, Manningham, Monash, Whitehorse)**: 18.2%  
+
+Divisions with lower hit rates tended to cover areas with more culturally diverse populations and greater socioeconomic disadvantage, while those with higher hit rates were generally less diverse and more advantaged. These patterns suggest that racial disparities in search outcomes depend on a range of local factors.
+
+
+**Table 3 Hit rates by variables of interest - Metro**
+```{r Finds racial, echo=FALSE, warning=FALSE, results='asis'}
+
+# Recode and reorder factors
+dat.dru <- dat.dru %>%
+  mutate(
+    Found = factor(Found, levels = c("Yes", "No")),  # Yes before No
+    `Age group` = fct_explicit_na(`Age group`, na_level = "Missing"),
+    Gender = fct_explicit_na(Gender, na_level = "Missing"),
+    Year = fct_relevel(as.character(Year), "2018", "2019", "2022", "2023"),
+    across(c("Year", "Racial.appearance.transformed", "Age group","Gender", "Rank.of.Member"), ~ fct_infreq(.))
+  )
+
+dat.dru <- dat.dru %>%
+  mutate(`Age group` = fct_relevel(
+    forcats::fct_explicit_na(`Age group`, na_level = "Missing"),
+    "Under 12", "12 to 17", "18 to 25", "26 to 35", "36 to 45", "46 and over", "Missing"
+  ))
+
+# Select only variables of interest + Found
+vars_for_table <- c("Year", "Racial.appearance.transformed","Age group", "Gender", "Rank.of.Member", "Found", "Division")
+
+# Run crosstable across multiple rows
+crosstable(dat.dru[, vars_for_table], 
+           by = "Found", 
+           total = TRUE, 
+           test = TRUE, 
+           showNA = "ifany", 
+           percent_digits = 1) %>%
+  as_flextable()
+
+
+```
+
+### Implications for Missing Data and Confounding Variables
+
+To support clear and interpretable modelling of racial disparities in search outcomes, the dataset was filtered to exclude ambiguous or analytically unhelpful records.
+
+We restrict the analysis to a comparison between individuals perceived by police to be of **African** or **White** racial appearance. African-appearing individuals have historically been subject to disproportionate scrutiny by Victoria Police, as documented in multiple inquiries and reports (e.g. Haile-Michael & Taha, 2013), and are a key focus of this analysis.
+
+Our ability to examine **comparative racial effects more broadly** is limited by the quality of Victoria Police’s racial appearance data. The **"Other"** category is undefined and too heterogeneous to support meaningful interpretation, while the **"Mediterranean/Middle Eastern"** category merges racially marginalised groups (e.g. Middle Eastern appearance) with those unlikely to be racialised in the Australian context (e.g. Southern European descent). These merged or ambiguous categories reduce analytic clarity and may obscure true disparities.
+
+We are confident in **excluding "Missing" racial appearance records** from modelling. While these comprise around 20.6% of the dataset, their average hit rate closely mirrors that of White-appearing individuals, suggesting that their exclusion will not bias racial comparisons.
+
+We also consider that **gender may have a confounding effect**. Preliminary results indicate that gender may influence the likelihood of a search resulting in a drug find, and literature on policing and criminal justice highlights the importance of examining the **intersecting effects of race and gender**. These dynamics will be explored in interaction models.
+
+Other variables were reviewed but not retained for modelling. **Police rank**, for example, does not appear to meaningfully correlate with search outcomes by racial appearance and would unnecessarily complicate the models.
+
+Finally, we account for differences in local policing by either **controlling for police division** or conducting **separate models within each division**. Substantial variation in hit rates across divisions suggests that geography is a potential confounder—reflecting local enforcement practices, demographics, or relationships with specific communities—and must be addressed to isolate the effect of race.
+
+These decisions provide a solid foundation for examining racial disparities in policing, particularly for the group most frequently identified as affected by racial profiling.
+
+
+# Statistical modelling
+
+## Division-Level Modelling Approach and Summary of Findings
+
+To explore potential racial disparities in search outcomes, we conducted **logistic regression analyses separately for each police division**. Each model estimated the **odds of a drug search being successful** (i.e., resulting in a drug find), with predictors for:
+
+- **Race** (African vs White)  
+- **Gender**
+- **Year**
+- An **interaction between race and gender**
+
+The reference group in all models was **White males in 2022**.
+
+We chose to model each division individually rather than pool the data because **Victoria Police divisions differ significantly in demographic composition, policing cultures, and socioeconomic conditions**. By modelling each division separately, we can identify patterns that may be masked in aggregate analysis and better understand how racial disparities may be shaped by local context.
+
+Of the **11 metropolitan divisions** analysed:
+
+- **Only one division — North West Metro Division 3 (Brimbank, Melton)** — showed **statistically significant evidence of racial disparity**:
+  - Searches of African males were significantly less likely to result in a drug find than searches of White males  
+    (*OR = 0.228, p = 0.020*), suggesting that **African individuals may be searched on a lower threshold of suspicion**.
+- No other divisions showed statistically significant differences in search success rates between African and White individuals once year and gender were accounted for.
+- Interaction effects between race and gender were generally **not statistically significant**, likely due to **small sample sizes for African females**.
+
+These findings suggest that racial disparities in policing may not be evenly distributed across the organisation, but **concentrated in specific geographic divisions** — particularly those with **diverse, lower-SES communities** such as Brimbank and Melton. This reinforces the importance of **disaggregated analysis** and examining **intersectional factors** when assessing the fairness of police practices.
+
+
+### Station-Level Modelling
+
+We repeated this analysis at the **station level**, limiting models to those stations where there were **at least five drug search "finds" involving African-appearing individuals**. This threshold was set to ensure sufficient data for reliable modelling and to avoid unstable estimates due to sparse outcomes.
+
+Six stations met the inclusion criteria:
+
+- **Werribee**
+- **Reservoir**
+- **Pakenham**
+- **North Melbourne**
+- **Footscray**
+- **Cranbourne**
+
+Of these, **only Werribee Station** showed a **statistically significant disparity**:
+
+- African individuals were found to have **significantly lower odds** of a successful search compared to White individuals (*OR = 0.334, p = 0.044*).
+- This suggests that in Werribee — a station located in a rapidly growing and diverse part of Melbourne’s outer west — **African-appearing individuals may be subjected to searches on a weaker evidentiary basis** than their White counterparts.
+
+None of the other five stations showed statistically significant differences between African and White individuals. However, small sample sizes in these locations mean that a lack of statistical significance should not be taken to imply absence of disparity. These stations should be treated as **data-limited rather than disparity-free**.
+
+Together with the **division-level findings in Brimbank and Melton**, the **station-level result from Werribee** points to a **geographically localised pattern of racial disparity** that warrants further investigation — including qualitative follow-up and scrutiny of **unit-level culture and decision-making**.
+
+```{r division-models-race-gender-year, results='asis', echo=FALSE, warning=FALSE, message=FALSE}
+
+
+# Step 1: Prepare and filter data
+dat_aw <- dat.dru %>%
+  filter(
+    Racial.appearance.transformed %in% c("African", "White"),
+    !is.na(Found),
+    !is.na(Division),
+    !is.na(Year),
+    Gender %in% c("M", "F")
+  ) %>%
+  mutate(
+    Success = ifelse(Found == "Yes", 1, 0),
+    Racial.appearance.transformed = factor(Racial.appearance.transformed, levels = c("White", "African")),
+    Gender = factor(Gender),
+    Gender = relevel(Gender, ref = "M"),
+    Year = factor(Year)
+  )
+
+# Step 2: Split data by Division
+data_by_division <- split(dat_aw, dat_aw$Division)
+
+# Step 3: Loop over Divisions and print one table per model
+for (div_name in names(data_by_division)) {
+  df <- data_by_division[[div_name]]
+  
+  if (n_distinct(df$Success) < 2) next  # skip if only one outcome class
+  
+  model <- tryCatch(
+    glm(Success ~ Racial.appearance.transformed * Gender + Year,
+        data = df, family = binomial),
+    error = function(e) {
+      message(paste("⚠️ Skipped:", div_name, "-", e$message))
+      return(NULL)
+    }
+  )
+  if (is.null(model)) next
+
+  # Get model output, handling CI failures gracefully
+  tidy_model <- tryCatch(
+    tidy(model, exponentiate = TRUE, conf.int = TRUE),
+    error = function(e) {
+      message(paste("⚠️ CI failed in:", div_name, "-", e$message))
+      tidy(model, exponentiate = TRUE, conf.int = FALSE) %>%
+        mutate(conf.low = NA, conf.high = NA)
+    }
+  )
+
+  tidy_model <- tidy_model %>%
+    select(term, estimate, conf.low, conf.high, p.value) %>%
+    rename(
+      Term = term,
+      `Odds Ratio` = estimate,
+      `95% CI (Lower)` = conf.low,
+      `95% CI (Upper)` = conf.high,
+      `p-value` = p.value
+    ) %>%
+    mutate(
+      Term = recode(Term,
+        "Racial.appearance.transformedAfrican" = "Race: African vs White (Male ref.)",
+        "GenderF" = "Gender: Female vs Male",
+        "Racial.appearance.transformedAfrican:GenderF" = "Interaction: African × Female"
+      ),
+      `p-value` = ifelse(!is.na(`p-value`) & `p-value` < 0.05,
+                         paste0("**", formatC(`p-value`, digits = 3, format = "f"), "**"),
+                         formatC(`p-value`, digits = 3, format = "f"))
+    )
+
+  cat("\n\n")  # spacing for RMarkdown
+  print(
+    kable(
+      tidy_model,
+      digits = 3,
+      escape = FALSE,
+      caption = paste0("**Division: ", div_name, "** — Logistic Regression: Odds of Drug Search Success (African vs White, by Gender)")
+    ) %>%
+    kable_styling(full_width = FALSE, position = "left")
+  )
+}
+
+
+```
+
+```{r Finds modelling station, echo=FALSE, warning=FALSE}
+
+# Step 1: Filter and prepare the data
+dat_station <- dat %>%
+  filter(
+    !is.na(`Search.type - Drugs`),
+    Area.type == "Metro",
+    Unit.type == "Uniform",
+    Contact.Type == "P",
+    Racial.appearance.transformed %in% c("African", "White"),
+    !is.na(Found),
+    !is.na(Year),
+    !is.na(Station.uniform)
+  ) %>%
+  mutate(
+    Success = ifelse(Found == "Yes", 1, 0),
+    Racial.appearance.transformed = factor(Racial.appearance.transformed, levels = c("White", "African")),
+    Year = factor(Year)
+  )
+
+# Step 2: Identify stations with at least 5 African finds
+stations_with_5plus_african_finds <- dat_station %>%
+  filter(Racial.appearance.transformed == "African", Success == 1) %>%
+  count(Station.uniform) %>%
+  filter(n >= 5) %>%
+  pull(Station.uniform)
+
+# Step 3: Filter data to those stations
+dat_station_filtered <- dat_station %>%
+  filter(Station.uniform %in% stations_with_5plus_african_finds)
+
+# Step 4 & 5: Run model and print a separate table for each station
+walk(stations_with_5plus_african_finds, function(station_name) {
+  df <- dat_station_filtered %>% filter(Station.uniform == station_name)
+  if (n_distinct(df$Success) < 2) return(NULL)
+
+  model <- tryCatch(
+    glm(Success ~ Racial.appearance.transformed*Gender + Year, data = df, family = binomial),
+    error = function(e) return(NULL)
+  )
+  if (is.null(model)) return(NULL)
+
+  tidy(model, exponentiate = TRUE, conf.int = TRUE) %>%
+    select(term, estimate, conf.low, conf.high, p.value) %>%
+    rename(
+      Term = term,
+      `Odds Ratio` = estimate,
+      `95% CI (Lower)` = conf.low,
+      `95% CI (Upper)` = conf.high,
+      `p-value` = p.value
+    ) %>%
+    mutate(
+      `p-value` = ifelse(!is.na(`p-value`) & `p-value` < 0.05,
+                         paste0("**", formatC(`p-value`, digits = 3, format = "f"), "**"),
+                         formatC(`p-value`, digits = 3, format = "f"))
+    ) %>%
+    kable(
+      digits = 3,
+      escape = FALSE,
+      caption = paste0("Station: ", station_name, " — Logistic Regression: Odds of Drug Search Success (African vs White, controlling for Year)")
+    ) %>%
+    kable_styling(full_width = FALSE, position = "left") %>%
+    print()
+})
+
+
+```
+
+
+# Appendix – Ethnic Appearance Mapping
+
+```{r mapping-categories-2022-2023, echo = FALSE}
+dat %>%
+  count(Racial.Appearance.original, Racial.appearance.transformed) %>%
+  kable()
+```
+
