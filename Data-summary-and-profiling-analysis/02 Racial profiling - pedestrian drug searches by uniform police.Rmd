@@ -897,11 +897,6 @@ An odds ratio below 1 indicates that, on average across Melbourne, *African-appe
 # Adds Rank as a fixed effect (CONST as reference; SSGT→SGT, PSO→CONST)
 # ===============================================================
 
-library(dplyr)
-library(forcats)
-library(lme4)
-library(broom.mixed)
-library(kableExtra)
 
 dat2 <- ddat %>%
   filter(Racial.appearance.transformed %in% c("African", "White")) %>%
