@@ -19,7 +19,7 @@ output:
 
 This study analyses **7,534** warrantless drug searches conducted by uniform, station-based officers during pedestrian encounters in metropolitan Melbourne (2018, 2019, 2022, 2023). It focuses on people perceived by police as **White** or **African**, who together comprise over half of all recorded searches.
 
-Across years, hit rates (contraband found) were generally lower for African-appearing individuals than for White-appearing individuals. Two complementary models test whether this disparity persists after accounting for local context.
+Across years, 'hit rates' (contraband found) were generally lower for African-appearing individuals than for White-appearing individuals. Two complementary models test whether this disparity persists after accounting for local context.
 
 **Model A** (fixed-effects logistic regression with **Station×Year** effects) shows that, within the same station and year, African-appearing individuals had **≈30% lower odds** of a hit than White-appearing individuals (**OR = 0.70, 95% CI 0.51–0.96, p = 0.028**).  
 
@@ -29,9 +29,9 @@ Disparities are **spatially uneven**. Division-level models show the largest and
 
 Station-level analyses, clustered by year, identify pronounced shortfalls in evidentiary yield for African-appearing individuals at **Caroline Springs, Sunshine, and Werribee**, and a marginal effect at **Flemington**. The reverse pattern appears at **Melbourne North** and **Pakenham**, suggesting context-specific differences in targeting or operational intelligence.
 
-**Caveat.** Station-level fixed-effects models are inherently less stable due to small sample sizes, quasi-complete separation, and few clustering units. These results should therefore be interpreted as **diagnostic indicators** of local disparities rather than precise effect estimates.
+While the hit-rate framework cannot determine motive, the persistence and concentration of lower evidentiary yields are **consistent with lower search thresholds** being applied to African-appearing individuals in certain operational contexts, consistent with racial profiling.  These findings underscore the importance of **station-level accountability, review, and transparency** in Victoria Police’s stop-and-search practices.
 
-While the hit-rate framework cannot determine motive, the persistence and concentration of lower evidentiary yields are **consistent with lower search thresholds** being applied to African-appearing individuals in certain operational contexts. These findings underscore the importance of **station-level accountability, review, and transparency** in Victoria Police’s stop-and-search practices.
+**Caveat.** Station-level fixed-effects models are inherently less stable due to small sample sizes, quasi-complete separation, and few clustering units. These results should therefore be interpreted as **diagnostic indicators** of local disparities rather than precise effect estimates.
 
 # Introduction
 
@@ -85,11 +85,9 @@ As such, the hit-rate test should be interpreted as an indicator of potential bi
 
 ## Context
 
-Concerns about the over-policing of African-Australian communities are not new.  
+Concerns about the over-policing of African-Australian communities are not new.  Community advocates and litigants, including **Haile Michael**, who challenged Victoria Police’s discriminatory **pedestrian search practices** in the landmark *Haile Michael* case, have documented and contested these patterns for more than a decade.  
 
-Community advocates and litigants, including **Haile Michael**, who challenged Victoria Police’s discriminatory **pedestrian search practices** in the landmark *Haile Michael* case, have documented and contested these patterns for more than a decade.  
-
-This study builds on that evidence base, using contemporary administrative data on **pedestrian encounters** to quantify whether similar disparities persist in current police practice.  
+This analysis utilises contemporary administrative data on **pedestrian encounters** to quantify whether similar disparities persist in current police practice.  
 
 By incorporating station-level spatial controls within an outcomes-based framework, this analysis offers a systematic assessment of whether Victoria Police applies consistent thresholds of suspicion across racial groups.  
 
@@ -145,32 +143,31 @@ ddat <- dat %>%
 
 This report is organised into four sections, each building toward a cumulative understanding of potential racial disparities in **pedestrian search outcomes** and the extent to which these can be explained by contextual and organisational factors.  
 
-**Section 2 — Data Overview**  
+**Section 2 — Data Overview**
 Provides an overview of the dataset, including the number of **pedestrian searches** by year, racial appearance, police station, and local government area.  
 
 This section describes the structure and scope of the data, summarises variable definitions, and highlights any coverage limitations or periods of missing data (e.g., gaps in 2020–21 during COVID-related disruptions).  
 
-**Section 3 — Descriptive Hit-Rate Differences**  
+**Section 3 — Descriptive Hit-Rate Differences**
 Examines overall and subgroup differences in “hit rates” — the proportion of **pedestrian searches** resulting in contraband being found — across racial groups, gender, and geographic areas.  
 
 These comparisons illustrate the *raw disparities* in outcomes and help identify patterns that may reflect contextual or operational differences rather than bias alone. Understanding these baseline differences provides essential context for interpreting the subsequent modelling results.  
 
-**Section 4 — Modelling Approach**  
+**Section 4 — Modelling Approach**
 Applies multivariate and hierarchical models to test whether observed racial disparities persist after controlling for potential confounders such as local drug-crime rates, year effects, and station-level characteristics.  
 
-Model A employs **fixed effects (Station × Year)** to isolate within-station-and-year differences.  
-Model B uses **multilevel random-intercept modelling** to estimate city-wide effects while accounting for clustering by station.  
+* Model A employs **fixed effects (Station × Year)** to isolate within-station-and-year differences.  
+* Model B uses **multilevel random-intercept modelling** to estimate city-wide effects while accounting for clustering by station.  
 
 Together, these complementary approaches assess both localised and system-wide dimensions of disparity in **pedestrian search outcomes**.  
 
-**Section 5 — Cross-Tabulations of Racial Hit-Rate Differences**  
-Presents station- and division-level hit-rate tables for *African* and *White* groups, showing where disparities are most pronounced.  
+**Section 5 — Division- and Station-Level Fixed-Effects Analyses**
+Extends the modelling results through **division- and station-level hit-rate analyses**, comparing searches of *African* and *White* individuals. By focusing on within-division and within-station contrasts, these fixed-effects models offer **credible, quasi-causal evidence** of where **unequal evidentiary thresholds** are being applied across metropolitan Melbourne.  
 
-While descriptive rather than causal, these comparisons serve as an important diagnostic tool. Simple cross-tabulations can help **identify local contexts that warrant closer examination** — such as stations or areas where patterns may indicate **unequal thresholds of suspicion, community tension, or problematic operational culture**.  
+While not causal in a strict experimental sense, this framework controls for time-invariant local characteristics — such as area demographics, crime intensity, or station culture — allowing differences in search outcomes to be interpreted as **evidence of unequal thresholds of suspicion under comparable operational conditions**.  
 
-The results should not be interpreted as definitive evidence of racial bias, but rather as indicators of where **further review, supervision, or engagement** may be warranted to ensure that discretionary policing powers are exercised fairly and proportionately.  
+The findings highlight **specific local contexts** where disparities are most pronounced, helping to pinpoint where **supervision, training, or community engagement** may be required. Repeated periodically, these analyses can also **track progress and positive change**, identifying stations or divisions showing improvements in fairness and consistency, and strengthening confidence that **discretionary search powers are being exercised proportionately and without bias**.
 
-Repeated over time, these analyses can also help **track progress and positive change**, highlighting stations or divisions that show **improvements in equity and consistency**, and strengthening community confidence that **pedestrian searches are being conducted without racial profiling**.
 
 
 ```{r hitrate-prop-helpers, echo=FALSE, message=FALSE, warning=FALSE}
@@ -296,10 +293,10 @@ The data were released through a **Freedom of Information (FOI)** request lodged
 For this analysis, we restrict to:
 
 - **Geography:** Metropolitan Melbourne  
-- **Contact type:** Foot patrol only  
+- **Contact type:** Pedestrian contact only  
 - **Unit type:** Uniform police only  
 - **Search type:** Drug searches conducted under *s82 of the Drugs, Poisons and Controlled Substances Act 1981 (Vic)*  
-- **Station linkage:** Station-based officers 
+- **Station linkage:** Station-based officers with a station patrol area excluding train stations
 - **Racial appearance:** Restricted to *White* and *African* appearance  
 
 These restrictions focus the analysis on the most routine, discretionary, and comparable encounters — public-place drug searches by uniform, station-based officers — where individual officer judgement plays the greatest role and confounding from operational purpose or specialist targeting is minimised.
@@ -411,14 +408,7 @@ kableExtra::kbl(
 
 Age data were missing for **42.9%** of all pedestrian searches in the restricted subset.  Among cases with recorded ages, the distribution was heavily concentrated among younger people — **individuals aged 18 to 45 years accounted for more than half of all identified persons** — with relatively few searches involving older adults (see Table 2 below).  
 
-Because the age profile of those searched is already strongly youthful, the omission of age as a covariate is **unlikely to distort results substantially**, provided that missingness is not systematically related to racial appearance. Nevertheless, if younger people are both more frequently searched and more likely to be perceived as African-Australian, this missingness could result in a **slight underestimation of racial disparities**, rather than an exaggeration.  
-
-### Scope of coverage
-
-- The dataset includes only **warrantless public-place pedestrian searches**, not those conducted under warrant, at premises, or involving vehicles.  
-- These encounters rely entirely on officer discretion, making them an appropriate focus for analysing potential bias.  
-- Findings therefore apply to **Melbourne metropolitan drug searches conducted by uniform station-based officers during pedestrian encounters**, and should not be generalised to specialist units, regional operations, or vehicle-based enforcement.  
-- Because modelling is restricted to **White** and **African** appearance categories, results do not extend to other racialised or ethnocultural groups.  
+Because the age profile of those searched is already strongly youthful, the omission of age as a covariate is **unlikely to distort results substantially**, provided that missingness is not systematically related to racial appearance. 
 
 ## Overview of persons searched
 
@@ -506,15 +496,9 @@ These descriptive analyses serve two purposes:
 1. **Establishing baseline disparities.** They reveal whether African- and White-appearing individuals experience systematically different evidentiary yields from pedestrian searches.  
 2. **Identifying potential confounders.** They show how hit rates vary by gender, year, police division, officer rank, and local crime environment to the station level, clarifying which factors may explain or conceal observed racial disparities.
 
-## Purpose of descriptive hit-rate analysis
-
-The hit-rate test provides a behavioural indicator of decision-making efficiency.  If officers apply a consistent evidentiary threshold across groups operating under similar conditions, hit rates should converge. Systematically lower hit rates for one group — after accounting for contextual differences — may indicate that searches of that group are triggered on weaker grounds of suspicion.  
-
-These descriptive comparisons therefore form the **diagnostic foundation** for the multivariate models in Section 4, which formally control for spatial, temporal, and organisational factors.
-
 ## Confounders and data structure
 
-Several factors may legitimately influence hit rates independent of racial bias:  
+Several factors may influence hit rates independent of racial bias:  
 
 - **Spatial context.** Search outcomes vary by station, division, and local crime intensity. Later models include station-level controls derived from each officer’s home station, nested within uniform stations across metropolitan Melbourne. Although Local Government Area (LGA)–level drug-crime rates from the Crime Statistics Agency are also included, these are coarse and do not capture micro-place variation (e.g., specific streets or time-of-day patterns).  
 
@@ -600,21 +584,20 @@ ft
 ```
 
 
-**Interpretation of descriptive results**
-
 ### Overview of results
 
-The cross-tabulations reveal modest but potentially meaningful variation in hit rates across racial appearance, while differences across most other demographic or organisational factors are small and statistically non-significant.  
+The cross-tabulations reveal **modest but potentially meaningful variation in hit rates across racial appearance**.  The **Fisher’s exact test for racial appearance** (p = 0.039) indicates a statistically significant association between race and search outcomes. Searches of **African-appearing individuals** yielded a lower evidentiary return (11.4%) than those of **White-appearing individuals** (14.1%). 
 
-The Fisher’s exact test for racial appearance (**p = 0.039**) indicates a statistically significant association between race and search outcomes. Searches of African-appearing individuals yielded a lower evidentiary return (**11.4%**) than those of White-appearing individuals (**14.1%**). This difference is consistent in direction across most years and police divisions, with African-appearing individuals generally exhibiting lower evidentiary yields than White-appearing individuals. Although the magnitude of the gap varies, the pattern’s persistence across multiple periods and locations makes it unlikely to be due to random sampling error alone.
+By contrast, **gender (p = 0.33)** and **age group (p = 0.64)** show no significant differences in hit rates. Given that most searches involve young adults, this reduces concern that age composition alone explains the observed racial disparity. We do however recognise that missingness in the data is a limitation - we cannot definitively rule out a relevent systemic relationship.
 
-By contrast, gender (**p = 0.33**) and age group (**p = 0.64**) show no significant differences in hit rates. Given that most searches involve young adults, this reduces concern that age composition alone drives the observed racial disparity.  
+**Rank** is also significantly associated with hit rates (**p = 0.032**), though the magnitude of the difference is relatively small. Searches conducted by **sergeants (16.8%)** tend to yield higher evidentiary returns than those conducted by **senior constables (14.1%)** or **constables (13.1%)**. This likely reflects **differences in skill and experience.**
 
-Temporal variation in hit rates across years (**p ≈ 0.17**) is minor, indicating overall stability over time.
+**Year effects** are minor (p ≈ 0.17), suggesting overall stability in hit rates across the observed period.  
 
-strong association by police division (**p < 0.001**) highlights the importance of spatial context: hit rates vary considerably across divisions and local policing environments.  
+Finally, the **strong association by police division (p < 0.001)** highlights the importance of spatial context: hit rates vary considerably between divisions, indicating that **local operational culture and context** may play a key role in shaping search outcomes.
 
-These findings collectively provide an empirical rationale for the modelling strategy that follows. Because race is significantly related to hit outcomes while most demographic covariates are not, the next section examines whether this disparity persists after adjusting for **station-level**, **divisional**, and **crime-intensity** controls.
+Taken together, these findings provide a clear **empirical rationale for the modelling strategy** that follows. 
+
 
 ### Hit rates by year and racial appearance
 
@@ -699,6 +682,7 @@ ggplot(ddat_rate2, aes(x = Year, y = hit_rate, colour = Race)) +
   theme_minimal(base_size = 12) +
   theme(panel.grid.minor = element_blank(), legend.position = "bottom")
 ```
+
 **Table 5 Hit rates by racial appearance and year**
 ```{r race trend year, echo=FALSE, message=FALSE, warning=FALSE}
 # Summarise into wide format: one column per race
@@ -726,11 +710,6 @@ kbl(hit_table, caption = "Hit Rate by Year and Race (Metro)") |>
   )
 
 ```
-Overall, the descriptive results indicate that **race, year, rank, and division** are significantly associated with variation in hit rates, whereas **gender and age** are not.  
-
-Spatial context — particularly division and station — remains the strongest correlating factor, yet the **consistent racial gap** across multiple years suggests the difference cannot be attributed solely to where searches occur.  
-
-These findings justify the inclusion of **race, year, rank, and spatial controls** in the multivariate models that follow, which test whether the racial disparity in evidentiary yield persists once contextual factors are held constant.
 
 # Statistical modelling  
 
@@ -739,7 +718,7 @@ These findings justify the inclusion of **race, year, rank, and spatial controls
 
 While descriptive cross-tabulations highlight consistent racial differences in hit rates, they cannot determine whether these disparities reflect **unequal treatment** or simply differences in **where and when** searches occur.  
 
-To separate these effects, we estimate a **fixed-effects logistic regression** that isolates racial disparities *within the same police station and year*, holding constant local operational context and temporal variation.  This approach allows us to test whether, under comparable conditions, African-appearing individuals were systematically less likely than White-appearing individuals to yield contraband.
+To separate these effects, we estimate a **fixed-effects logistic regression** that isolates racial disparities *within the same police station and year*, holding constant local operational context and temporal variation.  This approach allows us to test whether, under comparable conditions, discretionary searches of African-appearing individuals were systematically less likely than White-appearing individuals to yield contraband.
 
 However, it is important to recognise that **police-station boundaries are an imperfect proxy for the true spatial context of encounters**.  They do not capture variation between specific streets, neighbourhoods, or hotspots within each station’s area.  As a result, even with Station × Year controls, some fine-grained geographic differences in policing or community composition may remain unobserved.
 
@@ -749,63 +728,6 @@ However, it is important to recognise that **police-station boundaries are an im
 - Only stations with **more than 5 pedestrian searches of African-appearing individuals** were retained.  
 - This threshold ensures that comparisons between racial groups are statistically meaningful *within each station* while maintaining adequate sample size for estimation.  
 - Although this restriction reduces the overall number of observations, it improves reliability and avoids unstable or spurious effects from stations with very few African searches.
-
-After applying this criterion, the analytic sample includes **5,535 searches** across eligible stations and years.
-
-**Table 6 Total searches and finds by appearance in model sample**
-```{r First table, echo = FALSE, warning=FALSE, message=FALSE}
-
-
-# --- identify eligible stations (>=5 African-appearance searches) ---
-elig_station <- ddat %>%
-  filter(Racial.appearance.transformed %in% c("African", "White")) %>%
-  count(Station.uniform, Racial.appearance.transformed, name = "n") %>%
-  tidyr::pivot_wider(
-    names_from  = Racial.appearance.transformed,
-    values_from = n,
-    values_fill = 0
-  ) %>%
-  mutate(n_total = African + White) %>%
-  filter(African >= 5) %>%
-  pull(Station.uniform)
-
-# --- restrict dataset ---
-dat_station <- ddat %>%
-  filter(
-    Racial.appearance.transformed %in% c("African", "White"),
-    Station.uniform %in% elig_station
-  ) %>%
-  mutate(
-    Race      = factor(Racial.appearance.transformed, levels = c("White", "African")),
-    Found_yes = is_yes(Found)
-  )
-
-# --- compute overall hit rates ---
-tab_station <- dat_station %>%
-  group_by(Race) %>%
-  summarise(
-    Searches = n(),
-    Hits     = sum(Found_yes, na.rm = TRUE),
-    `Hit rate (%)` = percent(Hits / Searches, accuracy = 0.1),
-    .groups = "drop"
-  )
-
-# --- two-sample test ---
-pt <- prop.test(x = tab_station$Hits, n = tab_station$Searches, correct = FALSE)
-p_str <- ifelse(pt$p.value < 0.001, "<0.001", sprintf("%.3f", pt$p.value))
-
-kbl(
-  tab_station,
-  caption = paste0(
-    "Hit rates by race among eligible stations (≥10 African searches). ",
-    "Two-sample proportion test: p = ", p_str,
-    " (N = ", format(nrow(dat_station), big.mark=","), " searches)."
-  ),
-  align = c("l","r","r","r")
-) |>
-  kable_paper(full_width = FALSE) |>
-  kable_styling(bootstrap_options = c("striped","hover"), position = "left")
-```
 
 ### Model specification  
 
@@ -945,12 +867,6 @@ Rather than controlling away this variation, the multilevel model captures it di
 
 The dependent variable again indicates whether contraband was found (*Found_yes = 1*), with predictors for perceived race (*African* vs *White*), gender, and local drug-crime rate.
 
-> **RAND context:**  
-> RAND cautioned that raw hit-rate comparisons and simple regressions may confound racial effects with deployment differences.  
-> The multilevel design addresses this by modelling both individual-level covariates and station-level heterogeneity, providing a balanced approach that adjusts for structural differences in policing environments without fully removing them (as in the fixed-effects model).  
-
-> This allows assessment of whether racial disparities persist **after accounting for typical station-level contexts**, not just within narrow Station×Year comparisons.
-
 ###  Model summary and robustness checks
 
 **Specification.**  
@@ -1089,15 +1005,15 @@ kbl(
   kable_styling(bootstrap_options = c("striped","hover"), position = "left")
 ```
 
-### Model B — Multilevel Logistic Regression (Random Intercepts for Station)
+### Interpretation
 
 The multilevel model, estimated on **7,479 searches across 71 police stations**, shows that even after accounting for officer rank, gender, and variation between stations, **African-appearing individuals remained significantly less likely to yield contraband** than White-appearing individuals searched under similar conditions.
 
-The odds of a “hit” were approximately **27% lower** for African-appearing individuals (*OR* = 0.73, 95% CI 0.57–0.93, *p* = 0.011).  
-This disparity persists after adjusting for station-level context and individual-level covariates.
+The odds of a “hit” were approximately **27% lower** for African-appearing individuals (*OR* = 0.73, 95% CI 0.57–0.93, *p* = 0.011).  This disparity persists after adjusting for station-level context and individual-level covariates.
 
 Gender and rank effects were not statistically significant at the 5 percent level, though searches by **Sergeants** trended toward a higher hit rate (*OR* = 1.35, *p* = 0.087) and **men** were marginally more likely to be found with contraband (*OR* = 1.16, *p* = 0.083).  
-Local drug-crime rates showed no meaningful association with search success, suggesting that **station-level operational differences**, rather than area-level crime intensity, account for much of the variation in outcomes.
+
+Local drug-crime rates showed no meaningful association with search success - this may be due to the coarseness of the LGA level unit of measurement, or the fact that the station level variation is already capturing this effect.
 
 Together, these findings indicate a **robust racial disparity in evidentiary yield** that is not explained by officer characteristics or local policing environments.
 
