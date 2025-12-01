@@ -22,17 +22,20 @@ This repository was developed to support public interest analysis and community-
 ## Repository Contents
 
 - **[VicPol Racial Profiling Data.xlsx](VicPol%20Search%20Data%20Clean/VicPol%20Search%20Data%20Clean.xlsx?raw=true)**  
-  Cleaned dataset of all warrantless searches across all police units  
+  Cleaned and enriched dataset of all warrantless searches conducted by Victoria Police.
 
-- **[R-code-cleaning](R-code-cleaning/)**  
-  R scripts for cleaning and transforming the dataset  
+- **[R-code-cleaning/](R-code-cleaning/)**  
+  R scripts used for cleaning, restructuring, and augmenting the FOI dataset.
 
-- **[Data and hit rate overview.Rmd](Data-summary-and-profiling-analysis/Data%20and%20hit%20rate%20overview.Rmd)**  
-  Overview of variables, search types, and coverage limitations  
+- **Data-summary-and-profiling-analysis/**  
+  Folder containing all R Markdown analysis files, rendered outputs, and supporting materials:
+  - **01 Data and hit rate overview.Rmd** – Overview of variables, search types, and data limitations.  
+  - **02 Racial profiling – exploratory and findings.Rmd** – Full workflow including exploratory analysis, diagnostics, and final results.  
+  - **03 Racial profiling – findings only.Rmd** – Streamlined analysis containing only final findings and models.  
+  - Corresponding **.html** outputs and asset folders (`*_files/`) for each Rmd.  
+  - **Racial profiling in the west – New data exposes unequal policing in Melbourne (DOCX)** – Draft article based on the analysis.  
+  - **styles.css** – Custom stylesheet for knitted HTML outputs.
 
-- **[Racial profiling – drug searches on foot by uniform police.Rmd](Data-summary-and-profiling-analysis/Racial%20profiling%20-%20drug%20searches%20on%20foot%20by%20uniform%20police.Rmd)**  
-  Analysis of drug searches on foot by uniform police, including hit rates by race and location  
-  
 --- 
 
 ## Data Notes
