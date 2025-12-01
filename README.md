@@ -27,7 +27,7 @@ This repository was developed to support public interest analysis and community-
 - **[R-code-cleaning/](R-code-cleaning/)**  
   R scripts used for cleaning, restructuring, and augmenting the FOI dataset.
 
-- **Data-summary-and-profiling-analysis/**  
+- **[Data-summary-and-profiling-analysis/](Data-summary-and-profiling-analysis/)**  
   Folder containing all R Markdown analysis files, rendered outputs, and supporting materials:
   - **01 Data and hit rate overview.Rmd** – Overview of variables, search types, and data limitations.  
   - **02 Racial profiling – exploratory and findings.Rmd** – Full workflow including exploratory analysis, diagnostics, and final results.  
