@@ -114,7 +114,7 @@ In addition, **2,097 records** are classified under the merged **‘Mediterranea
 
 A substantial proportion of records are missing demographic information about the person who was searched.
 
-In particular, **racial appearance information is either missing or undetermined in a significant number of cases**. Specifically, **42% of all searches (22,117 records)** have no recorded racial appearance — despite this being a mandatory field since 2019. An additional **1.5% of searches (785 records)** are recorded as **‘Other’**, a category sometimes used when officers are unable or unwilling to assign a racial appearance. Together, these issues raise concerns about data quality and the consistency with which demographic details are recorded.
+In particular, **racial appearance information is either missing or undetermined in a significant number of cases**. Specifically, **42% of all searches (22,117 records)** have no recorded racial appearance. An additional **1.5% of searches (785 records)** are recorded as **‘Other’**, a category sometimes used when officers are unable or unwilling to assign a racial appearance. Together, these issues raise concerns about data quality and the consistency with which demographic details are recorded.
 
 # Data Overview  
 

@@ -817,7 +817,7 @@ model_table <- broom::tidy(m_fe_af5_all, conf.int = TRUE) %>%
 kbl(
   model_table,
   caption = paste0(
-    "Fixed-effects logistic regression (Station×Year) — restricted to stations with ≥10 African searches (clustered by Station.uniform; N = ",
+    "Fixed-effects logistic regression (Station×Year) — restricted to stations with ≥5 African searches (clustered by Station.uniform; N = ",
     nrow(dat1),
     " searches)."
   ),

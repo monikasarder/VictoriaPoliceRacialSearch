@@ -1,0 +1,598 @@
+---
+title: "Missing racial appearance and age in warrantless searches"
+author: "Monika Sarder"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+    theme: readable
+    highlight: zenburn
+    fig_caption: true
+    df_print: paged
+    css: styles.css  # Optional: include this file if you want to customise styles
+---
+
+```{r setup, echo = FALSE, warning = FALSE, message=FALSE}
+knitr::opts_chunk$set(results = "asis")
+
+library(tidyverse)
+library(plotly)
+library(summarytools)
+library(kableExtra)
+library(magrittr)
+library(rmarkdown)
+library(forcats)
+library(gmodels)
+library(crosstable)
+library(janitor)
+library(DT)
+library(writexl)
+library(broom)
+library(lme4)
+library(broom.mixed)
+library(scales)
+library(flextable)
+
+dat <- readRDS("../VicPol Search Data Clean/VicPol Search Data Clean.RDS")
+
+```
+
+# Missingness of data  
+
+The following tables examine the **completeness of key demographic fields** for **weapon and drug searches arising from pedestrian encounters conducted by uniformed police in metropolitan areas**. These searches represent a substantial proportion of frontline police interactions and form the basis for later analyses of search outcomes and hit rates.
+
+Across the tables, results are presented as the **total number of relevant searches** alongside the proportion of records with **missing demographic information**. “Race missing total” combines records where racial appearance is not recorded (NA) with those recorded as “Unclassified/Otherrace”, "Undetermined" or “Unknown”, reflecting the absence of usable racial appearance information. “Age missing total” captures records with no recorded age.
+
+These tables are intended to provide an overview of **data quality and consistency in demographic recording** across search contexts and organisational levels. They do not assess individual officer behaviour or search outcomes, but instead establish the reliability of key demographic fields used in subsequent analysis.
+
+In metropolitan areas, the dataset records **13,896 drug searches** and **1,358 weapon searches**, with **127 searches involving both drug and weapon powers**. Drug searches were conducted under *Drugs, Poisons and Controlled Substances Act 1981 s82*, and weapon searches under *Control of Weapons Act 1990 s10*.
+
+
+This table reports demographic missingness for **metropolitan weapon and drug searches**, including total searches and the proportion with **missing race** and **missing age** information. 
+```{r metro-drugs-weapons-overlap, echo = FALSE, warning = FALSE, message = FALSE}
+
+dat_metro <- dat %>%
+  filter(Area.type == "Metro",  
+            Contact.Type == "P",
+         !is.na(Station.uniform))
+
+is_applied <- function(x) {
+  !is.na(x) & !(x %in% c(0, "0", FALSE, "", "False", "FALSE", "No", "NO"))
+}
+
+overlap_table <- tibble(
+  Category = c(
+    "Drug searches",
+    "Weapon searches",
+    "Drug and weapon searches"
+  ),
+  `Number of searches` = c(
+    sum(is_applied(dat_metro$`Search.type - Drugs`)),
+    sum(is_applied(dat_metro$`Search.type - Weapons`)),
+    sum(
+      is_applied(dat_metro$`Search.type - Drugs`) &
+      is_applied(dat_metro$`Search.type - Weapons`)
+    )
+  )
+)
+
+DT::datatable(
+  overlap_table,
+  rownames = FALSE,
+  options = list(
+    dom = "t",
+    autoWidth = TRUE
+  )
+)
+
+```
+
+```{r legislativepower-missingness-metro-drugs-weapons, echo = FALSE, warning = FALSE, message = FALSE}
+dat_metro <- dat %>%
+  filter(Area.type == "Metro",  
+            Contact.Type == "P",
+         !is.na(Station.uniform))
+
+is_applied <- function(x) {
+  !is.na(x) & !(x %in% c(0, "0", FALSE, "", "False", "FALSE", "No", "NO"))
+}
+
+OTHER_SET <- c("UNCLASSIFIED/OTHER RACE", "UNDETERMINED", "UNKNOWN")
+
+# long data so records that are both Drugs & Weapons count in both rows
+dat_long <- bind_rows(
+  dat_metro %>%
+    filter(is_applied(`Search.type - Drugs`)) %>%
+    mutate(search_type = "Drugs"),
+  dat_metro %>%
+    filter(is_applied(`Search.type - Weapons`)) %>%
+    mutate(search_type = "Weapons")
+) %>%
+  mutate(
+    race_orig = as.character(Racial.Appearance.original),
+    race_norm = toupper(trimws(race_orig)),
+    # treat blanks as NA (harmless even if none exist)
+    race_norm = na_if(race_norm, "")
+  )
+
+search_type_missing <- dat_long %>%
+  group_by(search_type) %>%
+  summarise(
+    total = n(),
+
+    race_na_n = sum(is.na(race_norm)),
+    race_other_unknown_n = sum(race_norm %in% OTHER_SET, na.rm = TRUE),
+
+    race_missing_n = sum(is.na(race_norm) | race_norm %in% OTHER_SET, na.rm = TRUE),
+
+    age_missing_n = sum(is.na(Age)),
+
+    `Race NA (%)` = race_na_n / total,
+    `Race Unknown (%)` = race_other_unknown_n / total,
+    `Race missing total (%)` = race_missing_n / total,
+    `Age missing total (%)` = age_missing_n / total,
+
+    .groups = "drop"
+  ) %>%
+  mutate(across(ends_with("(%)"), ~ scales::percent(.x, accuracy = 0.1))) %>%
+  rename(`Search type` = search_type) %>%
+  select(
+    `Search type`,
+    `Total searches` = total,
+    `Race NA (%)`,
+    `Race Unknown (%)`,
+    `Race missing total (%)`,
+    `Age missing total (%)`
+  )
+
+DT::datatable(
+  search_type_missing,
+  caption = htmltools::tags$caption(
+    style = "caption-side: bottom; text-align: left;",
+    "Missing race and age by search type (Metro only; both drugs & weapons counted in both rows)"
+  ),
+  rownames = FALSE,
+  extensions = "Buttons",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE,
+    dom = "Bfrtip",
+    buttons = c("copy", "csv", "excel")
+  )
+)
+
+
+
+```
+
+## Division level  
+
+This table presents the completeness of demographic information for **weapon and drug searches arising from pedestrian stops in metropolitan areas carried out by uniform police**, disaggregated by **division**. 
+
+```{r missingness-metro-division-drugs-or-weapons, echo = FALSE, warning = FALSE, message = FALSE}
+
+dat_metro <- dat %>%
+  filter(
+    Area.type == "Metro",
+    Contact.Type == "P",
+    !is.na(Station.uniform)
+  )
+
+is_applied <- function(x) {
+  !is.na(x) & !(x %in% c(0, "0", FALSE, "", "False", "FALSE", "No", "NO"))
+}
+
+RACE_UNKNOWN_SET <- c("UNCLASSIFIED/OTHER RACE", "UNDETERMINED", "UNKNOWN")
+
+dat_dw <- dat_metro %>%
+  filter(is_applied(`Search.type - Drugs`) | is_applied(`Search.type - Weapons`)) %>%
+  mutate(
+    # normalise Division so grouping behaves
+    Division = trimws(as.character(Division)),
+    Division = dplyr::na_if(Division, ""),
+    Division = if_else(is.na(Division), "Division missing", Division),
+
+    race_norm = toupper(trimws(as.character(`Racial.Appearance.original`))),
+    race_norm = dplyr::na_if(race_norm, "")
+  )
+
+division_missing_combined <- dat_dw %>%
+  group_by(Division) %>%
+  summarise(
+    `Total searches` = n(),
+    `Race missing total (%)` =
+      sum(is.na(race_norm) | race_norm %in% RACE_UNKNOWN_SET, na.rm = TRUE) / n(),
+    `Age missing total (%)` =
+      sum(is.na(Age)) / n(),
+    .groups = "drop"
+  ) %>%
+  mutate(across(ends_with("(%)"), ~ scales::percent(.x, accuracy = 0.1))) %>%
+  arrange(desc(`Race missing total (%)`))
+
+DT::datatable(
+  division_missing_combined,
+  caption = htmltools::tags$caption(
+    style = "caption-side: bottom; text-align: left;",
+    "Race and age missing percentages by Division (Metro, pedestrian, uniformed; drug OR weapon searches, counted once even if both)"
+  ),
+  rownames = FALSE,
+  extensions = "Buttons",
+  options = list(
+    pageLength = 15,
+    autoWidth = TRUE,
+    dom = "Bfrtip",
+    buttons = c("copy", "csv", "excel")
+  )
+)
+
+
+
+
+```
+
+This table presents the completeness of demographic information for **weapon and drug searches arising from pedestrian stops in metropolitan areas carried out by uniform police**, disaggregated by **division** and **search type**.
+```{r missingness-metro-division-drugs-vs-weapons, echo = FALSE, warning = FALSE, message = FALSE}
+
+dat_metro <- dat %>%
+  filter(Area.type == "Metro",  
+            Contact.Type == "P",
+         !is.na(Station.uniform))
+
+is_applied <- function(x) {
+  !is.na(x) & !(x %in% c(0, "0", FALSE, "", "False", "FALSE", "No", "NO"))
+}
+
+RACE_UNKNOWN_SET <- c(
+  "UNCLASSIFIED/OTHER RACE",
+  "UNDETERMINED",
+  "UNKNOWN"
+)
+
+# ---- Drugs ---------------------------------------------------------------
+
+drugs_div <- dat_metro %>%
+  filter(is_applied(`Search.type - Drugs`)) %>%
+  mutate(
+    race_norm = toupper(trimws(as.character(`Racial.Appearance.original`))),
+    race_norm = dplyr::na_if(race_norm, "")
+  ) %>%
+  group_by(Division) %>%
+  summarise(
+    `Drugs: Total searches` = n(),
+
+    drugs_race_missing_total_n =
+      sum(is.na(race_norm) | race_norm %in% RACE_UNKNOWN_SET, na.rm = TRUE),
+
+    drugs_age_missing_total_n = sum(is.na(Age)),
+
+    `Drugs: Race missing total (%)` =
+      drugs_race_missing_total_n / `Drugs: Total searches`,
+
+    `Drugs: Age missing total (%)` =
+      drugs_age_missing_total_n / `Drugs: Total searches`,
+
+    .groups = "drop"
+  ) %>%
+  select(
+    Division,
+    `Drugs: Total searches`,
+    `Drugs: Race missing total (%)`,
+    `Drugs: Age missing total (%)`
+  )
+
+# ---- Weapons -------------------------------------------------------------
+
+weapons_div <- dat_metro %>%
+  filter(is_applied(`Search.type - Weapons`)) %>%
+  mutate(
+    race_norm = toupper(trimws(as.character(`Racial.Appearance.original`))),
+    race_norm = dplyr::na_if(race_norm, "")
+  ) %>%
+  group_by(Division) %>%
+  summarise(
+    `Weapons: Total searches` = n(),
+
+    weapons_race_missing_total_n =
+      sum(is.na(race_norm) | race_norm %in% RACE_UNKNOWN_SET, na.rm = TRUE),
+
+    weapons_age_missing_total_n = sum(is.na(Age)),
+
+    `Weapons: Race missing total (%)` =
+      weapons_race_missing_total_n / `Weapons: Total searches`,
+
+    `Weapons: Age missing total (%)` =
+      weapons_age_missing_total_n / `Weapons: Total searches`,
+
+    .groups = "drop"
+  ) %>%
+  select(
+    Division,
+    `Weapons: Total searches`,
+    `Weapons: Race missing total (%)`,
+    `Weapons: Age missing total (%)`
+  )
+
+# ---- Combine + format ----------------------------------------------------
+
+division_missing_simple <- full_join(drugs_div, weapons_div, by = "Division") %>%
+  mutate(across(ends_with("(%)"), ~ scales::percent(.x, accuracy = 0.1))) %>%
+  arrange(desc(`Weapons: Race missing total (%)`))%>%
+  select(Division,  `Drugs: Total searches`,`Weapons: Total searches`,
+    `Drugs: Race missing total (%)`,
+    
+    `Weapons: Race missing total (%)`,
+    `Drugs: Age missing total (%)`,
+    `Weapons: Age missing total (%)`)%>%
+  arrange(desc(`Drugs: Race missing total (%)`))
+
+DT::datatable(
+  division_missing_simple,
+  caption = htmltools::tags$caption(
+    style = "caption-side: bottom; text-align: left;",
+    "Race and age missing totals by Division and search type (Metro only)"
+  ),
+  rownames = FALSE,
+  extensions = "Buttons",
+  options = list(
+    pageLength = 15,
+    autoWidth = TRUE,
+    dom = "Bfrtip",
+    buttons = c("copy", "csv", "excel")
+  )
+)
+
+
+
+```
+
+## Station level  
+
+This table presents the completeness of demographic information for **weapon and drug searches arising from pedestrian stops in metropolitan areas carried out by uniform police**, disaggregated by **station**. To ensure data is meaningful, only stations with **20 or more weapon and/or drug searches** are included.
+
+```{r missingness-metro-station-drugs-or-weapons, echo = FALSE, warning = FALSE, message = FALSE}
+
+dat_metro <- dat %>%
+  filter(
+    Area.type == "Metro",
+       Contact.Type == "P",
+    !is.na(Station.uniform)
+  )
+
+is_applied <- function(x) {
+  !is.na(x) & !(x %in% c(0, "0", FALSE, "", "False", "FALSE", "No", "NO"))
+}
+
+RACE_UNKNOWN_SET <- c(
+  "UNCLASSIFIED/OTHER RACE",
+  "UNDETERMINED",
+  "UNKNOWN"
+)
+
+# Metro pedestrian + uniformed searches where Drugs OR Weapons applies (counted once even if both)
+dat_dw <- dat_metro %>%
+  filter(
+    is_applied(`Search.type - Drugs`) | is_applied(`Search.type - Weapons`)
+  ) %>%
+  mutate(
+    race_norm = toupper(trimws(as.character(`Racial.Appearance.original`))),
+    race_norm = dplyr::na_if(race_norm, "")
+  )
+
+station_missing_combined <- dat_dw %>%
+  group_by(Station.uniform) %>%
+  summarise(
+    `Total searches` = n(),
+
+    `Race missing total (%)` =
+      sum(is.na(race_norm) | race_norm %in% RACE_UNKNOWN_SET, na.rm = TRUE) / n(),
+
+    `Age missing total (%)` =
+      sum(is.na(Age)) / n(),
+
+    .groups = "drop"
+  ) %>%
+  mutate(across(ends_with("(%)"), ~ scales::percent(.x, accuracy = 0.1))) %>%
+  arrange(Station.uniform)%>%
+  filter(`Total searches`>=20)%>%
+  arrange(desc(`Race missing total (%)`))
+
+
+DT::datatable(
+  station_missing_combined,
+  caption = htmltools::tags$caption(
+    style = "caption-side: bottom; text-align: left;",
+    "Race and age missing percentages by Station (Metro, pedestrian, uniformed; drug OR weapon searches, counted once even if both)"
+  ),
+  rownames = FALSE,
+  options = list(
+    pageLength = 10,   # ten stations per page
+    autoWidth = TRUE,
+    dom = "tip"
+  )
+)
+
+```
+This table highlights the **extent of missing demographic information** in **weapon searches conducted during pedestrian encounters by uniformed police in metropolitan areas**, shown by **station**. It reports the proportion of weapon search records with **missing racial appearance information** (“Race missing total”) and **missing age information** (“Age missing total”).
+
+To ensure data is meaningful, only stations with **20 or more weapon searches** are included. Percentages are calculated using station-level weapon search totals as the denominator. 
+
+```{r missingness-metro-station-weapons-min25, echo = FALSE, warning = FALSE, message = FALSE}
+
+dat_metro <- dat %>%
+  filter(
+    Area.type == "Metro",
+       Contact.Type == "P",
+    !is.na(Station.uniform)
+  )
+
+is_applied <- function(x) {
+  !is.na(x) & !(x %in% c(0, "0", FALSE, "", "False", "FALSE", "No", "NO"))
+}
+
+RACE_UNKNOWN_SET <- c(
+  "UNCLASSIFIED/OTHER RACE",
+  "UNDETERMINED",
+  "UNKNOWN"
+)
+
+weapons_station <- dat_metro %>%
+  filter(is_applied(`Search.type - Weapons`)) %>%
+  mutate(
+    race_norm = toupper(trimws(as.character(`Racial.Appearance.original`))),
+    race_norm = dplyr::na_if(race_norm, "")
+  ) %>%
+  group_by(Station.uniform) %>%
+  summarise(
+    `Total searches` = n(),
+
+    `Race missing total (%)` =
+      sum(is.na(race_norm) | race_norm %in% RACE_UNKNOWN_SET, na.rm = TRUE) / n(),
+
+    `Age missing total (%)` =
+      sum(is.na(Age)) / n(),
+
+    .groups = "drop"
+  ) %>%
+  filter(`Total searches` >= 20) %>%
+  mutate(across(ends_with("(%)"), ~ scales::percent(.x, accuracy = 0.1))) %>%
+  rename(Station = Station.uniform) %>%
+  arrange(desc(`Total searches`), Station)%>%
+  arrange(desc(`Race missing total (%)`))
+
+DT::datatable(
+  weapons_station,
+  caption = htmltools::tags$caption(
+    style = "caption-side: bottom; text-align: left;",
+    "Weapon searches: race and age missing percentages by station (Metro, pedestrian, uniformed; stations shown only where ≥25 weapon searches)"
+  ),
+  rownames = FALSE,
+  extensions = "Buttons",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE,
+    dom = "Bfrtip",
+    buttons = c("copy", "csv", "excel")
+  )
+)
+
+```
+
+This table highlights the **extent of missing demographic information** in **drug searches conducted during pedestrian encounters by uniformed police in metropolitan areas**, shown by **station**. It reports the proportion of drug search records with **missing racial appearance information** (“Race missing total”) and **missing age information** (“Age missing total”).
+
+To ensure data is meaningful, only stations with **20 or more drug searches** are included. Percentages are calculated using station-level drug search totals as the denominator. 
+
+```{r missingness-metro-searchtype-min25-combined, echo = FALSE, warning = FALSE, message = FALSE}
+
+
+dat_metro <- dat %>%
+  filter(
+    Area.type == "Metro",
+       Contact.Type == "P",
+    !is.na(Station.uniform)
+  )
+
+is_applied <- function(x) {
+  !is.na(x) & !(x %in% c(0, "0", FALSE, "", "False", "FALSE", "No", "NO"))
+}
+
+RACE_UNKNOWN_SET <- c("UNCLASSIFIED/OTHER RACE", "UNDETERMINED", "UNKNOWN")
+
+drugs_station <- dat_metro %>%
+  filter(is_applied(`Search.type - Drugs`)) %>%
+  mutate(
+    race_norm = toupper(trimws(as.character(`Racial.Appearance.original`))),
+    race_norm = dplyr::na_if(race_norm, "")
+  ) %>%
+  group_by(Station.uniform) %>%
+  summarise(
+    `Station` = first(Station.uniform),
+    `Total searches` = n(),
+    `Race missing total (%)` =
+      sum(is.na(race_norm) | race_norm %in% RACE_UNKNOWN_SET, na.rm = TRUE) / n(),
+    `Age missing total (%)` =
+      sum(is.na(Age)) / n(),
+    .groups = "drop"
+  ) %>%
+  filter(`Total searches` >= 20) %>%
+  mutate(across(ends_with("(%)"), ~ scales::percent(.x, accuracy = 0.1))) %>%
+  select(Station, `Total searches`, `Race missing total (%)`, `Age missing total (%)`) %>%
+  arrange(desc( `Race missing total (%)`))
+
+DT::datatable(
+  drugs_station,
+  caption = htmltools::tags$caption(
+    style = "caption-side: bottom; text-align: left;",
+    "Drug searches: race and age missing percentages by station (Metro, pedestrian, uniformed; stations shown only where ≥25 drug searches)"
+  ),
+  rownames = FALSE,
+  extensions = "Buttons",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE,
+    dom = "Bfrtip",
+    buttons = c("copy", "csv", "excel")
+  )
+)
+
+
+
+```
+## Appendix - Missingness all unit types  
+
+For completeness, this appendix presents missingness in key demographic fields for **all drug and weapon searches across all police unit types across Victoria**, including searches beyond uniformed pedestrian encounters.
+
+
+```{r legislativepower-missingness-unit.type, echo = FALSE, warning = FALSE, message = FALSE}
+
+
+OTHER_SET <- c("UNCLASSIFIED/OTHER RACE", "UNDETERMINED", "UNKNOWN")
+
+unit_missing <- dat %>%
+  mutate(
+    race_orig = as.character(`Racial.Appearance.original`),
+    race_norm = toupper(trimws(race_orig)),
+    race_norm = dplyr::na_if(race_norm, "")
+  ) %>%
+  group_by(Unit.type) %>%
+  summarise(
+    `Total searches` = n(),
+
+    `Race NA (%)` =
+      sum(is.na(race_norm)) / n(),
+
+    `Race Unknown (%)` =
+      sum(race_norm %in% OTHER_SET, na.rm = TRUE) / n(),
+
+    `Race missing total (%)` =
+      sum(is.na(race_norm) | race_norm %in% OTHER_SET, na.rm = TRUE) / n(),
+
+    `Age missing total (%)` =
+      sum(is.na(Age)) / n(),
+
+    .groups = "drop"
+  ) %>%
+  mutate(across(ends_with("(%)"), ~ scales::percent(.x, accuracy = 0.1))) %>%
+  arrange(desc(`Total searches`), Unit.type)
+
+DT::datatable(
+  unit_missing,
+  caption = htmltools::tags$caption(
+    style = "caption-side: bottom; text-align: left;",
+    "Missing race and age by Unit type (all searches)"
+  ),
+  rownames = FALSE,
+  extensions = "Buttons",
+  options = list(
+    pageLength = 10,
+    autoWidth = TRUE,
+    dom = "Bfrtip",
+    buttons = c("copy", "csv", "excel")
+  )
+)
+
+
+
+```
