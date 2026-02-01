@@ -1,5 +1,5 @@
 ---
-title: "Racial profiling - drug searches on foot by uniform police"
+title: "Racial profiling - drug searches on foot by uniform police in Melbourne"
 author: "Monika Sarder"
 date: "`r Sys.Date()`"
 output: 
@@ -16,17 +16,19 @@ output:
 ---
 # Abstract {-}
 
-This study analyses 7,534 warrantless drug searches conducted by uniform, station-based officers during pedestrian encounters in metropolitan Melbourne (2018, 2019, 2022, 2023). It focuses on people perceived by police as White or African, who together comprise over half of all recorded searches.
+This study examines warrantless drug searches as a mechanism through which racial profiling may operate in Victoria Police pedestrian policing. It analyses 7,534 warrantless drug searches conducted by uniformed, station-based officers during pedestrian encounters in metropolitan Melbourne (2018, 2019, 2022, 2023). The analysis focuses on people perceived by police as White or African, who together account for more than half of all recorded searches.
 
-First, descriptive cross-tabulations show that, across Melbourne, “hit rates” (contraband found) are lower for African-appearing individuals (11.4%) than for White-appearing individuals (14.1%), with a significant association between race and search outcomes.
+The purpose of the analysis is to assess whether search outcomes are consistent with racial profiling, using a hit-rate framework commonly applied in empirical studies of police stop-and-search practices. Under race-neutral policing, searches based on objective indicators of offending should yield similar evidentiary hit rates across racial groups. Systematic differences in hit rates are therefore consistent with differential thresholds for suspicion, a core feature of racial profiling.
 
-Second, a city-wide fixed-effects logistic regression (Model A) is estimated on stations with at least five searches of African-appearing people, comparing outcomes within the same station and year, i.e. within comparable patrol areas and time periods. After controlling for officer gender and rank, African-appearing individuals have about 30% lower odds of a hit than White-appearing individuals (OR = 0.72, 95% CI 0.54–0.95, p = 0.022).
+First, descriptive cross-tabulations show that across metropolitan Melbourne, hit rates (contraband found) are lower for African-appearing individuals (11.4%) than for White-appearing individuals (14.1%), with a statistically significant association between perceived race and search outcomes.
 
-Third, a multilevel logistic regression (Model B) with random intercepts for stations (N = 7,534 searches across 84 stations) models the full metropolitan sample, allowing baseline hit rates to vary across stations. This model finds a similar Melbourne-wide disparity (OR = 0.73, 95% CI 0.57–0.93, p = 0.011), while again showing no clear effect of officer gender or rank.
+Second, a city-wide fixed-effects logistic regression (Model A1) compares search outcomes within the same station and year, holding constant patrol area and time period. Restricting the sample to stations with at least five searches of African-appearing individuals, and controlling for officer gender and rank, African-appearing individuals have approximately 30 per cent lower odds of a hit than White-appearing individuals (odds ratio = 0.72, 95% confidence interval 0.54–0.95, p = 0.022). This disparity remains substantively and statistically similar under a stricter restriction requiring at least ten African-appearing searches per station (Model A2), indicating that the result is not driven by low-volume stations.
 
-Finally, division-specific fixed-effects models and station-level cross-tabs examine how these disparities are distributed spatially. The largest and most statistically robust disparity appears in NWMR Division 3 (Brimbank–Melton), with suggestive but non-significant patterns in several other north-western divisions, and little evidence of disparity in most southern and eastern divisions. Station-level results are often under-powered but point to a small number of teams where searches of African-appearing people are consistently less likely to yield contraband.
+Third, a multilevel logistic regression (Model B) with random intercepts for stations models the full metropolitan sample (7,534 searches across 84 stations), allowing baseline hit rates to vary across stations. This model produces a near-identical estimate of racial disparity (odds ratio = 0.73, 95% confidence interval 0.57–0.93, p = 0.011), while again showing no clear association between search outcomes and officer gender or rank.
 
-Taken together, these findings are consistent with the idea that, despite Victoria Police’s formal discipline and hierarchy, local station patrol teams operate with distinct cultures, management styles, and oversight practices that shape how search powers are exercised in the communities they serve. In this context, racial attitudes and informal norms within particular teams can influence search decisions, potentially more in some community settings than others. While the hit-rate framework cannot establish motive, the persistence and spatial concentration of lower evidentiary yields for African-appearing individuals underscore the need for ongoing, station-level monitoring, transparency, and accountability in Victoria Police’s stop-and-search practices.
+Finally, division-specific fixed-effects models and station-level cross-tabulations examine the spatial distribution of these disparities. The most pronounced and statistically robust disparity appears in North West Metro Region Division 3 (Brimbank–Melton), with suggestive but non-significant patterns in several other north-western divisions, and little evidence of disparity in most southern and eastern divisions. Although station-level estimates are often under-powered, they point to a small number of patrol teams where searches of African-appearing individuals are consistently less likely to yield contraband.
+
+Taken together, these findings are consistent with racial profiling in the use of warrantless search powers, particularly as exercised by specific station-level patrol teams rather than uniformly across the organisation. While hit-rate analysis cannot establish individual officer intent or motive, the persistence and spatial concentration of lower evidentiary yields for African-appearing individuals indicate systematic differences in the threshold for initiating searches. These results underscore the need for ongoing station-level monitoring, transparency, and accountability in Victoria Police stop-and-search practices.
 
 # Introduction
 
@@ -48,11 +50,11 @@ By excluding **vehicle stops**, **warrant searches**, and **specialist or Transi
 
 ## VicPol organisational structure
 
-A key feature of this dataset is that every search is linked to the officer’s **home police station**, enabling the use of **station-level controls** to account for local operational contexts.  
+A key feature of this dataset is that each search is linked to the officer’s home police station, allowing station-level controls to capture local operational context.
 
-There are **84 uniform stations** represented in the data, each associated with a **Police Service Area (PSA)** and nested within one or more **Local Government Areas (LGAs)** and **Victoria Police Divisions**.  
+The data include 84 uniform police stations. Each station has its own defined patrol zone, which sits within a Police Service Area (PSA). PSAs are nested within one or more Local Government Areas (LGAs), which are in turn nested within Victoria Police Divisions.
 
-Within each PSA, every uniform station maintains a **geographic response or patrol zone** that defines its core area of responsibility for first response and routine patrol. These zones are set operationally by Victoria Police’s regional commands to balance population, workload, and response times. They represent the smallest consistent unit of geographic responsibility for **general-duties (uniform) police**, excluding specialist units such as Transit Police or Highway Patrol that operate across broader areas.  
+At the operational level, each uniform station is responsible for its patrol zone as the core area for first response and routine patrol. Patrol zones are set by Victoria Police regional commands to balance population coverage, workload, and response times, and represent the smallest consistent unit of geographic responsibility for general-duties policing. Specialist units, such as Transit Police or Highway Patrol, operate across broader areas and are not tied to these station-level zones.
 
 
 ## Legal context: section 82 powers
@@ -69,9 +71,12 @@ In their economic model, police officers are assumed to allocate **pedestrian se
 
 ### Limitations and critiques
 
-Despite its appeal, the hit-rate framework has attracted substantial criticism in the policing and econometric literature. Analysts including Ridgeway and MacDonald (2010) note that hit-rate analyses can misattribute disparities if situational contexts differ systematically across racial groups.
+The hit-rate framework has attracted criticism in the policing and econometric literature, particularly around its sensitivity to contextual differences across encounters. Analysts including Ridgeway and MacDonald (2010) note that hit-rate disparities can be misattributed if situational factors vary systematically across racial groups.
 
-Similarly, failing to control for station-level variation or officer assignment patterns can confound results, overstating or obscuring racial effects. As such, the hit-rate test should be interpreted as an indicator of potential bias, not as a definitive measure. When combined with station-level controls, fixed-effects modelling, and internal benchmarking (comparing officers or stations operating in similar contexts), it remains a valuable tool for identifying areas where discretionary decision-making may be unequally applied.
+However, these limitations primarily arise when analyses fail to account for local operational context. When station-level variation, officer assignment patterns, and temporal effects are ignored, racial disparities may be overstated or obscured. By contrast, when hit-rate analysis is embedded within fixed-effects models and internal benchmarking frameworks that compare officers or stations operating in similar environments, it provides a meaningful and policy-relevant lens on discretionary policing.
+
+In this setting, the hit-rate framework is a valuable tool for identifying patterns consistent with racial profiling, particularly where lower evidentiary yields persist for specific racial groups within the same patrol areas and time periods. While it does not establish individual intent, it is well suited to detecting systematic differences in how suspicion thresholds are applied, and to flagging stations or teams where further scrutiny, monitoring, or intervention may be warranted.
+
 
 ```{r setup, echo = FALSE, warning = FALSE, message=FALSE}
 knitr::opts_chunk$set(results = "asis")
@@ -377,6 +382,8 @@ Finally, the **strong association by police division (p < 0.001)** highlights th
 
 # Statistical modelling  
 
+Model A provides the primary test of within-station racial disparity under comparable operational conditions, while Model B assesses whether these disparities persist across the metropolitan policing system and vary between stations.
+
 ## Model A — Fixed-Effects Logistic Regression (Station × Year)
 
 
@@ -410,12 +417,14 @@ where \(Y_{ist}=1\) if contraband was found; \(\text{African}_i\) is an indicato
 
 ### Data restriction and rationale  
 
-**Only stations with more than 5 pedestrian searches of African-appearing individuals** were retained (5,535 of 7,534 observations).  This threshold ensures that comparisons between racial groups are statistically meaningful *within each station* while maintaining adequate sample size for estimation. As a result, the analysis is restricted to **40 of the 84 uniform stations** in metropolitan Melbourne.  
+To support within-station racial comparisons, the analysis is restricted to stations with more than five pedestrian searches of African-appearing individuals. This yields 5,535 of the 7,534 searches and includes 40 of the 84 uniform stations in metropolitan Melbourne.
 
-Although this restriction reduces the overall number of observations, it improves reliability and avoids unstable or spurious effects from stations with very few African searches.
+This restriction is applied to avoid mechanically unstable estimates arising from stations with very few African-appearing searches, where hit rates and odds ratios can be driven by one or two observations rather than by systematic policing patterns. The threshold is therefore intended as a minimum inclusion rule to ensure that within-station comparisons are meaningful, rather than to imply precise station-level estimation.
+
+Although this restriction reduces the number of stations included, it improves the reliability of the fixed-effects estimates by limiting the influence of sparse cells and quasi-separation. Substantively, the estimand remains a pooled within-station effect, with identification driven by comparisons between racial groups operating in the same station and year. Results are robust to reasonable alternative minimum-count thresholds.
 
 **Table 2 Model A — Fixed-effects logistic regression (Station×Year)**
-```{r Model A, echo=FALSE,message=FALSE, warning=FALSE}
+```{r Model A1, echo=FALSE,message=FALSE, warning=FALSE}
 
 # ===============================================================
 # Model A — Fixed-effects logistic regression (Station×Year)
@@ -500,19 +509,106 @@ kbl(
 
 ```
 
+As a robustness check, the fixed-effects model was re-estimated using a stricter inclusion threshold of at least ten African-appearing searches per station. This restriction reduces the sample to 4,366 searches across 27 stations but substantially increases within-station support for racial comparisons.
+
+Under this specification, the estimated racial disparity remains substantively and statistically similar to the main model. African-appearing individuals have approximately 30 per cent lower odds of a hit than White-appearing individuals (odds ratio = 0.70, 95% confidence interval 0.51–0.96, p = 0.028). Estimates for officer gender and rank remain small and statistically indistinguishable from zero.
+
+The persistence of the racial disparity under a stricter minimum-count threshold indicates that the main findings are not driven by sparse cells or low-volume stations, and strengthens the interpretation of the results as reflecting systematic differences in search outcomes within comparable policing contexts.
+
+**Table 3 Model A2 — Fixed-effects logistic regression (Station×Year)**
+```{r Model A2, echo=FALSE,message=FALSE, warning=FALSE}
+
+# --- 1. Define eligible stations (≥5 African across all years) ---
+elig_stations <- ddat %>%
+  filter(Racial.appearance.transformed %in% c("African", "White")) %>%
+  count(Station.uniform, Racial.appearance.transformed, name = "n") %>%
+  tidyr::pivot_wider(
+    names_from  = Racial.appearance.transformed,
+    values_from = n,
+    values_fill = 0
+  ) %>%
+  filter(African >= 10) %>%  # stations with at least 10 African searches overall
+  pull(Station.uniform)
+
+# --- 2. Prepare dataset restricted to those stations ---
+dat1 <- ddat %>%
+  filter(
+    Racial.appearance.transformed %in% c("African", "White"),
+    Station.uniform %in% elig_stations
+  ) %>%
+  mutate(
+    Race        = factor(Racial.appearance.transformed, levels = c("White", "African")),
+    Found_yes   = is_yes(Found),
+    StationYear = interaction(Station.uniform, Year, drop = TRUE),
+    Gender      = factor(Gender),
+
+    # Clean and collapse ranks
+    Rank_clean = dplyr::recode(
+      Rank.of.Member,
+      "SSGT" = "SGT",
+      "PSO"  = "CONST",
+      .default = Rank.of.Member
+    ),
+    Rank_clean = forcats::fct_drop(Rank_clean),
+    Rank_clean = forcats::fct_relevel(Rank_clean, "CONST")
+  )
+
+# --- 3. Fit Station×Year fixed-effects logistic model ---
+m_fe_af5_all <- fixest::feglm(
+  Found_yes ~ Race + Gender + i(Rank_clean, ref = "CONST") | StationYear,
+  family  = "binomial",
+  data    = dat1,
+  cluster = ~ Station.uniform
+)
+
+# --- 4. Tidy results (exclude FE dummies) ---
+model_table <- broom::tidy(m_fe_af5_all, conf.int = TRUE) %>%
+  dplyr::filter(!grepl("StationYear", term)) %>%
+  dplyr::mutate(
+    OR        = exp(estimate),
+    CI_low    = exp(conf.low),
+    CI_high   = exp(conf.high),
+    p_str     = ifelse(p.value < 0.001, "<0.001", sprintf("%.3f", p.value))
+  ) %>%
+  dplyr::transmute(
+    Term         = term,
+    `Odds Ratio` = round(OR, 3),
+    `95% CI (L)` = round(CI_low, 3),
+    `95% CI (U)` = round(CI_high, 3),
+    `p-value`    = p_str
+  )
+
+# --- 5. Display results ---
+kbl(
+  model_table,
+  caption = paste0(
+    "Fixed-effects logistic regression (Station×Year) — restricted to stations with ≥10 African searches (clustered by Station.uniform; N = ",
+    nrow(dat1),
+    " searches)."
+  ),
+  align = c("l","r","r","r","r")
+) |>
+  kable_paper(full_width = FALSE) |>
+  kable_styling(bootstrap_options = c("striped","hover"), position = "left")
+
+
+```
+
 ### Interpretation  
 
-Within the same station and year, searches of African-appearing people were **significantly less likely** to result in contraband being found (OR = 0.72, 95% CI [0.54, 0.95], p = 0.022).  
 
-This corresponds to roughly a **30 percent lower odds** of a “hit” for African-appearing individuals compared with White-appearing individuals under like-for-like operational contexts.  
+Within the same station and year, searches of African-appearing individuals were significantly less likely to result in contraband being found than searches of White-appearing individuals (odds ratio = 0.72, 95% confidence interval 0.54–0.95, p = 0.022). This corresponds to approximately 30 per cent lower odds of a “hit” for African-appearing individuals under comparable operational contexts.
 
-By contrast, gender and officer rank were not statistically significant predictors of search success, and their inclusion did not materially affect the race coefficient. Searches conducted by Constables, Senior Constables, and Sergeants yielded broadly similar outcomes once station- and year-level variation were held constant.  
+This disparity remains substantively and statistically similar under a stricter restriction requiring at least ten African-appearing searches per station (odds ratio = 0.70, 95% confidence interval 0.51–0.96, p = 0.028), indicating that the result is not driven by low-volume stations or sparse cells.
+
+By contrast, officer gender and rank were not statistically significant predictors of search success, and their inclusion did not materially affect the estimated race coefficient. Searches conducted by Constables, Senior Constables, and Sergeants yielded broadly similar outcomes once station- and year-level variation were held constant.
+
 
 ## Model B — Multilevel Logistic Regression (Random Intercepts for Station)
 
 To complement the fixed-effects analysis, we estimated a **multilevel logistic regression** with **random intercepts for police stations**.  
 
-Whereas Model A isolates within-station differences by removing all station-level variation, Model B explicitly models that variation, treating each station’s baseline likelihood of a “hit” as a random effect.
+Whereas Models A1 and A2 isolates within-station differences by removing all station-level variation, Model B explicitly models that variation, treating each station’s baseline likelihood of a “hit” as a random effect.
 
 This approach recognises that stations differ systematically in operational practices, local contexts, and levels of policing intensity.  
 
@@ -541,7 +637,7 @@ The dependent variable is whether a search resulted in contraband being found (`
 
 Standard errors are clustered by **station** to account for repeated observations within sites.
 
-**Table 3 Model B — Multilevel logistic regression (random intercepts for Station)**
+**Table 4 Model B — Multilevel logistic regression (random intercepts for Station)**
 ```{r modelB multilevel logistic, echo = FALSE, warning = FALSE, message = FALSE}
 # ===============================================================
 # Model B — Multilevel logistic regression (random intercepts for Station)
@@ -666,26 +762,27 @@ Together, these findings indicate a **robust racial disparity in evidentiary yie
 
 ### Geographic concentration of disparities
 
-Taken together, the two models indicate that racial disparities in search outcomes are **not evenly distributed across metropolitan Melbourne**.
+Taken together, the two modelling approaches indicate that racial disparities in search outcomes are persistent but unevenly distributed across metropolitan Melbourne.
 
-The **multilevel model (Model B)** shows that, on average across all stations, searches of individuals perceived as *African* are significantly less likely to yield contraband than those of *White* individuals—even after adjusting for officer rank, gender, and station-level differences.  
+The multilevel model (Model B) shows that, on average across all stations, searches of individuals perceived as African are significantly less likely to yield contraband than those of White individuals, even after adjusting for officer rank, gender, local drug-crime rates, and between-station differences in baseline hit rates.
 
-By contrast, the **fixed-effects model (Model A)**—which compares searches *within the same station and year*—shows that much of this disparity arises from **specific local contexts** rather than a uniform pattern across the city. The fact that the race effect persists overall (Model B) but weakens when controlling tightly for Station×Year (Model A) indicates that the disparity is **geographically concentrated**, driven by particular operational environments rather than evenly distributed across all stations.  
+The fixed-effects model (Model A), which compares searches conducted within the same station and year, demonstrates that this disparity also operates within tightly comparable operational contexts. The stability of the race effect under increasingly strict station-level restrictions indicates that the observed disparity is not driven by sparse data or compositional differences across stations.
 
-The significant variance in random station intercepts (σ²ₛₜₐₜᵢₒₙ > 0) further confirms heterogeneity in baseline hit rates, implying that some stations systematically produce lower evidentiary yields for African-appearing individuals.  
+At the same time, the presence of significant station-level variance in the multilevel model (σ²_station > 0) indicates substantial heterogeneity in baseline hit rates across stations. This implies that while the racial disparity is evident on average, its magnitude and practical impact vary across local policing environments.
 
-This pattern suggests that the disparity likely reflects **local operational cultures, leadership practices, or community-policing dynamics** rather than a single, city-wide bias. It underscores the importance of **spatial accountability**—identifying and addressing the specific stations where discretionary searches of African-appearing people are consistently less evidence-based.
+Taken together, these results suggest that racial disparities in evidentiary yield reflect a combination of system-wide patterns and locally concentrated practices. Rather than being evenly distributed across all stations, the disparity appears to be shaped by specific operational settings, pointing to the role of local patrol cultures, leadership practices, and forms of oversight in how discretionary search powers are exercised.
+
 
 # Division and station disparities
 
-Division level cross tabulations and modelling add further insight into racial profiling at the community level.
+Division-level cross-tabulations and modelling are used to examine how racial disparities in search outcomes vary across local policing environments, providing insight into the spatial concentration of patterns consistent with racial profiling.
 
 
 ## Division - Cross tabs
 
-Differences in hit rates between African- and White-appearing individuals were assessed using two-sample tests for equality of proportions (chi-square, no continuity correction), conducted separately for each division.
+Differences in hit rates between African- and White-appearing individuals were assessed using two-sample tests for equality of proportions (chi-square tests without continuity correction), conducted separately for each division.
 
-**Table 4 Division cross-tabs**
+**Table 5 Division cross-tabs**
 ```{r division cross tabs, echo = FALSE, warning=FALSE, message=FALSE}
 
 # ===============================================================
@@ -798,7 +895,11 @@ add_header_above(c(" " = 1, "Counts" = 2, "Hit Rates" = 2, "Ratio & CI" = 3, "Si
 
 ## Divisions - Fixed-effects logistic regressions (Station × Year)  
 
-To estimate racial disparities within each Division \(d\), we fit a station–year fixed-effects logistic regression of the form:
+To assess whether the within-station racial disparity identified in Model A is evenly distributed across metropolitan Melbourne or concentrated within particular operational contexts, we re-estimate the station–year fixed-effects model separately for each police division.
+
+This approach preserves the core identification strategy—comparing searches conducted within the same station and year—while allowing the magnitude and direction of racial disparities to vary across divisions. Division-specific estimates therefore provide insight into how patterns consistent with racial profiling differ across regional policing environments.
+
+For each Division \(d\), For each division d, we estimate a station–year fixed-effects logistic regression of the form:
 
 \[
 Y_{istd} \sim \text{Bernoulli}(p_{istd}),
@@ -822,7 +923,7 @@ where:
 
 Standard errors are clustered at the station level to account for repeated searches conducted within the same policing environment.
 
-**Table 5 Division models**
+**Table 6 Division models**
 ```{r division station year, echo=FALSE, message=FALSE, warning = FALSE}
 
 # ===============================================================
@@ -1002,25 +1103,25 @@ kbl(
 
 
 ```
-Taken together, the division-specific fixed-effects models reveal **clear spatial variation** in the strength and direction of racial disparities.  
+Taken together, the division-specific fixed-effects models indicate substantial spatial variation in both the magnitude and direction of racial disparities in search outcomes.
 
-The most pronounced and statistically robust disparity appears in **NWMR Division 3 (Brimbank–Melton)**, where searches of African-appearing individuals were far less likely to yield contraband even after controlling for officer rank, gender, and station-year context.  
+The clearest and most statistically robust disparity is observed in NWMR Division 3 (Brimbank–Melton), where searches of African-appearing individuals were markedly less likely to yield contraband even after controlling for officer rank, gender, and station–year context.
 
-Several other Divisions—particularly **NWMR 2 (Wyndham–Maribyrnong–Hobsons Bay)** and **NWMR 5 (Darebin–Whittlesea–Banyule–Nillumbik)**—show similar but non-significant trends toward lower evidentiary yields.  
+Several other divisions—most notably NWMR Division 2 (Wyndham–Maribyrnong–Hobsons Bay) and NWMR Division 5 (Darebin–Whittlesea–Banyule–Nillumbik)—exhibit similar directional patterns toward lower evidentiary yields for African-appearing individuals, although these estimates do not reach conventional levels of statistical significance.
 
-In contrast, **southern and eastern Divisions** show no consistent racial pattern, with odds ratios close to unity and wide confidence intervals reflecting smaller numbers of African-appearing searches.  
+By contrast, southern and eastern divisions show no consistent racial pattern, with point estimates clustered around unity and wide confidence intervals reflecting smaller numbers of African-appearing searches and limited within-division variation.
 
-Overall, these findings suggest that **racial profiling is not uniformly distributed across metropolitan Melbourne**, but rather concentrated within certain policing environments, notably in Melbourne’s **north-western growth corridors**.  
+Overall, these results suggest that racial disparities in evidentiary yield are not evenly distributed across metropolitan Melbourne, but are concentrated within particular operational contexts, most prominently in parts of Melbourne’s north-western growth corridors.
 
-The following section examines **station-level results** to identify which local areas drive these divisional patterns.
+The following section examines station-level results to identify the specific local areas contributing to these divisional patterns.
 
 ## Station-level - Cross tabs  
 
-Station level cross tabulations add further granular insight into racial profiling at the organisational team level. This analysis was only performed for stations with at least 10 searches of African appearing people.
+Station-level cross-tabulations provide a more granular, descriptive view of how racial disparities in search outcomes are distributed across local policing teams. While these comparisons are not intended to establish station-level causal effects, they serve as a useful screening tool for identifying stations where patterns consistent with racial profiling may warrant closer examination.
 
-Differences in hit rates between African- and White-appearing individuals were assessed using two-sample tests for equality of proportions (chi-square, no continuity correction), conducted separately for each division. 
+To limit mechanically unstable comparisons, the analysis is restricted to stations with at least ten searches of African-appearing individuals. Differences in hit rates between African- and White-appearing individuals were assessed using two-sample tests for equality of proportions (chi-square tests without continuity correction), conducted separately for each station. 
 
-*Table 6 Station cross tabs* 
+*Table 7 Station cross tabs* 
 ```{r station table, echo = FALSE, warning = FALSE, message=FALSE}
 # ===============================================================
 
@@ -1161,19 +1262,18 @@ add_header_above(c(" " = 1, "Counts" = 2, "Hit Rates" = 2, "Ratio & CI" = 3, "Si
 }
 
 ```
-Across stations with at least ten searches of African-appearing individuals, the cross-tab results show substantial variability in hit rates across locations. A number of stations—including Werribee, Caroline Springs, Melbourne East, Sunshine, Dandenong and Mill Park—display lower observed hit rates for African-appearing individuals, with risk ratios below 1. Only one station (Pakenham) showed a higher observed hit rate for African-appearing people, though this difference was not statistically significant.
+Across stations with at least ten searches of African-appearing individuals, the cross-tabulations show substantial variation in hit rates across locations. A number of stations—including Werribee, Caroline Springs, Melbourne East, Sunshine, Dandenong, and Mill Park—display lower observed hit rates for African-appearing individuals, with risk ratios below one.
 
-Importantly, only Werribee’s result reached conventional statistical significance. For all other stations, confidence intervals were wide and p-values non-significant, reflecting the relatively limited number of African searches available at individual stations. As a result, most station-level differences should be interpreted cautiously and as descriptive rather than inferential findings.
+Only one station shows a difference that reaches conventional levels of statistical significance. For most stations, confidence intervals are wide and p-values non-significant, reflecting the limited number of African-appearing searches available at the individual station level. These estimates should therefore be interpreted as descriptive rather than inferential.
 
-Nonetheless, when viewed collectively, the distribution of results shows more stations with lower rather than higher hit rates for African-appearing individuals. This directional pattern is not, on its own, evidence of a station-level effect, but it is consistent with the broader division-level regression findings.
+Nonetheless, when considered collectively, the pattern of results is informative. The fact that more stations exhibit lower rather than higher hit rates for African-appearing individuals suggests that disparities observed at the division and metropolitan levels are not driven by a single outlier location.
 
-Taken together, the station-level cross tabs provide localised descriptive insight: although few individual stations have sufficient sample size to produce statistically reliable estimates, the overall pattern does not contradict—and in several cases mirrors—the disparities observed in the higher-powered division-level models.
 
 # Appendix
 
 ## Hit rates all racial categories  
 
-**Table 7 Hit rates all racial appearances**
+**Table 8 Hit rates all racial appearances**
 ```{r Finds racial all, echo=FALSE, warning=FALSE, results='asis'}
 
 ct <- crosstable::crosstable(
@@ -1215,7 +1315,7 @@ ft
 
 The below table shows how the original recorded data maps to the dataset used in this analysis. Categories changed multiple times across the time period in scope.
 
-**Table 8 Racial appearance mapping**
+**Table 9 Racial appearance mapping**
 ```{r mapping-categories-2022-2023, echo = FALSE}
 ddat %>%
   count(Racial.Appearance.original, Racial.appearance.transformed) %>%

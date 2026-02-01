@@ -1,5 +1,5 @@
 ---
-title: "Victoria Police Search Data Overview and Hit Rates"
+title: "Victoria Police Search Data and Hit Rates Overview (descriptive statistics)"
 author: "Monika Sarder"
 date: "`r Sys.Date()`"
 output: 
@@ -12,7 +12,7 @@ output:
     highlight: zenburn
     fig_caption: true
     df_print: paged
-    css: styles.css  # Optional: include this file if you want to customise styles
+    css: styles.css  
 ---
 
 ```{r setup, echo = FALSE, warning = FALSE, message=FALSE}
@@ -44,7 +44,7 @@ dat <- readRDS("../VicPol Search Data Clean/VicPol Search Data Clean.RDS")
 
 This overview was carried out with the aim of understanding how Victoria Police stop-and-search data can be examined for racial profiling using hit-rate analysis—the share of searches that result in a find. The goal is twofold: (1) to assess whether the dataset is suitable for credible analysis of potential racial disparities in policing thresholds, and (2) to document its structure so others can use it appropriately.  
 
-The dataset covers 52,654 warrantless public-place searches across 2018, 2019, 2022, and 2023, mostly by uniformed officers, with drug searches the dominant search type. Descriptive results highlight clear differences in outcomes:  
+The dataset covers 52,654 warrantless public-place searches across 2018, 2019, 2022, and 2023, mostly by uniformed officers, with drug searches the dominant search type. Descriptive results highlight clear differences in outcomes that warrant further investigation:  
 
 - **By racial appearance**: people perceived as White recorded higher hit rates (17.8%) than many racialised groups, including African (12.9%) and Middle Eastern (10%) individuals.  
 - **By context**: PSO, Transit, and Highway Patrol units had higher hit rates than Uniform police; graffiti and weapons searches were more successful than drug searches.  
@@ -266,7 +266,7 @@ ct <- crosstable(
   finds2, `Search type`,
   by = Found,
   total = TRUE,
-  test = FALSE,                # <- prevent Fisher blow-ups
+  test = FALSE,                
   showNA = "ifany",
   percent_digits = 1
 )
@@ -286,7 +286,7 @@ By gender, **males** recorded higher hit rates than **females** (**17% vs 14%**)
 
 By age, **teenagers (≤17)** generally had lower hit rates than adults.
 
-*Interpretation:* Lower hit rates mean police were less likely to find contraband when searching those groups, which can indicate a lower threshold for initiating searches for those populations.
+*Interpretation:* Lower hit rates mean police were less likely to find contraband when searching those groups, which can indicate a lower threshold for initiating searches for those populations. However additional analysis controlling for confounders is required before conclusions can be drawn.
 
 
 **Table 5 Hit rates by person characteristics**
