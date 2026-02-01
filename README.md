@@ -31,7 +31,7 @@ This repository was developed to support public interest analysis and community-
   Folder containing all R Markdown analysis files, rendered outputs, and supporting materials:
   - **01 VicPol search data overview.Rmd** – Overview of all Victorian warrantless search data (50,000+ records).  
   - **02 Racial profiling – analysis and findings.Rmd** – Racial profiling analysis of drug searches of white and African-appearing pedestrians by uniform officers in Melbourne (7,534 records).  
-  - **03 Missing data - pedestrian uniform drug and weapons searches Melbourne.Rmd** – Missingness of race and age information in drug and weapons searches of pedestrians carried out by uniform officers in Melbourne (13,896 records).
+  - **03 Missing data - pedestrian uniform drug and weapons searches Melbourne.Rmd** – Missingness of race and age information in drug and weapons searches of pedestrians carried out by uniform officers in Melbourne.
 
 --- 
 
