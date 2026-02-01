@@ -365,9 +365,9 @@ display: none;
 processed in R to improve quality, standardise formats, and add
 geographic fields.<br />
 </li>
-<li>A racial profiling analysis of <strong>drug searches on foot by
-uniform police</strong>, comparing outcomes for white- and
-African-appearing people using hit-rate methods.</li>
+<li>A racial profiling analysis of <strong>drug searches of pedestrians
+by uniform police in Melbourne</strong>, comparing outcomes for white-
+and African-appearing people using hit-rate methods.</li>
 </ul>
 <p>The original raw data was obtained under FOI by the <a href="https://www.racialprofilingresearch.org/">Racial Profiling Data
 Monitoring Project</a> and is made publicly available there.</p>
@@ -402,25 +402,18 @@ dataset.</p></li>
 Folder containing all R Markdown analysis files, rendered outputs, and
 supporting materials:</p>
 <ul>
-<li><strong>01 Data and hit rate overview.Rmd</strong> – Overview of
-variables, search types, and data limitations.<br />
+<li><strong>01 VicPol search data overview.Rmd</strong> – Overview of
+all Victorian warrantless search data (50,000+ records).<br />
 </li>
-<li><strong>02 Racial profiling – exploratory and findings.Rmd</strong>
-– Full workflow including exploratory analysis, diagnostics, and final
-results.<br />
+<li><strong>02 Racial profiling – analysis and findings.Rmd</strong> –
+Racial profiling analysis of drug searches of white and
+African-appearing pedestrians by uniform officers in Melbourne (7,534
+records).<br />
 </li>
-<li><strong>03 Racial profiling – findings only.Rmd</strong> –
-Streamlined analysis containing only final findings and models.<br />
-</li>
-<li>Corresponding <strong>.html</strong> outputs and asset folders
-(<code>*_files/</code>) for each Rmd.<br />
-</li>
-<li><strong>Racial profiling in the west – New data exposes unequal
-policing in Melbourne (DOCX)</strong> – Draft article based on the
-analysis.<br />
-</li>
-<li><strong>styles.css</strong> – Custom stylesheet for knitted HTML
-outputs.</li>
+<li><strong>03 Missing data - pedestrian uniform drug and weapons
+searches Melbourne.Rmd</strong> – Missingness of race and age
+information in drug and weapons searches of pedestrians carried out by
+uniform officers in Melbourne (13,896 records).</li>
 </ul></li>
 </ul>
 <hr />
@@ -429,8 +422,8 @@ outputs.</li>
 <h2>Data Notes</h2>
 <div id="search-types-included" class="section level3">
 <h3>Search Types Included</h3>
-<p>This dataset covers <strong>warrantless searches</strong> conducted
-under various Victorian laws, where police must form a
+<p>The full dataset covers <strong>warrantless searches</strong>
+conducted under various Victorian laws, where police must form a
 <strong>reasonable suspicion</strong> that the person is carrying a
 <strong>prohibited item</strong> before searching.</p>
 <p>Some search powers apply <strong>anywhere in public</strong>, while
