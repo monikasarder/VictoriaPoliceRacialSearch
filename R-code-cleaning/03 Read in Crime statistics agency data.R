@@ -13,7 +13,7 @@ names(csa)
 
 csa_rate <- csa %>%
   # Keep relevant years
-  filter(Year %in% c(2018, 2019, 2022, 2023)) %>%
+  filter(Year %in% c(2018, 2019, 2022, 2023, 2024)) %>%
   group_by(Local.Government.Area, Year) %>%
   summarise(
     Drug.crime.rate = sum(LGA.Rate.per.100.000.population[Offence.Division == "C Drug offences"], na.rm = TRUE),

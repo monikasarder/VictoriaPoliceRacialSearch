@@ -9,7 +9,7 @@ library(openxlsx)
 
 # Load 2018-19 and 2022-23 data
 dat1 <- readRDS( "R-code-cleaning/Processed/data.18.19.wrangled.RDS")
-dat2 <- readRDS( "R-code-cleaning/Processed/data.22.23.wrangled.RDS")
+dat2 <- readRDS( "R-code-cleaning/Processed/data.22.24.wrangled.RDS")
 
 # Combine datasets
 dat <- rbind(dat1, dat2) %>%
@@ -95,7 +95,7 @@ sta.lga2 <- sta.lga1 %>%
 sta.hier <- sta.lga2 %>%
   left_join(hierdat, by = "Police.Service.Area") %>%
   mutate(Unit = str_remove(Station, " POLICE STATION")) %>%
-  select(Region, Division, Police.Service.Area, Local.Government.Area, Locality, Postcode, Unit) %>%
+  select(Region, Division, Police.Service.Area, Local.Government.Area, Locality, Postcode.1 = Postcode, Unit) %>%
   ungroup()
 
 # ------------------------------------------------------------
@@ -182,7 +182,28 @@ dat.sr2 <- dat.sr2 %>%
          Indigenous.Status, Gender, Age, Complexion, Hair.Colour, Hair.Style,
          Reporting.Station.Description, Station.uniform = Unit,
          Unit.type, Rank.of.Member, Region, Division, Police.Service.Area,
-         Area.type, Local.Government.Area, Locality, Postcode)
+         Area.type, Local.Government.Area, Locality, Postcode, Postcode.1, LGA)
+
+#resolve derived and original LGA and Postcode
+dat.sr2 <- dat.sr2 %>%
+  mutate(Postcode.1 = as.character(Postcode.1),
+         Local.Government.Area = toupper(Local.Government.Area))%>%
+  mutate(
+    Local.Government.Area = case_when(
+      is.na(Local.Government.Area) & !is.na(LGA) ~ LGA,
+      Local.Government.Area != LGA & !is.na(LGA) ~ LGA,
+      TRUE ~ Local.Government.Area
+    )
+  ) %>%
+  mutate(
+    Postcode = case_when(
+      is.na(Postcode.1) & !is.na(Postcode) ~ Postcode,
+      Postcode.1!= Postcode & !is.na(Postcode) ~ Postcode,
+      TRUE ~ Postcode.1
+    )
+  )%>%
+  select(-LGA, -Postcode.1)
+
 
 # ------------------------------------------------------------
 # Update classifications where something was found but not searched for
@@ -244,6 +265,7 @@ dat.sr3 <- dat.sr3 %>%
 csa <- readRDS( "R-code-cleaning/Processed/CSA rates.RDS")
 
 csa <- csa %>%
+  mutate(Local.Government.Area = toupper(Local.Government.Area))%>%
   mutate(yearl = str_c(Local.Government.Area, as.character(Year), sep = " - "))%>%
   select(-Year, -Local.Government.Area)
 
@@ -256,6 +278,9 @@ dat.sr3 <- dat.sr3 %>%
 
 #Merge in ABS
 abs <- readRDS( "R-code-cleaning/Processed/LGA pop.RDS")
+
+abs <- abs %>%
+  mutate(Local.Government.Area = toupper(Local.Government.Area))
 
 dat.sr3 <- dat.sr3 %>% 
   left_join(abs, by = "Local.Government.Area")
