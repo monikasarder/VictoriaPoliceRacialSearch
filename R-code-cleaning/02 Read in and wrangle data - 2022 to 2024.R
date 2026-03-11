@@ -3,8 +3,21 @@ library(readxl)
 library(writexl)
 
 # ────────────────────────────────────────────────────────────────────────────────
-# Read in 2022 and 2023 datasets
+# Read in 2022,2023 and 2024 datasets
 # ────────────────────────────────────────────────────────────────────────────────
+
+
+unidat24 <- read_xlsx(
+  "./Primary datasets - VicPol Search/Victoria Police Search Data 2024.xlsx",
+  sheet = "Data FINAL",
+  skip = 23,
+  .name_repair = "universal"
+) %>%
+  rename(
+    Racial.Appearance = Ethnic.Appearance,
+    Quantity = Quantity.of.item.Found
+  )
+
 
 unidat23 <- read_xlsx(
   "./Primary datasets - VicPol Search/Victoria Police Search Data 2023.xlsx",
@@ -13,16 +26,18 @@ unidat23 <- read_xlsx(
   rename(
     Racial.Appearance = Ethnic.Appearance,
     Quantity = Quantity.of.item.Found
-  )
+  )%>%
+  mutate(Postcode = NA, LGA = NA)
 
 unidat22 <- read_xlsx(
   "./Primary datasets - VicPol Search/Victoria Police Search Data 2022.xlsx",
   skip = 18,
   .name_repair = "universal"
-)
+)%>%
+  mutate(Postcode = NA, LGA = NA)
 
 # Combine datasets
-unidat <- bind_rows(unidat23, unidat22)
+unidat <- bind_rows(unidat24, unidat23, unidat22)
 
 # ────────────────────────────────────────────────────────────────────────────────
 # Clean and tag dataset
@@ -118,7 +133,7 @@ person.id <- dat %>%
   select(
     FieldReportID, Rank.of.Member, Reporting.Station.Description, Year, Contact.Date, Contact.Time,
     Contact.Type, FieldContactID, Racial.Appearance, Indigenous.Status, Gender, Age,
-    Complexion, Hair.Colour, Hair.Style, Any.items.found
+    Complexion, Hair.Colour, Hair.Style, Any.items.found, Postcode, LGA
   ) %>%
   unique()
 
@@ -135,15 +150,23 @@ fdat <- search.dat %>%
       str_detect(str_to_upper(Reporting.Station.Description), "UNI")       ~ "Uniform",
       str_detect(str_to_upper(Reporting.Station.Description), "TRANSIT") &
         !str_detect(str_to_upper(Reporting.Station.Description), "PSO")     ~ "Transit",
-      str_detect(str_to_upper(Reporting.Station.Description), "PSO")       ~ "PSO",
-      str_detect(str_to_upper(Reporting.Station.Description), "CIU")       ~ "CIU",
-      str_detect(str_to_upper(Reporting.Station.Description), "DRU")       ~ "DRU",
+      str_detect(str_to_upper(Reporting.Station.Description), "PSO")       ~ "Protective Services Officer",
+      str_detect(str_to_upper(Reporting.Station.Description), "CIU")       ~ "Criminal Investigation Unit",
+      str_detect(str_to_upper(Reporting.Station.Description), "DRU")       ~ "Divisional Response Unit",
       str_detect(str_to_upper(Reporting.Station.Description), "HIGHWAY")   ~ "Highway Patrol",
       str_detect(str_to_upper(Reporting.Station.Description), "HWY")       ~ "Highway Patrol",
-      str_detect(Reporting.Station.Description, "PUBLIC ORDER RESPONSE")   ~ "Public Order Response",
+      str_detect(str_to_upper(Reporting.Station.Description), "PUBLIC ORDER RESPONSE")   ~ "Public Order Response",
+      str_detect(str_to_upper(Reporting.Station.Description), "FAMILY VIOLENCE") ~ "Family Violence Investigation",
+      str_detect(str_to_upper(Reporting.Station.Description), "SOCIT") ~ "Sexual Offences and Child Abuse Investigation Team",
+      str_detect(str_to_upper(Reporting.Station.Description), "DIU") ~ "Divisional Intelligence Unit",
+      str_detect(str_to_upper(Reporting.Station.Description), "VIPER") ~ "VIPER Taskforce",
+      str_detect(str_to_upper(Reporting.Station.Description), "TASKFORCE") ~ "Other taskforces",
+      str_detect(str_to_upper(Reporting.Station.Description), "COMMAND") ~ "Command",
       TRUE ~ "Other"
     )
   )
+
+table(fdat$Unit.type)
 
 # ────────────────────────────────────────────────────────────────────────────────
 # Racial appearance harmonisation
@@ -172,6 +195,8 @@ fdat <- fdat %>%
     )
   )
 
+
+
 # ────────────────────────────────────────────────────────────────────────────────
 # Final dataset selection and export
 # ────────────────────────────────────────────────────────────────────────────────
@@ -183,7 +208,7 @@ fin.dat <- fdat %>%
     Racial.appearance, Racial.Appearance.original = Racial.Appearance,
     VicPol.racialised, Racial.appearance.missing, Indigenous.Status,
     Gender, Age, Complexion, Hair.Colour, Hair.Style,
-    Reporting.Station.Description, Unit.type, Rank.of.Member
+    Reporting.Station.Description, Unit.type, Rank.of.Member, Postcode, LGA
   )
 
-saveRDS(fin.dat,  "R-code-cleaning/Processed/data.22.23.wrangled.RDS")
+saveRDS(fin.dat,  "R-code-cleaning/Processed/data.22.24.wrangled.RDS")

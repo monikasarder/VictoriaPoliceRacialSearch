@@ -6,7 +6,7 @@
 
 This repository contains:
 
-- A cleaned version of Victoria Police stop-and-search data (50,000+ **warrantless searches** from 2018, 2019, 2022, 2023), processed in R to improve quality, standardise formats, and add geographic fields.  
+- A cleaned version of Victoria Police stop-and-search data (50,000+ **warrantless searches** from 2018, 2019, 2022, 2023, 2024), processed in R to improve quality, standardise formats, and add geographic fields.  
 - A racial profiling analysis of **drug searches of pedestrians by uniform police in Melbourne**, comparing outcomes for white- and African-appearing people using hit-rate methods.  
 
 The original raw data was obtained under FOI by the [Racial Profiling Data Monitoring Project](https://www.racialprofilingresearch.org/) and is made publicly available there.

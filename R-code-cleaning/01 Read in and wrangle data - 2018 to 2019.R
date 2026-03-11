@@ -173,16 +173,23 @@ dat.s <- dat.s %>%
       str_detect(str_to_upper(Reporting.Station.Description), "UNI") ~ "Uniform",
       str_detect(str_to_upper(Reporting.Station.Description), "TRANSIT") &
         !str_detect(str_to_upper(Reporting.Station.Description), "PSO") ~ "Transit",
-      str_detect(str_to_upper(Reporting.Station.Description), "PSO") ~ "PSO",
-      str_detect(str_to_upper(Reporting.Station.Description), "CIU") ~ "CIU",
-      str_detect(str_to_upper(Reporting.Station.Description), "DRU") ~ "DRU",
+      str_detect(str_to_upper(Reporting.Station.Description), "PSO") ~ "Protective Services Officer",
+      str_detect(str_to_upper(Reporting.Station.Description), "CIU") ~ "Criminal Investigation Unit",
+      str_detect(str_to_upper(Reporting.Station.Description), "DRU") ~ "Divisional Response Unit",
       str_detect(str_to_upper(Reporting.Station.Description), "HIGHWAY PATROL") |
         str_detect(str_to_upper(Reporting.Station.Description), "HWY PATROL") ~ "Highway Patrol",
       str_detect(Reporting.Station.Description, "OPERATIONS RESPONSE") |
         str_detect(Reporting.Station.Description, "PUBLIC ORDER RESPONSE") ~ "Public Order Response",
+      str_detect(str_to_upper(Reporting.Station.Description), "SOCIT") ~ "Sexual Offences and Child Abuse Investigation Team",
+      str_detect(str_to_upper(Reporting.Station.Description), "DIU") ~ "Divisional Intelligence Unit",
+      str_detect(str_to_upper(Reporting.Station.Description), "FAMILY VIOLENCE") ~ "Family Violence Investigation",
+      str_detect(str_to_upper(Reporting.Station.Description), "VIPER") ~ "VIPER Taskforce",
+      str_detect(str_to_upper(Reporting.Station.Description), "TASKFORCE") ~ "Other taskforces",
+      str_detect(str_to_upper(Reporting.Station.Description), "COMMAND") ~ "Command",
       TRUE ~ "Other"
     )
   )
+
 
 # Final data selection
 fin.dat.2 <- dat.s %>%
@@ -197,7 +204,8 @@ fin.dat.2 <- dat.s %>%
     Hair.Colour = Hair.colour.of.contact,
     Hair.Style = Hair.style.1.of.contact,
     Reporting.Station.Description, Unit.type, Rank.of.Member
-  )
+  )%>%
+  mutate(Postcode = NA, LGA = NA)
 
 
 # Save to RDS
