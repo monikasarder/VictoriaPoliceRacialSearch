@@ -245,7 +245,10 @@ dat.sr3 <- dat.sr3 %>%
   )
 
 #Add age group
+dat.sr3 <- dat.sr3 %>%
+  mutate(Age = ifelse(Age == 1, "", Age))
 
+#Add group         
 dat.sr3 <- dat.sr3 %>%
   mutate(`Age group` = case_when(
     is.na(Age) ~ "Missing",
