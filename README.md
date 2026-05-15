@@ -1,6 +1,6 @@
 # VicPol Stop and Search Dataset and Racial Profiling Analysis
 
-[📥 **Download Cleaned Dataset (XLSX)**](VicPol%20Search%20Data%20Clean/VicPol%20Search%20Data%20Clean.xlsx?raw=true)
+[📥 Download full cleaned dataset (XLSX)](https://raw.githubusercontent.com/monikasarder/VictoriaPoliceRacialSearch/main/VicPol%20Search%20Data%20Clean/VicPol%20Search%20Data%20Clean.xlsx)
 
 ## About the Dataset
 
@@ -21,7 +21,7 @@ This repository was developed to support public interest analysis and community-
 
 ## Repository Contents
 
-- **[VicPol Racial Profiling Data.xlsx](VicPol%20Search%20Data%20Clean/VicPol%20Search%20Data%20Clean.xlsx?raw=true)**  
+- **[VicPol Racial Profiling Data.xlsx](https://raw.githubusercontent.com/monikasarder/VictoriaPoliceRacialSearch/main/VicPol%20Search%20Data%20Clean/VicPol%20Search%20Data%20Clean.xlsx)**  
   Cleaned and enriched dataset of all warrantless searches conducted by Victoria Police.
 
 - **[R-code-cleaning/](R-code-cleaning/)**  

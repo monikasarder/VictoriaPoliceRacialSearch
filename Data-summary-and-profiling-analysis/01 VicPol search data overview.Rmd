@@ -39,32 +39,18 @@ library(flextable)
 dat <- readRDS("../VicPol Search Data Clean/VicPol Search Data Clean.RDS")
 
 ```
+# Data Overview  
 
-# Short summary
+## About the dataset 
 
-This overview was carried out with the aim of understanding how Victoria Police stop-and-search data can be examined for racial profiling using hit-rate analysis—the share of searches that result in a find. The goal is twofold: (1) to assess whether the dataset is suitable for credible analysis of potential racial disparities in policing thresholds, and (2) to document its structure so others can use it appropriately.  
-
-The dataset covers 52,654 warrantless public-place searches across 2018, 2019, 2022, and 2023, mostly by uniformed officers, with drug searches the dominant search type. Descriptive results highlight clear differences in outcomes that warrant further investigation:  
-
-- **By racial appearance**: people perceived as White recorded higher hit rates (17.8%) than many racialised groups, including African (12.9%) and Middle Eastern (10%) individuals.  
-- **By context**: PSO, Transit, and Highway Patrol units had higher hit rates than Uniform police; graffiti and weapons searches were more successful than drug searches.  
-- **By geography**: the North West Metro Region, covering Melbourne’s diverse western and northern suburbs, showed significantly lower hit rates than other regions.  
-- **By demographics**: males had higher hit rates than females, and teenagers (≤17) had lower hit rates than adults.  
-
-These patterns suggest that disparities in search outcomes are real, but raw hit-rate comparisons cannot alone establish whether police apply different evidentiary thresholds across groups. To move beyond description, the analysis must be narrowed to a standardised setting (e.g. drug searches by uniformed officers on foot patrols) and then modelled to account for confounders such as gender, year, and geography.  
-
-# About the Dataset
-
+This dataset contains records of **62,350 searches** warrantless searches conducted by Victoria Police in the years **2018, 2019, 2022, 2023 and 2024**. Data for the years **2020 and 2021** is excluded due to the atypical policing environment associated with the COVID-19 pandemic.
+ 
+Descriptive analysis was undertaken to understand whether the data is suitable for racial profiling analysis, specifically using hit-rate methodology. This document also serves as a general data overview for researches interested in using this data to answer other questions about warrantless searches in Victoria. 
 
 📁 **Download the cleaned dataset:**  
 [**VicPol Search Data Clean.xlsx**](https://github.com/monikasarder/VictoriaPoliceRacialSearch/raw/main/VicPol%20Search%20Data%20Clean/VicPol%20Search%20Data%20Clean.xlsx)
 
-
-This dataset contains records of **52,654 searches** conducted by Victoria Police in the years **2018, 2019, 2022, and 2023**. 
-
-Data for the years **2020 and 2021** is excluded due to the atypical policing environment associated with the COVID-19 pandemic.
-
-The dataset comprises records of **warrantless stop and search events** conducted in public places across Victoria. It was released through a Freedom of Information (FOI) request lodged by the [Centre Against Racial Profiling](https://www.centreagainstracialprofiling.au/) and includes detailed information about each search, including location, officer-perceived characteristics of the person searched, search type, and outcome.
+The dataset comprises records of **warrantless stop and search events** conducted in public places across Victoria. It was released through a Freedom of Information (FOI) request lodged by the [Centre Against Racial Profiling](https://www.centreagainstracialprofiling.au/).
 
 For a warrantless search to be lawful, police must **suspect on reasonable grounds** that the person is carrying a prohibited item, such as drugs, weapons, or graffiti implements.
 
@@ -74,31 +60,31 @@ Each search is recorded under the relevant **legal power** (e.g. *Drugs, Poisons
 - **Search item found**: an item matching the type of contraband suspected (e.g. drugs found during a drug search)  
 - **Non-search item found**: a different type of contraband was found (e.g. a weapon found during a drug search)
 
-This dataset has been cleaned and transformed to enable analysis of find rates - more commonly described as 'hit rates' - by unit type and geographical area, where this information is available. Racial categories have also been cleaned and transformed to allow meaningful comparison, as the naming conventions frequently changed in the six years from 2018 to 2023.
+This dataset has been cleaned and transformed to enable analysis of find rates - more commonly described as 'hit rates' - by unit type and geographical area, where this information is available. Racial categories have also been cleaned and transformed to allow meaningful comparison, as the naming conventions frequently changed in the seven years from 2018 to 2024. All methods are documented at [in the corresponding GitHub](https://github.com/monikasarder/VictoriaPoliceRacialSearch/. The specific racial mapping/cleaning undertaken is summarised in the Appendix below.
 
 ## Variables
 
 The following variables are available in this dataset. 
 
-- `Date`: Date of the stop and search  
-- `Area.type`: Metropolitan or regional classification  
-- `Region`, `Division`, `PSA`, `Station`: Police geographic hierarchy  
-- `Racial.appearance.original`: The original officer-perceived racial appearance category as recorded by Victoria Police  
-- `Racial.appearance.transformed`: Racial appearance category transformed to enable comparison, adjusting for multiple category name changes across the period 
-- `Gender`: Officer-perceived gender of the person searched  
-- `Age`: Age of the person searched  
-- `Age group`: Age of the person searched  
-- `Search.type - Drugs`: Search conducted under *Drugs, Poisons and Controlled Substances Act 1981 s82* — can be carried out anywhere in public with reasonable suspicion of possession of a controlled drug.  
-- `Search.type - Weapons`: Search conducted under *Control of Weapons Act 1990 s10* — can be carried out anywhere in public with reasonable suspicion of possession of a controlled weapon, dangerous article, or prohibited weapon.  
-- `Search.type - Graffiti`: Search conducted under *Graffiti Prevention Act 2007 s13* — only in specified circumstances (e.g. person aged 14+ in a prescribed area such as public transport property or trespassing). 
-- `Search.type - Firearms`: Search conducted under *Firearms Act 1996 s112Q* — only in *specified circumstances* (person subject to a Firearm Prohibition Order).  
-- `Search.type - Volatile.sub.U18`: Search conducted under *Drugs, Poisons and Controlled Substances Act 1981 ss60E–60F* — only in *specified circumstances* (person under 18 suspected of possessing/inhaling volatile substances, or supplying them to a child).  
-- `Search.type - Volatile.sub.adult`: Search conducted under the same provisions as above — applies to adults only when suspected of supplying volatile substances to a child.  
-- `Found`: Whether any prohibited item was found — regardless of whether it was the item searched for under the power invoked (e.g. both “drug power invoked, drugs found” and “drug power invoked, weapon found” count as a 'hit').  
-- `Contact.Type`: Whether the search was conducted on foot (`P`) or during a vehicle stop (`V`).  
-- `Unit.type`: Broad category of the police unit conducting the search (e.g. uniform, highway patrol).  
-- `Station.uniform`: The police station linked to the uniformed officer conducting the search (available for uniform police only).  
-- `Rank`: Rank of the officer responsible for conducting the search (e.g. Constable, Senior Constable, Sergeant).  
+- **Date**: Date of the stop and search  
+- **Area.type**: Metropolitan or regional classification  
+- **Region**, **Division**, **PSA**, **Station**: Police geographic hierarchy  
+- **Racial.appearance.original**: The original officer-perceived racial appearance category as recorded by Victoria Police  
+- **Racial.appearance.transformed**: Racial appearance category transformed to enable comparison, adjusting for multiple category name changes across the period 
+- **Gender**: Officer-perceived gender of the person searched  
+- **Age**: Age of the person searched  
+- **Age group**: Age of the person searched  
+- **Search.type - Drugs**: Search conducted under *Drugs, Poisons and Controlled Substances Act 1981 s82* — can be carried out anywhere in public with reasonable suspicion of possession of a controlled drug.  
+- **Search.type - Weapons**: Search conducted under *Control of Weapons Act 1990 s10* — can be carried out anywhere in public with reasonable suspicion of possession of a controlled weapon, dangerous article, or prohibited weapon.  
+- **Search.type - Graffiti**: Search conducted under *Graffiti Prevention Act 2007 s13* — only in specified circumstances (e.g. person aged 14+ in a prescribed area such as public transport property or trespassing). 
+- **Search.type - Firearms**: Search conducted under *Firearms Act 1996 s112Q* — only in *specified circumstances* (person subject to a Firearm Prohibition Order).  
+- **Search.type - Volatile.sub.U18**: Search conducted under *Drugs, Poisons and Controlled Substances Act 1981 ss60E–60F* — only in *specified circumstances* (person under 18 suspected of possessing/inhaling volatile substances, or supplying them to a child).  
+- **Search.type - Volatile.sub.adult**: Search conducted under the same provisions as above — applies to adults only when suspected of supplying volatile substances to a child.  
+- **Found**: Whether any prohibited item was found — regardless of whether it was the item searched for under the power invoked (e.g. both “drug power invoked, drugs found” and “drug power invoked, weapon found” count as a 'hit').  
+- **Contact.Type**: Whether the search was conducted on foot (`P`) or during a vehicle stop (`V`).  
+- **Unit.type**: Broad category of the police unit conducting the search (e.g. uniform, highway patrol).  
+- **Station.uniform**: The police station linked to the uniformed officer conducting the search (available for uniform police only).  
+- **Rank**: Rank of the officer responsible for conducting the search (e.g. Constable, Senior Constable, Sergeant).  
 
 Note that multiple powers can apply in a single search - for example where police have reasonable grounds for suspecting both weapons and drugs are present.
 
@@ -108,21 +94,113 @@ Note that multiple powers can apply in a single search - for example where polic
 
 Victoria Police records the **perceived racial appearance** of individuals at the time of the search. These categories reflect how the officer perceives the person’s racial appearance — they are *not* based on self-identification or ancestry and should be understood as indicators of how race is *perceived* in the policing context.
 
-In addition, **2,097 records** are classified under the merged **‘Mediterranean/Middle Eastern’** category. Since at least 2022, Victoria Police has combined these two appearance labels, limiting the ability to meaningfully assess outcomes for people of Middle Eastern appearance. While individuals of Mediterranean descent are often perceived as non-racialised or White, those of Middle Eastern appearance may be racialised differently in police interactions. The merger obscures this distinction, rendering these records **unusable for racial disparity analysis** involving Middle Eastern individuals.
+In addition, **2,745 records** are classified under the merged **‘Mediterranean/Middle Eastern’** category. Prior to 2022 these were separate categories. It is now not possible to analyse Victoria Police data for racial profiling of people of Middle Eastern or Arab appearance.
 
 ### Missing Data
 
-A substantial proportion of records are missing demographic information about the person who was searched.
+A substantial proportion of searches were also missing demographic information. In particular, **42% of all searches (25,851 records)** had no recorded racial appearance, while a further **2.5% (924 records)** were recorded as **‘Other’** — a category that may reflect situations where officers were unable or unwilling to assign a racial appearance category.
 
-In particular, **racial appearance information is either missing or undetermined in a significant number of cases**. Specifically, **42% of all searches (22,117 records)** have no recorded racial appearance. An additional **1.5% of searches (785 records)** are recorded as **‘Other’**, a category sometimes used when officers are unable or unwilling to assign a racial appearance. Together, these issues raise concerns about data quality and the consistency with which demographic details are recorded.
+Missing racial appearance data was not evenly distributed across policing contexts. Searches involving **vehicles** were substantially more likely to have missing racial appearance information than searches of **pedestrians**. 
 
-# Data Overview  
+Uniform police searches of **pedestrians** had the **lowest proportion of missing racial appearance data among the major policing contexts (21.6%)**, as well as the largest number of records (26,394). This makes them a more reliable subset for racial profiling analysis. Restricting the analysis to this operational context supports more meaningful “like with like” comparisons by reducing variation introduced by different unit types, policing functions, and vehicle-based enforcement activity, while also reducing the impact of missing racial appearance data.
+
+**Table 1 Percentage of searches with missing racial appearance information by unit type and contact type**
+
+```{r missing-race-unit-contact, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
+
+library(tidyverse)
+library(scales)
+library(flextable)
+
+missing_race_tbl <- dat %>%
+  mutate(
+    Missing_race = case_when(
+      is.na(Racial.appearance.transformed) ~ "Missing",
+      Racial.appearance.transformed %in% c("Missing", "Other") ~ "Missing",
+      TRUE ~ "Recorded"
+    ),
+    Contact.Type = recode(
+      Contact.Type,
+      "P" = "Pedestrian",
+      "V" = "Vehicle",
+      .default = NA_character_
+    )
+  ) %>%
+  group_by(Unit.type, Contact.Type) %>%
+  summarise(
+    Total = n(),
+    Missing_n = sum(Missing_race == "Missing", na.rm = TRUE),
+    Missing_pct = Missing_n / Total,
+    .groups = "drop"
+  ) %>%
+  mutate(
+    cell = paste0(
+      percent(Missing_pct, accuracy = 0.1),
+      " (",
+      comma(Total),
+      ")"
+    )
+  ) %>%
+  select(Unit.type, Contact.Type, cell) %>%
+  pivot_wider(
+    names_from = Contact.Type,
+    values_from = cell
+  )
+
+overall_missing_race <- dat %>%
+  mutate(
+    Missing_race = case_when(
+      is.na(Racial.appearance.transformed) ~ "Missing",
+      Racial.appearance.transformed %in% c("Missing", "Other") ~ "Missing",
+      TRUE ~ "Recorded"
+    )
+  ) %>%
+  group_by(Unit.type) %>%
+  summarise(
+    Total = n(),
+    Missing_n = sum(Missing_race == "Missing", na.rm = TRUE),
+    Missing_pct = Missing_n / Total,
+    .groups = "drop"
+  ) %>%
+  mutate(
+    Overall = paste0(
+      percent(Missing_pct, accuracy = 0.1),
+      " (",
+      comma(Total),
+      ")"
+    )
+  ) %>%
+  select(Unit.type, Overall)
+
+missing_race_tbl <- missing_race_tbl %>%
+  left_join(overall_missing_race, by = "Unit.type") %>%
+  mutate(
+    Unit.type = fct_reorder(Unit.type, Overall)
+  ) %>%
+  arrange(Unit.type) %>%
+  rename(`Unit type` = Unit.type)
+
+flextable(missing_race_tbl) %>%
+  set_header_labels(
+    Pedestrian = "Pedestrian",
+    Vehicle = "Vehicle",
+    Overall = "Overall"
+  ) %>%
+  autofit() %>%
+  align(align = "center", part = "all") %>%
+  align(j = "Unit type", align = "left", part = "all") %>%
+  bold(part = "header") %>%
+  add_footer_lines(
+    values = "Cells show percentage missing racial appearance information, with total number of searches in brackets. ‘Other’ racial appearance is treated as missing/undetermined for this table."
+  )
+```
+# Descriptive statistics  
 
 ##  Search types  
 
-Table 1 below summarises the total search powers invoked during searches. A single search could involve the application of multiple powers. For example - a person in a vehicle could be searched for both weapons and drugs.  The power most often relied upon by police when undertaking the warrantless searches recorded in this dataset is section 82 of the *Drugs, Poisons and Controlled Substances Act 1981*.
+Table 2 below summarises the total search powers invoked during searches. A single search could relate to several powers. For example - a person in a vehicle could be searched for both weapons and drugs if police reasonably suspect both types of contraband to be present.  The power most often relied for any given search is [Section 82 of the *Drugs, Poisons and Controlled Substances Act 1981*](https://classic.austlii.edu.au/au/legis/vic/consol_act/dpacsa1981422/s82.html), followed by [Section 10 of the *Control of Weapons Act 1990*](https://classic.austlii.edu.au/au/legis/vic/consol_act/cowa1990217/s10.html).
 
-**Table 1 All search powers that applied in searches by search count**
+**Table 2 All search powers that applied in searches by search count**
 ```{r searched for, echo = FALSE, warning = FALSE}
 
 finds <- dat %>%
@@ -149,15 +227,15 @@ print(dfSummary(finds,
 
 ## Persons searched 
 
-This section summarises the characteristics of individuals searched in 2018, 2019, 2022, and 2023. Note that some individuals were searched on multiple occasions.
+This section summarises the characteristics of individuals searched. Note that some individuals were searched on multiple occasions.
 
 Most searches (67%) involved people perceived by police as White. People perceived as Asian or African each accounted for more than 5% of searches. The second-largest category was “Mediterranean/Middle Eastern”; however, this category cannot be reliably used for racial profiling analysis, as it combines both White-appearing and non-White-appearing individuals.
 
-Men accounted for more than four-fifths of those searched. Over half of all searches involved people aged between 18 and 35 years.
+More than four-fifths of those searched were male. Over half of all searches involved people aged between 18 and 35 years.
 
-Searches were more likely to occur while the person was on foot (66%) than during a vehicle stop.
+Searches of pedestrians (67%) were more common than vehicle stops.
 
-**Table 2 Characteristics of persons searched**
+**Table 3 Characteristics of persons searched**
 ```{r summary persons, echo = FALSE, warning = FALSE}
 of.interest <- c("Racial.appearance.transformed","Gender","Age group", "Contact.Type")
 
@@ -182,18 +260,18 @@ print(dfSummary(dat.per,
       method = 'render')
 ```
 
-## Police undertaking searches 
+## Police searching 
 
-This section summarises the characteristics of police members and units recorded as conducting searches in 2018, 2019, 2022, and 2023.  
+This section summarises the characteristics of police members and units recorded as conducting searches.  
 
-Over the four years examined, search numbers were relatively consistent, with a slight peak in 2022.
+Over the five years examined, search numbers were relatively consistent, with a slight peak in 2022.
 
-Most searches were conducted by **Uniform police** (72%). **Transit police** were responsible for **7%** whilst **Public Order Response Team (PORT)** members - a specialist Victoria Police unit trained and equipped for large-scale public order operations such as protests and rallies - carried out **6%** of all searches.
+Most searches were conducted by **Uniform police** (72%). **Public Order Response Team (PORT)** members - a specialist Victoria Police unit trained and equipped for large-scale public order operations such as protests and rallies - and **Transit police** both carried out **8%** of warrantless searches.
 
 **Constables** and **Senior Constables** were the ranks most frequently involved, reflecting the predominance of uniformed officers in search activity.
 
 
-**Table 3 Police and units undertaking searches**
+**Table 4 Police and units undertaking searches**
 ```{r summary police, echo = FALSE, warning = FALSE}
 of.interest <- c("Unit.type","Rank.of.Member","Area.type", "Region", "Year")
 
@@ -202,7 +280,7 @@ dat.pol <- dat %>%
   mutate(across(everything(), ~ fct_infreq(.)))
 
 dat.pol <- dat.pol %>% 
-  mutate(Year = fct_relevel(as.character(Year), c("2018", "2019", "2022", "2023")))
+  mutate(Year = fct_relevel(as.character(Year), c("2018", "2019", "2022", "2023","2024")))
  
 print(dfSummary(dat.pol, 
           max.distinct.values = 10, 
@@ -214,16 +292,18 @@ print(dfSummary(dat.pol,
 ```
 
 
-# Hit Rate Patterns
+# Hit rate statistics
 
-This section summarises whether the likelihood of a “hit” (i.e. discovery of a prohibited item). It should be noted that there are two types of finds - finds of the prohibited item searched for and finds of any prohibited item. For the majority of this summary we will count *any* prohibited item find as successful. 
+This section summarises the proportion of searches which are 'successful' and result in a find. It should be noted that there are two types of finds - finds of the specific contraband invoked in the search power, and searches of a different contraband. For the majority of this summary we will count *any* prohibited item find as successful. 
 
 ##  Hit rates by search type 
 
-Table 4 shows clear variation in hit rates across search types. Searches for **graffiti items in specified places** have the highest success rate (**50.1%**). **Firearms searches of people subject to a Firearms Prohibition Order** are also relatively successful (**22%**). Among warrantless searches that can be conducted on any person in public places, **weapons-related searches** have a higher hit rate than **drug-related searches** (**33% vs 15%**). Hit rates for **volatile substances** (often referred to as “huffing”) are not reported due to a small sample size (**n < 50**).
+Table 4 shows clear variation in hit rates across search types. Searches for **graffiti items** have the highest success rate (**51%**), followed by **Firearms searches** (**21%**). It should be noted that these search types are slightly different from other three as graffiti contraband searches can take place only in a prescribed area (such as a train stations) whereas firearms searches require a Firearm Prohibition order to be in place. So while warrantless, these search types are more focused by design.
+
+Meanwhile, **weapons-related searches** and **drug-related searches**, can be carried out on any person in any public place, as can **volatile substances** (often referred to as “huffing”) searches. The hit rates for searches conducted under these powers are **33% vs 15%** respectively. Volatile substance searches are not reported due to the small sample size(**n < 100**).
 
 
-**Table 4 Hit rates by search type**
+**Table 5 Hit rates by search type**
 ```{r Finds search type, echo=FALSE, warning=FALSE, results='asis'}
 
 finds <- dat %>%
@@ -280,16 +360,13 @@ ft
 
 ## Hit rates by person searched   
 
-Hit rates vary across racial appearance, gender, and age. Compared with people perceived as **White** (**18%**), most other groups had lower hit rates—for example, **Middle Eastern** (**10%**) and **African** (**12.9%**). The only group not following this pattern is **Pacific Islander**, but this category is small (**n = 776**) and should be interpreted with caution.
+Hit rates vary across racial appearance, gender, and age. Compared with people perceived as **White** (**18.2%**), most other groups had lower hit rates—for example, **Middle Eastern** (**10.3%**),  **African** (**13.9%**) and Asian (**13.7%**). The only group not following this pattern is **Pacific Islander (19.2%)**, although the search success rate is higher only by one percentage point.
 
-By gender, **males** recorded higher hit rates than **females** (**17% vs 14%**).
+**Males** recorded higher hit rates than **females** (**18% vs 14%**).
 
-By age, **teenagers (≤17)** generally had lower hit rates than adults.
+By age, **teenagers (≤17)** generally had higher hit rates than adults.
 
-*Interpretation:* Lower hit rates mean police were less likely to find contraband when searching those groups, which can indicate a lower threshold for initiating searches for those populations. However additional analysis controlling for confounders is required before conclusions can be drawn.
-
-
-**Table 5 Hit rates by person characteristics**
+**Table 6 Hit rates by person characteristics**
 
 ```{r Finds racial, echo=FALSE, warning=FALSE, results='asis'}
 
@@ -297,7 +374,7 @@ By age, **teenagers (≤17)** generally had lower hit rates than adults.
 dat2 <- dat %>%
   mutate(
     Found = factor(Found, levels = c("Yes", "No")),  # Yes before No
-    Year  = fct_relevel(as.character(Year), "2018", "2019", "2022", "2023"),
+    Year  = fct_relevel(as.character(Year), "2018", "2019", "2022", "2023", "2024"),
     `Age group` = fct_relevel(`Age group`,
                               "Under 12", "12 to 17", "18 to 25",
                               "26 to 35", "36 to 45", "46 and over") |> fct_drop(),
@@ -351,13 +428,15 @@ ft
 
 ## Hit rates by police member and operating context  
 
-**By member type.** Hit rates were higher for **Protective Services Officers (PSOs)** than for other members. This likely reflects deployment: PSOs concentrate at train stations and nearby precincts—often in the evening—where offending (and therefore the base rate of finds) is higher. Across **ranks**, hit rates were otherwise broadly similar.
+**By member type:** Hit rates were higher for **Protective Services Officers (PSOs)** than for other members. This likely reflects deployment: PSOs concentrate at train stations and nearby precincts—often in the evening—where offending (and therefore the base rate of finds) is higher. Across **ranks**, hit rates were otherwise broadly similar.
 
-**By unit.** **Highway Patrol**, **PSO units**, and **Transit** recorded hit rates in the **25–35%** range, again consistent with searches concentrated around travel corridors and transport hubs. **Uniform police**—who conduct the largest share of searches—had a hit rate of **~17%**.
+**By unit:** **Highway Patrol**, **PSO units**, and **Transit** recorded hit rates in the **25–35%** range, again consistent with searches concentrated around travel corridors and transport hubs. **Uniform police**—who conduct the largest share of searches—had a hit rate of **~17%**. 
 
-**By area.** Overall hit rates were similar in **metropolitan vs regional** areas. However, the **North West Metro Region** (covering Melbourne’s northern and western suburbs) had a **significantly lower** hit rate than other regions. This region includes several culturally diverse and economically marginalised LGAs such as **Brimbank** and **Melbourne**.
+Find rates for searches conducted by the **Family Violence Investigation** unit were also high (one in four), however these were largely searches for firearms of an individual under an FPO (Firearms Prohibition Order). 
 
-**Over time.** Hit rates varied only **modestly** across 2018, 2019, 2022, and 2023.
+**By area:** Overall hit rates were similar in **metropolitan vs regional** areas. Within Melbourne, the **North West Metro Region** (covering Melbourne’s socio-economically less advantaged and more culturally diverse northern and western suburbs) had a **significantly lower** hit rate than other regions. That is, individuals living in these locations are searched more often (additional analysis revealed high search rate per capita), and with less success.
+
+**Over time:** Hit rates varied only **modestly** across 2018, 2019, 2022, 2023 and 2024.
 
 **Table 6 Hit rates by police member and operating context**
 ```{r Finds pol, echo=FALSE, warning=FALSE, results='asis'}
@@ -367,7 +446,7 @@ ft
 dat2 <- dat %>%
   mutate(
     Found = factor(Found, levels = c("Yes", "No")),  # Yes before No
-    Year  = fct_relevel(as.character(Year), "2018", "2019", "2022", "2023"),
+    Year  = fct_relevel(as.character(Year), "2018", "2019", "2022", "2023", "2024"),
     # Frequency order for operating-context variables
     across(
       .cols = all_of(c("Unit.type", "Rank.of.Member", "Area.type", "Region")),
@@ -421,28 +500,27 @@ ft
 # Conclusion
 
 
-The descriptive results highlight both the promise and the limits of raw hit-rate comparisons. Clear disparities appear across appearance groups and geographic divisions, but unadjusted figures cannot fully resolve whether these patterns reflect differences in policing thresholds or in underlying population composition.  
+The descriptive results highlight both the promise and the limits of raw hit-rate comparisons as a method for identifying racial profiling. Search type, unit type and geography all influence the find rate, and must be controlled for in order to determine whether differences in find rates across racial groupings are driven by racism, or some other operational or socio-economic factor. 
 
-To move beyond description, we next narrow the scope to a more standardised setting — crime specific searches by uniformed officers on foot patrols. By examining first drug, and then weapons searches, we examine the bulk of everyday encounters and removes confounding variation in search type and policing unit. Within that restricted frame, we can apply regression models to test whether racial disparities in hit rates remain once gender, year, and geography are accounted for.  
+A lower find rate in neighbourhoods with greater numbers of migrants of any given appearance may point to racial inequality of society at large, but it does not necessarily point to racism in the exercise of the police discretion to search. It is a well established phenomenon that police tend to conduct more searches in locations with higher crime rates, with less success. 
 
-In this way, the descriptive overview provides the baseline picture, while the next section introduces the analytic tools needed to determine whether the disparities observed are localised anomalies or evidence of a broader, systematic pattern in Victoria Police stop-and-search practices.
+The high rate of missing racial appearance fields in search entries for many units also supports a restriction of analysis to those units where racial completeness is nearer to 80%.
 
-
-
+The preferred approach is to restrict analysis of racial profiling to pedestrian searches conducted by uniform officers, looking at drug and weapon searches in separate analyses.
 
 ---
 
 [^data]: Dataset size, years, and warrantless scope; “any item found” definition for hit rate. :contentReference[oaicite:0]{index=0} :contentReference[oaicite:1]{index=1} :contentReference[oaicite:2]{index=2}
 
-[^types]: Hit rates by search type (graffiti 50.1%; firearms (FPO) 22%; weapons 33% vs drugs 15%). :contentReference[oaicite:3]{index=3}
+[^types]: Hit rates by search type (graffiti 50.8%; firearms (FPO) 20.5%; weapons 32.4% vs drugs 15.4%). :contentReference[oaicite:3]{index=3}
 
 [^unit]: Higher PSO hit rates; unit band 25–35%; Uniform ~17%. :contentReference[oaicite:4]{index=4}
 
 [^area]: Metro vs regional similar overall; **NWMR** significantly lower; NWMR includes diverse/marginalised LGAs (Brimbank, Melbourne). :contentReference[oaicite:5]{index=5}
 
-[^person]: Racial, gender, and age hit-rate differences (White 18%, Middle Eastern 10%, African 12.9%; males 17% vs females 14%; ≤17 lower). :contentReference[oaicite:6]{index=6}
+[^person]: Racial, gender, and age hit-rate differences (White 18%, Middle Eastern 10%, African 13.9%; males 18% vs females 14%; ≤17 higher). :contentReference[oaicite:6]{index=6}
 
-[^missing]: Missing racial appearance (**42%**) and **1.5% ‘Other’**. :contentReference[oaicite:7]{index=7}
+[^missing]: Missing racial appearance (**42%**) and **2.5% ‘Other’**. :contentReference[oaicite:7]{index=7}
 
 
 # Appendix – Ethnic Appearance Mapping
