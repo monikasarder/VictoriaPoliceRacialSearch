@@ -166,7 +166,7 @@ fdat <- search.dat %>%
     )
   )
 
-table(fdat$Unit.type)
+table(fdat$Racial.Appearance)
 
 # ────────────────────────────────────────────────────────────────────────────────
 # Racial appearance harmonisation

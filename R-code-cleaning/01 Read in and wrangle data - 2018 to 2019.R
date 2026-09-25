@@ -133,6 +133,7 @@ dat.s$Contact.Type <- ifelse(
   "P"
 )
 
+table(dat.s$Racial.Appearance)
 # Set racial appearance fields
 dat.s <- dat.s %>%
   mutate(
